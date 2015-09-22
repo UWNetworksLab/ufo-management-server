@@ -39,7 +39,7 @@ class User(ndb.Model):
   def GetUsers():
     q = User.query()
     return q.fetch()
-  
+
   @staticmethod
   def GetCount():
     q = User.query()
