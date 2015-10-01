@@ -4,18 +4,30 @@ api_version: 1
 threadsafe: true
 
 libraries:
-- name: webapp2
-  version: latest
 - name: jinja2
+  version: latest
+- name: pycrypto
+  version: latest
+- name: webapp2
   version: latest
 
 handlers:
+- url: /token.*
+  script: access_token.app
+  login: required
+  secure: always
+
 - url: /setup
   script: setup.app
   login: required
   secure: always
 
+- url: /user.*
+  script: user.app
+  login: required
+  secure: always
+
 - url: /.*
-  script: main.app
+  script: user.app
   login: required
   secure: always
