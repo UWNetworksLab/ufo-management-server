@@ -7,11 +7,13 @@ library.
 from appengine_config import JINJA_ENVIRONMENT
 from auth import oauth_decorator
 import base64
+import binascii
 from Crypto.PublicKey import RSA
 from datastore import Token
 from datastore import User
 from error_handlers import Handle500
 from google.appengine.api import app_identity
+import json
 import os
 import webapp2
 
@@ -31,6 +33,31 @@ def _GenerateKeyPair():
   key_pair['public_key'] = public_key
 
   return key_pair
+
+def _GenerateTokenPayload(user_tokens):
+  """Generate the token payload data for all users and their public keys.
+
+    Args:
+      user_tokens: A dictionary with email as key, and a list
+          of their tokens as values.
+
+    Returns:
+      user_token_payloads: A dictionary with email as key, and a list
+          of their token payloads as values.
+  """
+  user_token_payloads = {}
+  for email, tokens in user_tokens.iteritems():
+    token_payloads = []
+    for token in tokens:
+      data = {}
+      data['email'] = email
+      data['public_key'] = token.public_key
+      json_data = json.dumps(data)
+      b64_data = binascii.b2a_base64(json_data)
+      token_payloads.append(b64_data)
+    user_token_payloads[email] = token_payloads
+
+  return user_token_payloads
 
 def _IsAuthorized(email, public_key):
   """Whether the public key is authorized to access the proxy service.
@@ -67,9 +94,11 @@ def GetAllUserTokens():
 def _RenderTokenListTemplate():
   """Render a list of users and their tokens."""
   user_tokens = GetAllUserTokens()
+  user_token_payloads = _GenerateTokenPayload(user_tokens)
+
   template_values = {
       'host': app_identity.get_default_version_hostname(),
-      'user_tokens': user_tokens
+      'user_token_payloads': user_token_payloads
   }
   template = JINJA_ENVIRONMENT.get_template('templates/token.html')
   return template.render(template_values)
@@ -96,9 +125,9 @@ class DeleteTokenHandler(webapp2.RequestHandler):
 
   @oauth_decorator.oauth_required
   def get(self):
-    email = self.request.get('email')
-    public_key = self.request.get('public_key')
-    Token.DeleteToken(email, public_key)
+    token_payload = self.request.get('token_payload')
+    json_data = json.loads(binascii.a2b_base64(token_payload))
+    Token.DeleteToken(json_data['email'], json_data['public_key'])
 
     self.response.write(_RenderTokenListTemplate())
 
@@ -107,16 +136,18 @@ class AuthorizeTokenHandler(webapp2.RequestHandler):
 
   @oauth_decorator.oauth_required
   def get(self):
-    email = self.request.get('email')
-    b64_public_key = self.request.get('public_key')
-    is_authorized = _IsAuthorized(email, b64_public_key)
+    token_payload = self.request.get('token_payload')
+    json_data = json.loads(binascii.a2b_base64(token_payload))
+    is_authorized = _IsAuthorized(json_data['email'], json_data['public_key'])
 
     html = ('<html><body>'
             'email: %s<br />'
             'public_key: %s<br />'
             'is_authorized: %s'
             '</body></html>')
-    self.response.write(html % (email, b64_public_key, is_authorized))
+    self.response.write(html % (json_data['email'],
+                                json_data['public_key'],
+                                is_authorized))
 
 
 app = webapp2.WSGIApplication([
