@@ -125,7 +125,7 @@ class DeleteTokenHandler(webapp2.RequestHandler):
 
   @oauth_decorator.oauth_required
   def get(self):
-    token_payload = self.request.get('token_payload')
+    token_payload = self.request.get('payload')
     json_data = json.loads(binascii.a2b_base64(token_payload))
     Token.DeleteToken(json_data['email'], json_data['public_key'])
 
@@ -136,7 +136,7 @@ class AuthorizeTokenHandler(webapp2.RequestHandler):
 
   @oauth_decorator.oauth_required
   def get(self):
-    token_payload = self.request.get('token_payload')
+    token_payload = self.request.get('payload')
     json_data = json.loads(binascii.a2b_base64(token_payload))
     is_authorized = _IsAuthorized(json_data['email'], json_data['public_key'])
 
