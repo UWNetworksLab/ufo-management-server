@@ -26,11 +26,13 @@ def _GenerateKeyPair():
   private_key = base64.urlsafe_b64encode(rsa_key.exportKey())
   public_key = base64.urlsafe_b64encode(rsa_key.publickey().exportKey())
 
-  key_pair = {}
-  key_pair['private_key'] = private_key
-  key_pair['public_key'] = public_key
+  key_pair = {
+    'private_key': private_key,
+    'public_key': public_key
+  }
 
   return key_pair
+
 
 def _IsAuthorized(email, public_key):
   """Whether the public key is authorized to access the proxy service.
@@ -50,6 +52,7 @@ def _IsAuthorized(email, public_key):
 
   return False
 
+
 def GetAllUserTokens():
   """Get all users and their tokens.
 
@@ -63,6 +66,7 @@ def GetAllUserTokens():
     user_tokens[user.email] = Token.GetTokens(user.email)
 
   return user_tokens
+
 
 def _RenderTokenListTemplate():
   """Render a list of users and their tokens."""
