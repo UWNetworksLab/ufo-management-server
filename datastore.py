@@ -23,9 +23,9 @@ class User(ndb.Model):
     """
     email = directory_user['primaryEmail']
     user_key = ndb.Key(User, hashlib.sha256(email).hexdigest())
-    user_entity = User(key=user_key)
-    user_entity.email = directory_user['primaryEmail']
-    user_entity.name = directory_user['name']['fullName']
+    user_entity = User(key=user_key,
+                       email=directory_user['primaryEmail'],
+                       name=directory_user['name']['fullName'])
     return user_entity
 
   @staticmethod
@@ -118,9 +118,9 @@ class Token(ndb.Model):
         User, hashlib.sha256(email).hexdigest(),
         Token, hashlib.sha256(key_pair['public_key']).hexdigest())
 
-    token = Token(key=token_key)
-    token.public_key = key_pair['public_key']
-    token.private_key = key_pair['private_key']
+    token = Token(key=token_key,
+                  public_key=key_pair['public_key'],
+                  private_key=key_pair['private_key'])
     token.put()
 
   @staticmethod
