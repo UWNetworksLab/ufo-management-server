@@ -63,7 +63,7 @@ def _GenerateTokenPayload(user_tokens):
 
 
 def _IsAuthorized(email, public_key):
-  """Whether the public key is authorized to access the proxy service.
+  """Whether the user the public key belongs to is authorized to access.
 
   Returns:
     boolean: True if authorized, False if not.
