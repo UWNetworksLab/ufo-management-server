@@ -1,0 +1,18 @@
+{% block body %}
+  <ul>
+  {% for email, token_payloads in user_token_payloads.iteritems() %}
+    <li>
+      <b>{{ email }}</b>
+      <a href="http://{{ host }}/token/add?email={{ email }}">(add token)</a>
+      <br />
+      {% for token_payload in token_payloads %}
+        token_payload: {{ token_payload }} &nbsp;&nbsp;&nbsp; 
+        <a href="http://{{ host }}/token/authorize?payload={{ token_payload }}">(authorize)</a>
+        <a href="http://{{ host }}/token/delete?payload={{ token_payload }}">(delete)</a>
+        <br />
+      {% endfor %}
+    </li>
+    <br />
+  {% endfor %}
+  </ul>
+{% endblock %}

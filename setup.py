@@ -8,6 +8,7 @@ import webapp2
 
 
 class Setup(webapp2.RequestHandler):
+  """Setup the server on first run."""
 
   @oauth_decorator.oauth_required
   def get(self):
@@ -17,7 +18,7 @@ class Setup(webapp2.RequestHandler):
 
     directory_service = GoogleDirectoryService(oauth_decorator)
     directory_users = directory_service.GetUsers()
-    User.InsertMany(directory_users)
+    User.InsertUsers(directory_users)
     self.response.write('Setup completed.')
 
 
