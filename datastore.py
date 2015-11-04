@@ -236,5 +236,5 @@ class OAuth(ndb.Model):
 
   @staticmethod
   def Flush():
-    # Ensure there's only one key.
+    # Make sure to update the memcache
     memcache.flush_all()

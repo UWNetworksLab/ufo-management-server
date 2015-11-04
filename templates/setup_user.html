@@ -1,0 +1,7 @@
+{% block body %}
+  <form method="post" action="http://{{ host }}/setup/users">
+    <br><br>
+    <input type="hidden" name="xsrf" value="{{ xsrf_token }}">
+    <input type="submit" value="Set Users?">
+  </form>
+{% endblock %}
