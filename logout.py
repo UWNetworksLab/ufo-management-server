@@ -2,12 +2,8 @@
 
 from google.appengine.api import users
 from auth import oauth_decorator
-#from datastore import User
-#from datastore import OAuth
 from error_handlers import Handle500
-#from google_directory_service import GoogleDirectoryService
 import webapp2
-#import admin
 
 
 
