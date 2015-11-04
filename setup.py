@@ -8,6 +8,7 @@ from error_handlers import Handle500
 from google_directory_service import GoogleDirectoryService
 import webapp2
 import xsrf
+import admin
 
 
 JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token
@@ -35,16 +36,14 @@ def _RenderSetupUsersTemplate():
   return template.render(template_values)
 
 
-class Setup(webapp2.RequestHandler):
-  """Setup the server on first run."""
-
-  def get(self):
-    self.response.write(_RenderSetupOAuthClientTemplate())
-
-
 class SetupOAuthClientHandler(webapp2.RequestHandler):
   """Setup a client in the datastore."""
 
+  @admin.require_admin
+  def get(self):
+    self.response.write(_RenderSetupOAuthClientTemplate())
+
+  @admin.require_admin
   @xsrf.xsrf_protect
   def post(self):
     client_id = self.request.get('client_id')
@@ -57,6 +56,7 @@ class SetupOAuthClientHandler(webapp2.RequestHandler):
 class SetupUsersHandler(webapp2.RequestHandler):
   """Setup users in the datastore."""
 
+  @admin.require_admin
   @xsrf.xsrf_protect
   @oauth_decorator.oauth_required
   def post(self):
@@ -72,7 +72,6 @@ class SetupUsersHandler(webapp2.RequestHandler):
 
 
 app = webapp2.WSGIApplication([
-    ('/setup', Setup),
     ('/setup/oauthclient', SetupOAuthClientHandler),
     ('/setup/users', SetupUsersHandler),
     #(oauth_decorator.callback_path, oauth_decorator.callback_handler()),
