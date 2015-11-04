@@ -7,25 +7,31 @@ from datastore import OAuth
 from error_handlers import Handle500
 from google_directory_service import GoogleDirectoryService
 import webapp2
+import xsrf
 
 
-def _RenderSetupClientTemplate():
+JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token
+
+
+def _RenderSetupOAuthClientTemplate():
   """Render a setup page with inputs for client id and secret."""
   template_values = {
       'host': 'localhost:9999',
       'client_id': 'Your client_id goes here',
-      'client_secret': 'Your client_secret goes here'
+      'client_secret': 'Your client_secret goes here',
+      'xsrf_token': xsrf.xsrf_token(),
   }
-  template = JINJA_ENVIRONMENT.get_template('templates/setupClient.html')
+  template = JINJA_ENVIRONMENT.get_template('templates/setup_client.html')
   return template.render(template_values)
 
 
 def _RenderSetupUsersTemplate():
   """Render a setup page with an import users button."""
   template_values = {
-      'host': 'localhost:9999'
+      'host': 'localhost:9999',
+      'xsrf_token': xsrf.xsrf_token(),
   }
-  template = JINJA_ENVIRONMENT.get_template('templates/setupUser.html')
+  template = JINJA_ENVIRONMENT.get_template('templates/setup_user.html')
   return template.render(template_values)
 
 
@@ -33,13 +39,14 @@ class Setup(webapp2.RequestHandler):
   """Setup the server on first run."""
 
   def get(self):
-    self.response.write(_RenderSetupClientTemplate())
+    self.response.write(_RenderSetupOAuthClientTemplate())
 
 
-class SetupClientHandler(webapp2.RequestHandler):
+class SetupOAuthClientHandler(webapp2.RequestHandler):
   """Setup a client in the datastore."""
 
-  def get(self):
+  @xsrf.xsrf_protect
+  def post(self):
     client_id = self.request.get('client_id')
     client_secret = self.request.get('client_secret')
     OAuth.SetEntity(client_id, client_secret)
@@ -50,8 +57,9 @@ class SetupClientHandler(webapp2.RequestHandler):
 class SetupUsersHandler(webapp2.RequestHandler):
   """Setup users in the datastore."""
 
+  @xsrf.xsrf_protect
   @oauth_decorator.oauth_required
-  def get(self):
+  def post(self):
     OAuth.Flush()
     if User.GetCount() > 0:
       return self.response.write('Unable to setup because app is already'
@@ -65,7 +73,7 @@ class SetupUsersHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/setup', Setup),
-    ('/setup/client', SetupClientHandler),
+    ('/setup/oauthclient', SetupOAuthClientHandler),
     ('/setup/users', SetupUsersHandler),
     #(oauth_decorator.callback_path, oauth_decorator.callback_handler()),
 ], debug=True)
