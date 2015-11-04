@@ -22,6 +22,11 @@ handlers:
   login: required
   secure: always
 
+- url: /logout.*
+  script: logout.app
+  login: required
+  secure: always
+
 - url: /user.*
   script: user.app
   login: required
