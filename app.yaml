@@ -17,7 +17,7 @@ handlers:
   login: required
   secure: always
 
-- url: /setup
+- url: /setup.*
   script: setup.app
   login: required
   secure: always

@@ -1,0 +1,11 @@
+{% block body %}
+  <form action="http://{{ host }}/setup/client?client_id={{ client_id }}%26client_secret={{ client_secret }}">
+    client_id:<br>
+    <input type="text" name="client_id" value="{{ client_id }}">
+    <br>
+    client_secret:<br>
+    <input type="text" name="client_secret" value="{{ client_secret }}">
+    <br><br>
+    <input type="submit" value="Submit">
+  </form>
+{% endblock %}

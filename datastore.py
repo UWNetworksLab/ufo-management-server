@@ -2,6 +2,7 @@
 
 import hashlib
 
+from google.appengine.api import memcache
 from google.appengine.ext import ndb
 
 
@@ -196,13 +197,44 @@ class OAuth(ndb.Model):
   CLIENT_SECRET_ID = 'my_client_secret'
 
   client_secret = ndb.StringProperty()
+  client_id = ndb.StringProperty()
 
   @staticmethod
   def GetSecret():
+    entity = OAuth.GetEntity()
+    return entity.client_secret
+
+  @staticmethod
+  def GetClientId():
+    entity = OAuth.GetEntity()
+    return entity.client_id
+
+  @staticmethod
+  def GetEntity():
     # Ensure there's only one key.
     entity = OAuth.get_by_id(OAuth.CLIENT_SECRET_ID)
     if not entity:
-      entity = OAuth(id=OAuth.CLIENT_SECRET_ID,
+      OAuth.SetDefaultEntity()
+      entity = OAuth.get_by_id(OAuth.CLIENT_SECRET_ID)
+    return entity
+
+  @staticmethod
+  def SetDefaultEntity():
+    # Ensure there's only one key.
+    entity = OAuth(id=OAuth.CLIENT_SECRET_ID,
+                     client_id='Change me to the real id.',
                      client_secret='Change me to the real secret.')
-      entity.put()
-    return entity.client_secret
+    entity.put()
+
+  @staticmethod
+  def SetEntity(client_id, client_secret):
+    # Ensure there's only one key.
+    entity = OAuth(id=OAuth.CLIENT_SECRET_ID,
+                     client_id=client_id,
+                     client_secret=client_secret)
+    entity.put()
+
+  @staticmethod
+  def Flush():
+    # Ensure there's only one key.
+    memcache.flush_all()
