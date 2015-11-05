@@ -59,7 +59,7 @@ class SetupUsersHandler(webapp2.RequestHandler):
   @admin.require_admin
   @xsrf.xsrf_protect
   @oauth_decorator.oauth_required
-  def post(self):
+  def get(self):
     OAuth.Flush()
     if User.GetCount() > 0:
       return self.response.write('Unable to setup because app is already'
@@ -74,7 +74,7 @@ class SetupUsersHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/setup/oauthclient', SetupOAuthClientHandler),
     ('/setup/users', SetupUsersHandler),
-    #(oauth_decorator.callback_path, oauth_decorator.callback_handler()),
+    (oauth_decorator.callback_path, oauth_decorator.callback_handler()),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.
