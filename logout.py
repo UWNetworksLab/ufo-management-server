@@ -1,7 +1,6 @@
 """The logout module to facilitate testing switching between admin users."""
 
 from google.appengine.api import users
-from auth import oauth_decorator
 from error_handlers import Handle500
 import webapp2
 
@@ -10,7 +9,6 @@ import webapp2
 class LogoutHandler(webapp2.RequestHandler):
   """Logs the current user out."""
 
-  @oauth_decorator.oauth_required
   def get(self):
     logout_url = users.create_logout_url(self.request.url)
     self.redirect(logout_url)
@@ -18,7 +16,6 @@ class LogoutHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/logout', LogoutHandler),
-    (oauth_decorator.callback_path, oauth_decorator.callback_handler()),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.
