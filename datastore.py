@@ -1,4 +1,7 @@
-"""Module to interact with datastore models and helper functions."""
+"""Module to interact with datastore models and helper functions.
+
+TODO(henry): Refactor the common methods (get, insert, delete) into base class.
+"""
 
 import hashlib
 
