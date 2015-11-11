@@ -59,7 +59,7 @@ class SetupUsersHandler(webapp2.RequestHandler):
   @admin.require_admin
   @xsrf.xsrf_protect
   @oauth_decorator.oauth_required
-  def post(self):
+  def get(self):
     OAuth.Flush()
     if User.GetCount() > 0:
       return self.response.write('Unable to setup because app is already'
