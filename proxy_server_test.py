@@ -33,31 +33,26 @@ FAKE_FINGERPRINT = '11:22:33:44'
 class ProxyServerTest(unittest.TestCase):
 
   def setUp(self):
-    pass
+    self.testapp = webtest.TestApp(proxy_server.app)
 
   @patch('proxy_server._RenderListProxyServerTemplate')
   def testListProxyServersHandler(self, mock_render_list_template):
-    request = webapp2.Request.blank('/proxyserver/list')
-    response = request.get_response(proxy_server.app)
-
+    self.testapp.get('/proxyserver/list')
     mock_render_list_template.assert_called_once_with()
 
   @patch('proxy_server._RenderAddProxyServerTemplate')
   def testAddProxyServersGetHandler(self, mock_render_add_template):
-    request = webapp2.Request.blank('/proxyserver/add')
-    response = request.get_response(proxy_server.app)
-
+    self.testapp.get('/proxyserver/add')
     mock_render_add_template.assert_called_once_with()
 
   @patch('datastore.ProxyServer.CreateEntity')
   def testAddProxyServersPostHandler(self, mock_create_entity):
-    request = webapp2.Request.blank('/proxyserver/add')
-    request.method = 'POST'
-    response = request.get_response(proxy_server.app)
+    response = self.testapp.post('/proxyserver/add')
 
     mock_create_entity.assert_called_once_with('', '', '')
     self.assertEqual(response.status_int, 302)
     self.assertTrue('/proxyserver/list' in response.location)
+
 
   def testRenderAddProxyServerTemplate(self):
     add_proxy_server_template = proxy_server._RenderAddProxyServerTemplate()
