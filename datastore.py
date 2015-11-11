@@ -187,6 +187,39 @@ class Token(ndb.Model):
     return user, token
 
 
+class ProxyServer(ndb.Model):
+  """Store data related to the proxy servers."""
+
+  ip_address = ndb.StringProperty()
+  ssh_private_key = ndb.TextProperty()
+  fingerprint = ndb.StringProperty()
+
+  @staticmethod
+  def CreateEntity(ip_address, ssh_private_key, fingerprint):
+    entity = ProxyServer(ip_address=ip_address,
+                         ssh_private_key=ssh_private_key,
+                         fingerprint=fingerprint)
+    entity.put()
+
+  @staticmethod
+  def GetProxyServer(id):
+    entity = ProxyServer.get_by_id(id)
+    return entity
+
+  @staticmethod
+  def GetProxyServers():
+    q = ProxyServer.query()
+    return q.fetch()
+
+  @staticmethod
+  def UpdateProxyServer(id, ip_address, ssh_private_key, fingerprint):
+    entity = GetProxyServer(id)
+    entity.ip_address = ip_address
+    entity.ssh_private_key = ssh_private_key
+    entity.fingerprint = fingerprint
+    entity.put()
+
+
 class OAuth(ndb.Model):
   """Store the client secret so that it's not checked into source code.
 
@@ -222,16 +255,16 @@ class OAuth(ndb.Model):
   def SetDefaultEntity():
     # Ensure there's only one key.
     entity = OAuth(id=OAuth.CLIENT_SECRET_ID,
-                     client_id='Change me to the real id.',
-                     client_secret='Change me to the real secret.')
+                   client_id='Change me to the real id.',
+                   client_secret='Change me to the real secret.')
     entity.put()
 
   @staticmethod
   def SetEntity(client_id, client_secret):
     # Ensure there's only one key.
     entity = OAuth(id=OAuth.CLIENT_SECRET_ID,
-                     client_id=client_id,
-                     client_secret=client_secret)
+                   client_id=client_id,
+                   client_secret=client_secret)
     entity.put()
 
   @staticmethod
