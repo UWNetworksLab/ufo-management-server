@@ -16,7 +16,7 @@ class BaseModel(ndb.Model):
     """Get all entities from datastore.
 
     Args:
-      cls is an object that holds sub-class itself, not an instance
+      cls is an object that holds the sub-class itself, not an instance
       of the sub-class.
 
     Returns:
