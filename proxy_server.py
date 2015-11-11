@@ -19,7 +19,7 @@ def _RenderAddProxyServerTemplate():
 
 def _RenderListProxyServerTemplate():
   """Render a list of proxy servers."""
-  proxy_servers = ProxyServer.GetProxyServers()
+  proxy_servers = ProxyServer.GetAll()
   template_values = {
       'host': app_identity.get_default_version_hostname(),
       'proxy_servers': proxy_servers

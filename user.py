@@ -10,7 +10,7 @@ import webapp2
 
 def _RenderUserListTemplate():
   """Render a list of users."""
-  users = User.GetUsers()
+  users = User.GetAll()
   template_values = {
       'host': app_identity.get_default_version_hostname(),
       'users': users

@@ -58,14 +58,14 @@ class ProxyServerTest(unittest.TestCase):
     add_proxy_server_template = proxy_server._RenderAddProxyServerTemplate()
     self.assertTrue('ip address:' in add_proxy_server_template)
 
-  @patch('datastore.ProxyServer.GetProxyServers')
-  def testRenderListProxyServerTemplate(self, mock_get_proxy_servers):
+  @patch('datastore.ProxyServer.GetAll')
+  def testRenderListProxyServerTemplate(self, mock_get_all):
     fake_proxy_server = ProxyServer(id='11111',
                                     ip_address=FAKE_IP_ADDRESS,
                                     ssh_private_key=FAKE_SSH_PRIVATE_KEY,
                                     fingerprint=FAKE_FINGERPRINT)
     fake_proxy_servers = [fake_proxy_server]
-    mock_get_proxy_servers.return_value = fake_proxy_servers
+    mock_get_all.return_value = fake_proxy_servers
     list_proxy_server_template = proxy_server._RenderListProxyServerTemplate()
 
     self.assertTrue('add new proxy server' in list_proxy_server_template)
