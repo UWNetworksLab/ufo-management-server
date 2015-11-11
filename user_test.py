@@ -48,8 +48,8 @@ class UserTest(unittest.TestCase):
   def testRenderUserListTemplate(self):
     fake_user = User(email=FAKE_EMAIL, name=FAKE_NAME)
     fake_users = [fake_user]
-    with patch.object(user.User, 'GetUsers') as mock_get_users:
-      mock_get_users.return_value = fake_users
+    with patch.object(user.User, 'GetAll') as mock_get_all:
+      mock_get_all.return_value = fake_users
       user_list_template = user._RenderUserListTemplate()
       self.assertTrue('list tokens' in user_list_template)
       self.assertTrue(

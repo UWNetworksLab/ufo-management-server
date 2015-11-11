@@ -9,7 +9,20 @@ from google.appengine.api import memcache
 from google.appengine.ext import ndb
 
 
-class User(ndb.Model):
+class BaseModel(ndb.Model):
+  
+  @classmethod
+  def GetAll(cls):
+    """Get all entities from datastore.
+
+    Returns:
+      A list of datastore entities.
+    """
+    q = cls.query()
+    return q.fetch()
+
+  
+class User(BaseModel):
   """Datastore service to handle dasher users."""
 
   email = ndb.StringProperty()
@@ -62,16 +75,6 @@ class User(ndb.Model):
     """
     entity_id = hashlib.sha256(email).hexdigest()
     return User.get_by_id(entity_id)
-
-  @staticmethod
-  def GetUsers():
-    """Get all users from datastore.
-
-    Returns:
-      A list of user datastore entities.
-    """
-    q = User.query()
-    return q.fetch()
 
   @staticmethod
   def GetCount():
@@ -190,7 +193,7 @@ class Token(ndb.Model):
     return user, token
 
 
-class ProxyServer(ndb.Model):
+class ProxyServer(BaseModel):
   """Store data related to the proxy servers."""
 
   ip_address = ndb.StringProperty()
@@ -208,11 +211,6 @@ class ProxyServer(ndb.Model):
   def GetProxyServer(id):
     entity = ProxyServer.get_by_id(id)
     return entity
-
-  @staticmethod
-  def GetProxyServers():
-    q = ProxyServer.query()
-    return q.fetch()
 
   @staticmethod
   def UpdateProxyServer(id, ip_address, ssh_private_key, fingerprint):
