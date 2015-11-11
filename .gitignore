@@ -1,4 +1,4 @@
-.project
+*.project
 .pydevproject
 *.DS_Store
 *.pyc
