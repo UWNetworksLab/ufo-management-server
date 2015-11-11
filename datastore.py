@@ -15,6 +15,10 @@ class BaseModel(ndb.Model):
   def GetAll(cls):
     """Get all entities from datastore.
 
+    Args:
+      cls is an object that holds sub-class itself, not an instance
+      of the sub-class.
+
     Returns:
       A list of datastore entities.
     """
