@@ -89,7 +89,7 @@ def GetAllUserTokens():
         of their tokens as values.
   """
   user_tokens = {}
-  users = User.GetUsers()
+  users = User.GetAll()
   for user in users:
     user_tokens[user.email] = Token.GetTokens(user.email)
 

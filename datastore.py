@@ -3,6 +3,8 @@
 TODO(henry): Refactor the common methods (get, insert, delete) into base class.
 """
 
+import hashlib
+
 from google.appengine.api import memcache
 from google.appengine.ext import ndb
 
@@ -10,7 +12,7 @@ from google.appengine.ext import ndb
 class BaseModel(ndb.Model):
   
   @classmethod
-  def GetCount():
+  def GetCount(cls):
     """Get a count of all the entities in the datastore.
 
     Returns:
