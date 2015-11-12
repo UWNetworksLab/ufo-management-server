@@ -3,14 +3,22 @@
 TODO(henry): Refactor the common methods (get, insert, delete) into base class.
 """
 
-import hashlib
-
 from google.appengine.api import memcache
 from google.appengine.ext import ndb
 
 
 class BaseModel(ndb.Model):
   
+  @classmethod
+  def GetCount():
+    """Get a count of all the entities in the datastore.
+
+    Returns:
+      An integer of all the entities in the datastore.
+    """
+    q = cls.query()
+    return q.count()
+
   @classmethod
   def GetAll(cls):
     """Get all entities from datastore.
@@ -24,6 +32,19 @@ class BaseModel(ndb.Model):
     """
     q = cls.query()
     return q.fetch()
+  
+  @classmethod
+  def Get(cls, id):
+    """Get a single entity by id from datastore.
+
+    Args:
+      cls is an object that holds the sub-class itself, not an instance
+      of the sub-class.
+
+    Returns:
+      A datastore entity.
+    """
+    return cls.get_by_id(id)
 
   
 class User(BaseModel):
@@ -70,26 +91,8 @@ class User(BaseModel):
       user_entities.append(User._CreateUser(directory_user))
     ndb.put_multi(user_entities)
 
-  @staticmethod
-  def GetUser(email):
-    """Get a user from the datastore.
-
-    Returns:
-      A datastore entity of the user.
-    """
-    entity_id = hashlib.sha256(email).hexdigest()
-    return User.get_by_id(entity_id)
-
-  @staticmethod
-  def GetCount():
-    """Get a count of all the users in the datastore.
-
-    Returns:
-      An integer of all the users in the datastore.
-    """
-    q = User.query()
-    return q.count()
-
+  # TODO(ethan): Move this into the base model when removing
+  # the token datastore.
   @staticmethod
   def DeleteUser(email):
     """Delete a user and his tokens from the datastore.
@@ -205,20 +208,15 @@ class ProxyServer(BaseModel):
   fingerprint = ndb.StringProperty()
 
   @staticmethod
-  def CreateEntity(ip_address, ssh_private_key, fingerprint):
+  def Insert(ip_address, ssh_private_key, fingerprint):
     entity = ProxyServer(ip_address=ip_address,
                          ssh_private_key=ssh_private_key,
                          fingerprint=fingerprint)
     entity.put()
 
   @staticmethod
-  def GetProxyServer(id):
-    entity = ProxyServer.get_by_id(id)
-    return entity
-
-  @staticmethod
-  def UpdateProxyServer(id, ip_address, ssh_private_key, fingerprint):
-    entity = GetProxyServer(id)
+  def Update(id, ip_address, ssh_private_key, fingerprint):
+    entity = ProxyServer.Get(id)
     entity.ip_address = ip_address
     entity.ssh_private_key = ssh_private_key
     entity.fingerprint = fingerprint

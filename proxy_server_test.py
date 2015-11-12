@@ -45,14 +45,13 @@ class ProxyServerTest(unittest.TestCase):
     self.testapp.get('/proxyserver/add')
     mock_render_add_template.assert_called_once_with()
 
-  @patch('datastore.ProxyServer.CreateEntity')
-  def testAddProxyServersPostHandler(self, mock_create_entity):
+  @patch('datastore.ProxyServer.Insert')
+  def testAddProxyServersPostHandler(self, mock_insert):
     response = self.testapp.post('/proxyserver/add')
 
-    mock_create_entity.assert_called_once_with('', '', '')
+    mock_insert.assert_called_once_with('', '', '')
     self.assertEqual(response.status_int, 302)
     self.assertTrue('/proxyserver/list' in response.location)
-
 
   def testRenderAddProxyServerTemplate(self):
     add_proxy_server_template = proxy_server._RenderAddProxyServerTemplate()
