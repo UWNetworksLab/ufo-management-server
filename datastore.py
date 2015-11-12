@@ -53,9 +53,10 @@ class BaseModel(ndb.Model):
     """Delete an entity from the datastore.
 
     Args:
-      id: A string of the entity's id.
+      id: A integer or a string of the entity's id.  Auto assigned id will be
+          integers.
     """
-    key = ndb.Key(cls, int(id))
+    key = ndb.Key(cls, id)
     key.delete()
 
 

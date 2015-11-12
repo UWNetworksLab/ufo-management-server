@@ -59,7 +59,7 @@ class ProxyServerTest(unittest.TestCase):
                                    mock_render_list_template):
     fake_id = 11111
     self.testapp.get('/proxyserver/delete?id=' + str(fake_id))
-    mock_delete.assert_called_once_with(unicode(fake_id))
+    mock_delete.assert_called_once_with(fake_id)
     mock_render_list_template.assert_called_once_with()
 
   def testRenderAddProxyServerTemplate(self):

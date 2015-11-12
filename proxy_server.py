@@ -48,7 +48,7 @@ class DeleteProxyServerHandler(webapp2.RequestHandler):
 
   @admin.require_admin
   def get(self):
-    ProxyServer.Delete(self.request.get('id'))
+    ProxyServer.Delete(int(self.request.get('id')))
     self.response.write(_RenderListProxyServerTemplate())
 
 
