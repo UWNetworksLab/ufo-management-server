@@ -37,7 +37,7 @@ class AddProxyServerHandler(webapp2.RequestHandler):
   @admin.require_admin
   @xsrf.xsrf_protect
   def post(self):
-    ProxyServer.CreateEntity(
+    ProxyServer.Insert(
       self.request.get('ip_address'),
       self.request.get('ssh_private_key'),
       self.request.get('fingerprint'))
