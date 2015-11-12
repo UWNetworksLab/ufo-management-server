@@ -48,7 +48,17 @@ class BaseModel(ndb.Model):
     """
     return cls.get_by_id(id)
 
-  
+  @classmethod
+  def Delete(cls, id):
+    """Delete an entity from the datastore.
+
+    Args:
+      id: A string of the entity's id.
+    """
+    key = ndb.Key(cls, int(id))
+    key.delete()
+
+
 class User(BaseModel):
   """Datastore service to handle dasher users."""
 

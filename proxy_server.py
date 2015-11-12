@@ -44,6 +44,14 @@ class AddProxyServerHandler(webapp2.RequestHandler):
     self.redirect('/proxyserver/list')
 
 
+class DeleteProxyServerHandler(webapp2.RequestHandler):
+
+  @admin.require_admin
+  def get(self):
+    ProxyServer.Delete(self.request.get('id'))
+    self.response.write(_RenderListProxyServerTemplate())
+
+
 class ListProxyServersHandler(webapp2.RequestHandler):
 
   @admin.require_admin
@@ -53,5 +61,6 @@ class ListProxyServersHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/proxyserver/add', AddProxyServerHandler),
+    ('/proxyserver/delete', DeleteProxyServerHandler),
     ('/proxyserver/list', ListProxyServersHandler),
 ], debug=True)

@@ -41,17 +41,26 @@ class ProxyServerTest(unittest.TestCase):
     mock_render_list_template.assert_called_once_with()
 
   @patch('proxy_server._RenderAddProxyServerTemplate')
-  def testAddProxyServersGetHandler(self, mock_render_add_template):
+  def testAddProxyServerGetHandler(self, mock_render_add_template):
     self.testapp.get('/proxyserver/add')
     mock_render_add_template.assert_called_once_with()
 
   @patch('datastore.ProxyServer.Insert')
-  def testAddProxyServersPostHandler(self, mock_insert):
+  def testAddProxyServerPostHandler(self, mock_insert):
     response = self.testapp.post('/proxyserver/add')
 
     mock_insert.assert_called_once_with('', '', '')
     self.assertEqual(response.status_int, 302)
     self.assertTrue('/proxyserver/list' in response.location)
+
+  @patch('proxy_server._RenderListProxyServerTemplate')
+  @patch('datastore.ProxyServer.Delete')
+  def testDeleteProxyServerHandler(self, mock_delete,
+                                   mock_render_list_template):
+    fake_id = 11111
+    self.testapp.get('/proxyserver/delete?id=' + str(fake_id))
+    mock_delete.assert_called_once_with(unicode(fake_id))
+    mock_render_list_template.assert_called_once_with()
 
   def testRenderAddProxyServerTemplate(self):
     add_proxy_server_template = proxy_server._RenderAddProxyServerTemplate()
