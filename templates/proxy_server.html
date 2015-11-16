@@ -8,6 +8,10 @@
       {{ proxy_server.ip_address }},
       {{ proxy_server.ssh_private_key }},
       {{ proxy_server.fingerprint }}
+      <a href="http://{{ host }}/proxyserver/edit?id={{ proxy_server.key.id() }}">
+        edit
+      </a>
+      &bull;
       <a href="http://{{ host }}/proxyserver/delete?id={{ proxy_server.key.id() }}">
         delete
       </a>
