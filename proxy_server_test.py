@@ -71,11 +71,12 @@ class ProxyServerTest(unittest.TestCase):
               'ip_address': FAKE_IP_ADDRESS,
               'ssh_private_key': FAKE_SSH_PRIVATE_KEY,
               'fingerprint': FAKE_FINGERPRINT}
-    self.testapp.post('/proxyserver/edit', params)
+    response = self.testapp.post('/proxyserver/edit', params)
     
     mock_update.assert_called_once_with(FAKE_ID, FAKE_IP_ADDRESS,
                                         FAKE_SSH_PRIVATE_KEY, FAKE_FINGERPRINT)
-    mock_render_list_template.assert_called_once_with()
+    self.assertEqual(response.status_int, 302)
+    self.assertTrue('/proxyserver/list' in response.location)
 
   @patch('proxy_server._RenderListProxyServerTemplate')
   @patch('datastore.ProxyServer.Delete')

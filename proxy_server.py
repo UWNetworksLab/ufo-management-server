@@ -60,7 +60,7 @@ class EditProxyServerHandler(webapp2.RequestHandler):
       self.request.get('ip_address'),
       self.request.get('ssh_private_key'),
       self.request.get('fingerprint'))
-    self.response.write(_RenderListProxyServerTemplate())
+    self.redirect('/proxyserver/list')
 
 
 class DeleteProxyServerHandler(webapp2.RequestHandler):
