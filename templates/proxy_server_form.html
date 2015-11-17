@@ -1,37 +1,22 @@
 {% block body %}
   {% if proxy_server %}
     <form method="post" action="http://{{ host }}/proxyserver/edit">
+      ip address:<br>
+      <input type="text" name="ip_address" value="{{ proxy_server.ip_address }}"><br>
+      ssh private key:<br>
+      <input type="text" name="ssh_private_key" value="{{ proxy_server.ssh_private_key }}"><br>
+      fingerprint:<br>
+      <input type="text" name="fingerprint" value="{{ proxy_server.fingerprint }}">
+      <input type="hidden" name="id" value="{{ proxy_server.key.id() }}">
   {% else %}
     <form method="post" action="http://{{ host }}/proxyserver/add">
-  {% endif %}
-
-    ip address:<br>
-    {% if proxy_server %}
-      <input type="text" name="ip_address" value="{{ proxy_server.ip_address }}">
-    {% else %}
-      <input type="text" name="ip_address" >
-    {% endif %}
-    <br>
-
-    ssh private key:<br>
-    {% if proxy_server %}
-      <input type="text" name="ssh_private_key" value="{{ proxy_server.ssh_private_key }}">
-    {% else %}
-      <input type="text" name="ssh_private_key">
-    {% endif %}
-    <br>
-
-    fingerprint:<br>
-    {% if proxy_server %}
+      ip address:<br>
+      <input type="text" name="ip_address" value="{{ proxy_server.ip_address }}"><br>
+      ssh private key:<br>
+      <input type="text" name="ssh_private_key" value="{{ proxy_server.ssh_private_key }}"><br>
+      fingerprint:<br>
       <input type="text" name="fingerprint" value="{{ proxy_server.fingerprint }}">
-    {% else %}
-      <input type="text" name="fingerprint">
-    {% endif %}
-    <br><br>
-
-    {% if proxy_server %}
-      <input type="hidden" name="id" value="{{ proxy_server.key.id() }}">
-    {% endif %}
+  {% endif %}
     <input type="hidden" name="xsrf" value="{{ xsrf_token }}">
     <input type="submit" value="Submit">
   </form>
