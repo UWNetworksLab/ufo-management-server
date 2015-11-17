@@ -1,0 +1,15 @@
+sudo: false
+language: python
+python:
+  - "2.7"
+# command to setup environment and install dependencies
+install:
+ - ./setup.sh unit_test
+before_script:
+ - source .bash_profile
+# command to run tests
+script:
+ - python -m unittest discover -p "*_test.py"
+# Turn off email updates.
+notifications:
+  email: false
