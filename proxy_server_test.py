@@ -5,8 +5,8 @@ import sys
 from datastore import ProxyServer
 
 import unittest
-import webapp2
 import webtest
+
 
 # Need to mock the decorator at function definition time, i.e. when the module
 # is loaded. http://stackoverflow.com/a/7667621/2830207
@@ -63,16 +63,14 @@ class ProxyServerTest(unittest.TestCase):
     mock_get.assert_called_once_with(FAKE_ID)
     mock_render_edit_template.assert_called_once_with(fake_proxy_server)
 
-  @patch('proxy_server._RenderListProxyServerTemplate')
   @patch('datastore.ProxyServer.Update')
-  def testEditProxyServerPostHandler(self, mock_update,
-                                     mock_render_list_template):
+  def testEditProxyServerPostHandler(self, mock_update):
     params = {'id': str(FAKE_ID),
               'ip_address': FAKE_IP_ADDRESS,
               'ssh_private_key': FAKE_SSH_PRIVATE_KEY,
               'fingerprint': FAKE_FINGERPRINT}
     response = self.testapp.post('/proxyserver/edit', params)
-    
+
     mock_update.assert_called_once_with(FAKE_ID, FAKE_IP_ADDRESS,
                                         FAKE_SSH_PRIVATE_KEY, FAKE_FINGERPRINT)
     self.assertEqual(response.status_int, 302)
@@ -115,6 +113,7 @@ class ProxyServerTest(unittest.TestCase):
     self.assertTrue(FAKE_SSH_PRIVATE_KEY in list_proxy_server_template)
     self.assertTrue(FAKE_FINGERPRINT in list_proxy_server_template)
 
+
 def GetFakeProxyServer():
   return ProxyServer(id=FAKE_ID,
                      ip_address=FAKE_IP_ADDRESS,
@@ -122,4 +121,4 @@ def GetFakeProxyServer():
                      fingerprint=FAKE_FINGERPRINT)
 
 if __name__ == '__main__':
-    unittest.main()
+  unittest.main()

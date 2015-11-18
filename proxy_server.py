@@ -1,11 +1,13 @@
 """The module for handling proxy servers."""
 
+import webapp2
+
 import admin
 from appengine_config import JINJA_ENVIRONMENT
 from datastore import ProxyServer
-from google.appengine.api import app_identity
 import xsrf
-import webapp2
+
+from google.appengine.api import app_identity
 
 
 def _RenderProxyServerFormTemplate(proxy_server):
@@ -17,6 +19,7 @@ def _RenderProxyServerFormTemplate(proxy_server):
   }
   template = JINJA_ENVIRONMENT.get_template('templates/proxy_server_form.html')
   return template.render(template_values)
+
 
 def _RenderListProxyServerTemplate():
   """Render a list of proxy servers."""
@@ -39,9 +42,9 @@ class AddProxyServerHandler(webapp2.RequestHandler):
   @xsrf.xsrf_protect
   def post(self):
     ProxyServer.Insert(
-      self.request.get('ip_address'),
-      self.request.get('ssh_private_key'),
-      self.request.get('fingerprint'))
+        self.request.get('ip_address'),
+        self.request.get('ssh_private_key'),
+        self.request.get('fingerprint'))
     self.redirect('/proxyserver/list')
 
 
@@ -56,10 +59,10 @@ class EditProxyServerHandler(webapp2.RequestHandler):
   @xsrf.xsrf_protect
   def post(self):
     ProxyServer.Update(
-      int(self.request.get('id')),
-      self.request.get('ip_address'),
-      self.request.get('ssh_private_key'),
-      self.request.get('fingerprint'))
+        int(self.request.get('id')),
+        self.request.get('ip_address'),
+        self.request.get('ssh_private_key'),
+        self.request.get('fingerprint'))
     self.redirect('/proxyserver/list')
 
 
