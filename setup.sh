@@ -46,7 +46,7 @@ function addVendorPackage ()
   runAndAssertCmd "pip install -t $UFO_MS_LOCAL_LIB google-api-python-client pycrypto"
 }
 
-function addPipPackages ()
+function AddAppEngineRuntimePackages ()
 {
   runAndAssertCmd "pip install WebTest"
   runAndAssertCmd "pip install Jinja2"
@@ -61,11 +61,11 @@ function addAllExports ()
   runAndAssertCmd "source $TEMP_BASH_PROFILE"
 }
 
-function unitTest ()
+function setupUnitTest ()
 {
   setupAppEngine
   addVendorPackage
-  addPipPackages
+  AddAppEngineRuntimePackages
   addAllExports
 }
 
@@ -74,13 +74,13 @@ function setupManagementServer ()
   runAndAssertCmd "git clone $UFO_MS_GIT_REPO"
   runAndAssertCmd "cp $UFO_MS_LOCAL_DIR/* . -r"
   runAndAssertCmd "rm -fr $UFO_MS_LOCAL_DIR"
-  unitTest
+  setupUnitTest
 }
 
 if [ "$1" == 'install' ]; then
   setupManagementServer
 elif [ "$1" == 'unit_test' ]; then
-  unitTest
+  setupUnitTest
 elif [ "$1" == 'add_exports' ]; then
   addAllExports
 else

@@ -24,7 +24,7 @@ sys.modules['xsrf'] = mock_xsrf
 
 import proxy_server
 
-
+FAKE_ID = 11111
 FAKE_IP_ADDRESS = '111.222.333.444'
 FAKE_SSH_PRIVATE_KEY = '4444333222111'
 FAKE_FINGERPRINT = '11:22:33:44'
@@ -40,10 +40,10 @@ class ProxyServerTest(unittest.TestCase):
     self.testapp.get('/proxyserver/list')
     mock_render_list_template.assert_called_once_with()
 
-  @patch('proxy_server._RenderAddProxyServerTemplate')
+  @patch('proxy_server._RenderProxyServerFormTemplate')
   def testAddProxyServerGetHandler(self, mock_render_add_template):
     self.testapp.get('/proxyserver/add')
-    mock_render_add_template.assert_called_once_with()
+    mock_render_add_template.assert_called_once_with(None)
 
   @patch('datastore.ProxyServer.Insert')
   def testAddProxyServerPostHandler(self, mock_insert):
@@ -53,25 +53,59 @@ class ProxyServerTest(unittest.TestCase):
     self.assertEqual(response.status_int, 302)
     self.assertTrue('/proxyserver/list' in response.location)
 
+  @patch('proxy_server._RenderProxyServerFormTemplate')
+  @patch('datastore.ProxyServer.Get')
+  def testEditProxyServerGetHandler(self, mock_get, mock_render_edit_template):
+    fake_proxy_server = GetFakeProxyServer()
+    mock_get.return_value = fake_proxy_server
+    self.testapp.get('/proxyserver/edit?id=' + str(FAKE_ID))
+
+    mock_get.assert_called_once_with(FAKE_ID)
+    mock_render_edit_template.assert_called_once_with(fake_proxy_server)
+
+  @patch('proxy_server._RenderListProxyServerTemplate')
+  @patch('datastore.ProxyServer.Update')
+  def testEditProxyServerPostHandler(self, mock_update,
+                                     mock_render_list_template):
+    params = {'id': str(FAKE_ID),
+              'ip_address': FAKE_IP_ADDRESS,
+              'ssh_private_key': FAKE_SSH_PRIVATE_KEY,
+              'fingerprint': FAKE_FINGERPRINT}
+    response = self.testapp.post('/proxyserver/edit', params)
+    
+    mock_update.assert_called_once_with(FAKE_ID, FAKE_IP_ADDRESS,
+                                        FAKE_SSH_PRIVATE_KEY, FAKE_FINGERPRINT)
+    self.assertEqual(response.status_int, 302)
+    self.assertTrue('/proxyserver/list' in response.location)
+
   @patch('proxy_server._RenderListProxyServerTemplate')
   @patch('datastore.ProxyServer.Delete')
   def testDeleteProxyServerHandler(self, mock_delete,
                                    mock_render_list_template):
-    fake_id = 11111
-    self.testapp.get('/proxyserver/delete?id=' + str(fake_id))
-    mock_delete.assert_called_once_with(fake_id)
+    self.testapp.get('/proxyserver/delete?id=' + str(FAKE_ID))
+    mock_delete.assert_called_once_with(FAKE_ID)
     mock_render_list_template.assert_called_once_with()
 
   def testRenderAddProxyServerTemplate(self):
-    add_proxy_server_template = proxy_server._RenderAddProxyServerTemplate()
-    self.assertTrue('ip address:' in add_proxy_server_template)
+    add_form = proxy_server._RenderProxyServerFormTemplate(None)
+    self.assertTrue('/proxyserver/add' in add_form)
+    self.assertFalse('/proxyserver/edit' in add_form)
+    self.assertTrue('ip address:' in add_form)
+    self.assertTrue('ip address:' in add_form)
+
+  def testRenderEditProxyServerTemplate(self):
+    fake_proxy_server = GetFakeProxyServer()
+    edit_form = proxy_server._RenderProxyServerFormTemplate(fake_proxy_server)
+    self.assertFalse('/proxyserver/add' in edit_form)
+    self.assertTrue('/proxyserver/edit' in edit_form)
+    self.assertTrue('ip address:' in edit_form)
+    # TODO(henryc): We need better asserts on the exact elements and their
+    # values.  Will circle back once the UI is in shape.
+    self.assertTrue(FAKE_IP_ADDRESS in edit_form)
 
   @patch('datastore.ProxyServer.GetAll')
   def testRenderListProxyServerTemplate(self, mock_get_all):
-    fake_proxy_server = ProxyServer(id='11111',
-                                    ip_address=FAKE_IP_ADDRESS,
-                                    ssh_private_key=FAKE_SSH_PRIVATE_KEY,
-                                    fingerprint=FAKE_FINGERPRINT)
+    fake_proxy_server = GetFakeProxyServer()
     fake_proxy_servers = [fake_proxy_server]
     mock_get_all.return_value = fake_proxy_servers
     list_proxy_server_template = proxy_server._RenderListProxyServerTemplate()
@@ -81,6 +115,11 @@ class ProxyServerTest(unittest.TestCase):
     self.assertTrue(FAKE_SSH_PRIVATE_KEY in list_proxy_server_template)
     self.assertTrue(FAKE_FINGERPRINT in list_proxy_server_template)
 
+def GetFakeProxyServer():
+  return ProxyServer(id=FAKE_ID,
+                     ip_address=FAKE_IP_ADDRESS,
+                     ssh_private_key=FAKE_SSH_PRIVATE_KEY,
+                     fingerprint=FAKE_FINGERPRINT)
 
 if __name__ == '__main__':
     unittest.main()
