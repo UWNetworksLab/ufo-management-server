@@ -21,17 +21,11 @@ handlers:
   script: proxy_server.app
   login: required
   secure: always
-  
-- url: /token.*
-  script: access_token.app
-  login: required
-  secure: always
 
 - url: /setup.*
   script: setup.app
   login: required
   secure: always
-
 
 - url: /user.*
   script: user.app

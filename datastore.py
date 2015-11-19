@@ -3,10 +3,14 @@
 TODO(henry): Refactor the common methods (get, insert, delete) into base class.
 """
 
-import hashlib
-
+import base64
+import binascii
+from Crypto.PublicKey import RSA
 from google.appengine.api import memcache
 from google.appengine.ext import ndb
+import hashlib
+import json
+import os
 
 
 class BaseModel(ndb.Model):
@@ -14,6 +18,10 @@ class BaseModel(ndb.Model):
   @classmethod
   def GetCount(cls):
     """Get a count of all the entities in the datastore.
+
+    Args:
+      cls is an object that holds the sub-class itself, not an instance
+      of the sub-class.
 
     Returns:
       An integer of all the entities in the datastore.
@@ -42,21 +50,52 @@ class BaseModel(ndb.Model):
     Args:
       cls is an object that holds the sub-class itself, not an instance
       of the sub-class.
+      id: A integer or a string of the entity's id.  Auto assigned id will be
+          integers.
 
     Returns:
       A datastore entity.
     """
     return cls.get_by_id(id)
+  
+  @classmethod
+  def GetByKey(cls, url_key):
+    """Get a single entity by id from datastore.
+
+    Args:
+      cls is an object that holds the sub-class itself, not an instance
+      of the sub-class.
+      url_key: The url encoded key for an entity in the datastore.
+
+    Returns:
+      A datastore entity.
+    """
+    key = ndb.Key(urlsafe=url_key)
+    return key.get()
 
   @classmethod
   def Delete(cls, id):
     """Delete an entity from the datastore.
 
     Args:
+      cls is an object that holds the sub-class itself, not an instance
+      of the sub-class.
       id: A integer or a string of the entity's id.  Auto assigned id will be
           integers.
     """
     key = ndb.Key(cls, id)
+    key.delete()
+
+  @classmethod
+  def DeleteByKey(cls, url_key):
+    """Delete an entity from the datastore.
+
+    Args:
+      cls is an object that holds the sub-class itself, not an instance
+      of the sub-class.
+      url_key: The url encoded key for an entity in the datastore.
+    """
+    key = ndb.Key(urlsafe=url_key)
     key.delete()
 
 
@@ -65,9 +104,11 @@ class User(BaseModel):
 
   email = ndb.StringProperty()
   name = ndb.StringProperty()
+  private_key = ndb.TextProperty()
+  public_key = ndb.TextProperty()
 
   @staticmethod
-  def _CreateUser(directory_user):
+  def _CreateUser(directory_user, key_pair):
     """Create an appengine datastore entity representing a user.
 
     Args:
@@ -80,17 +121,51 @@ class User(BaseModel):
     user_key = ndb.Key(User, hashlib.sha256(email).hexdigest())
     user_entity = User(key=user_key,
                        email=directory_user['primaryEmail'],
-                       name=directory_user['name']['fullName'])
+                       name=directory_user['name']['fullName'],
+                       public_key=key_pair['public_key'],
+                       private_key=key_pair['private_key'])
     return user_entity
 
   @staticmethod
-  def InsertUser(directory_user):
+  def _GenerateKeyPair():
+    """Generate a private and public key pair in base64.
+
+    Returns:
+      key_pair: A dictionary with private_key and public_key in b64 value.
+    """
+    rsa_key = RSA.generate(2048)
+    private_key = base64.urlsafe_b64encode(rsa_key.exportKey())
+    public_key = base64.urlsafe_b64encode(rsa_key.publickey().exportKey())
+
+    key_pair = {
+      'private_key': private_key,
+      'public_key': public_key
+    }
+
+    return key_pair
+
+  @staticmethod
+  def _UpdateKeyPair(key):
+    """Update an existing appengine datastore user entity with a new key pair.
+
+    Args:
+      key: A user's key in order to find the user's datastore entity.
+    """
+    user = User.Get_By_Key(key)
+    key_pair = User._GenerateKeyPair()
+    user.public_key=key_pair['public_key']
+    user.private_key=key_pair['private_key']
+    user.put()
+
+  @staticmethod
+  def InsertUser(directory_user, key_pair):
     """Insert a user into datastore.
 
     Args:
       directory_user: A dictionary of the dasher user.
     """
-    ndb.put(User._CreateUser(directory_user))
+    user = User._CreateUser(directory_user, key_pair)
+    user.put()
 
   @staticmethod
   def InsertUsers(directory_users):
@@ -101,116 +176,9 @@ class User(BaseModel):
     """
     user_entities = []
     for directory_user in directory_users:
-      user_entities.append(User._CreateUser(directory_user))
+      key_pair = User._GenerateKeyPair()
+      user_entities.append(User._CreateUser(directory_user, key_pair))
     ndb.put_multi(user_entities)
-
-  # TODO(ethan): Move this into the base model when removing
-  # the token datastore.
-  @staticmethod
-  def DeleteUser(email):
-    """Delete a user and his tokens from the datastore.
-
-    Args:
-      email: A string of the user email.
-    """
-    keys_to_be_deleted = []
-
-    user_key = ndb.Key(User, hashlib.sha256(email).hexdigest())
-    keys_to_be_deleted.append(user_key)
-
-    token_keys = Token.GetTokenKeys(email)
-    keys_to_be_deleted += token_keys
-
-    ndb.delete_multi(keys_to_be_deleted)
-
-
-class Token(ndb.Model):
-  """Datastore service to handle access tokens."""
-
-  private_key = ndb.TextProperty()
-  public_key = ndb.TextProperty()
-
-  @staticmethod
-  def InsertToken(email, key_pair):
-    """Insert a token into datastore.
-
-    Args:
-      email: A string of the user email.
-      key_pair: A dictionary with private_key and public_key in b64 value.
-    """
-    # Hashing the public_key as the Token key name because it allows
-    # deterministic retrieval and it's the only kind of string representation
-    # that's under 500 bytes.
-    token_key = ndb.Key(
-        User, hashlib.sha256(email).hexdigest(),
-        Token, hashlib.sha256(key_pair['public_key']).hexdigest())
-
-    token = Token(key=token_key,
-                  public_key=key_pair['public_key'],
-                  private_key=key_pair['private_key'])
-    token.put()
-
-  @staticmethod
-  def DeleteToken(email, public_key):
-    """Delete a token from datastore.
-
-    Args:
-      email: A string of the user email.
-      public_key: A string of the public_key.
-    """
-    token_key = ndb.Key(
-        User, hashlib.sha256(email).hexdigest(),
-        Token, hashlib.sha256(public_key).hexdigest())
-    token_key.delete()
-
-  @staticmethod
-  def GetTokenKeys(email):
-    """Get only the datastore keys of the tokens.
-
-    Args:
-      email: A string of the user email.
-
-    Returns:
-      A list of token key objects for the user.
-    """
-    user_key = ndb.Key(User, hashlib.sha256(email).hexdigest())
-    q = Token.query(ancestor=user_key)
-    return q.fetch(keys_only=True)
-
-  @staticmethod
-  def GetTokens(email):
-    """Get the token entities from datastore.
-
-    Args:
-      email: A string of the user email.
-
-    Returns:
-      A list of the user's token entities from the datastore.
-    """
-    user_key = ndb.Key(User, hashlib.sha256(email).hexdigest())
-    q = Token.query(ancestor=user_key)
-    return q.fetch()
-
-  @staticmethod
-  def GetToken(email, public_key):
-    """Get a token entity from datastore.
-
-    Args:
-      email: A string of the user email.
-      public_key: A public key of the token to be retrieved.
-
-    Returns:
-      user: A datastore entity of the user who owns the token.
-      token: A datastore entity of the token.
-    """
-    token_key = ndb.Key(
-      User, hashlib.sha256(email).hexdigest(),
-      Token, hashlib.sha256(public_key).hexdigest())
-
-    token = token_key.get()
-    user = token_key.parent().get()
-
-    return user, token
 
 
 class ProxyServer(BaseModel):
