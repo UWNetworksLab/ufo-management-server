@@ -1,11 +1,11 @@
 {% block body %}
-  <a href="http://{{ host }}/token/list">list tokens</a><br />
+  <a href="http://{{ host }}/user/listTokens">List Tokens</a><br />
   <ul>
-  {% for user in users %}
-    <li>{{ user.email }}
-      <a href="http://{{ host }}/user/delete?email={{ user.email }}">(delete user)</a>
-      <a href="http://{{ host }}/token/add?email={{ user.email }}">(add token)</a>
-     <br />
+  {% for key, email in user_payloads.iteritems() %}
+    <li>{{ email }}
+      <a href="http://{{ host }}/user/delete?key={{ key }}">(Delete User)</a>
+      <a href="http://{{ host }}/user/getNewToken?key={{ key }}">(Get New Token)</a>
+      <br />
     </li>
     <br />
   {% endfor %}

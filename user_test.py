@@ -3,6 +3,8 @@ from mock import patch
 import sys
 
 from datastore import User
+from google.appengine.ext import ndb
+import hashlib
 
 import unittest
 import webapp2
@@ -21,42 +23,111 @@ import user
 
 FAKE_EMAIL = 'fake_email@example.com'
 FAKE_NAME = 'fake name'
-RENDER_TEMPLATE = '_RenderUserListTemplate'
+FAKE_PUBLIC_KEY = 'fakePublicKey'
+FAKE_PRIVATE_KEY = 'fakePrivateKey'
+FAKE_DS_KEY = 'urlEncodedKeyFromTheDatastore'
+FAKE_USER_KEY = ndb.Key(User, hashlib.sha256(FAKE_EMAIL).hexdigest())
+FAKE_USER = User(key=FAKE_USER_KEY, email=FAKE_EMAIL,
+                 name=FAKE_NAME, public_key=FAKE_PUBLIC_KEY,
+                 private_key=FAKE_PRIVATE_KEY)
 
 
 class UserTest(unittest.TestCase):
 
   def setUp(self):
-    app = webapp2.WSGIApplication([
-        ('/', user.ListUsersHandler),
-        ('/user/delete', user.DeleteUserHandler),
-    ])
-    self.testapp = webtest.TestApp(app)
+    self.testapp = webtest.TestApp(user.app)
 
-  def testListUsersHandler(self):
-    with patch.object(user, RENDER_TEMPLATE) as mock_render_template:
-      self.testapp.get('/')
-      mock_render_template.assert_called_once_with()
+  @patch('user._RenderUserListTemplate')
+  def testListUsersHandler(self, mock_user_template):
+    self.testapp.get('/')
+    mock_user_template.assert_called_once_with()
 
-  def testDeleteUserHandler(self):
-    with patch.object(user.User, 'DeleteUser') as mock_delete_user:
-      with patch.object(user, RENDER_TEMPLATE) as mock_render_template:
-        self.testapp.get('/user/delete?email=%s' % FAKE_EMAIL)
-        mock_delete_user.assert_called_once_with(FAKE_EMAIL)
-        mock_render_template.assert_called_once_with()
+  @patch('user.User.Delete_By_Key')
+  @patch('user._RenderUserListTemplate')
+  def testDeleteUserHandler(self, mock_user_template,
+                            mock_delete_user):
+    self.testapp.get('/user/delete?key=%s' % FAKE_DS_KEY)
+    mock_delete_user.assert_called_once_with(FAKE_DS_KEY)
+    mock_user_template.assert_called_once_with()
 
-  def testRenderUserListTemplate(self):
-    fake_user = User(email=FAKE_EMAIL, name=FAKE_NAME)
-    fake_users = [fake_user]
-    with patch.object(user.User, 'GetAll') as mock_get_all:
-      mock_get_all.return_value = fake_users
-      user_list_template = user._RenderUserListTemplate()
-      self.assertTrue('list tokens' in user_list_template)
-      self.assertTrue(
-          ('user/delete?email=' + fake_user.email) in user_list_template)
-      self.assertTrue(
-          ('token/add?email=' + fake_user.email) in user_list_template)
+  @patch('user._RenderTokenListTemplate')
+  def testListTokensHandler(self, mock_token_template):
+    self.testapp.get('/user/listTokens')
+    mock_token_template.assert_called_once_with()
 
+  @patch('user.User._UpdateKeyPair')
+  @patch('user._RenderTokenListTemplate')
+  def testGetNewTokenHandler(self, mock_token_template,
+                             mock_update):
+    self.testapp.get('/user/getNewToken?key=%s' % FAKE_DS_KEY)
+    mock_update.assert_called_once_with(FAKE_DS_KEY)
+    mock_token_template.assert_called_once_with()
+
+  @patch('user._GenerateUserPayload')
+  @patch('user.User.GetAll')
+  def testRenderUserListTemplate(self, mock_get_all, mock_generate):
+    fake_users = [FAKE_USER]
+    mock_get_all.return_value = fake_users
+    fake_dictionary = {}
+    fake_dictionary[FAKE_DS_KEY] = FAKE_USER.email
+    mock_generate.return_value = fake_dictionary
+
+    user_list_template = user._RenderUserListTemplate()
+
+    mock_get_all.assert_called_once_with()
+    mock_generate.assert_called_once_with(fake_users)
+    self.assertTrue('List Tokens' in user_list_template)
+    self.assertTrue(FAKE_USER.email in user_list_template)
+    self.assertTrue(
+        ('user/delete?key=' + FAKE_DS_KEY) in user_list_template)
+    self.assertTrue(
+        ('user/getNewToken?key=' + FAKE_DS_KEY) in user_list_template)
+
+  @patch('user._GenerateTokenPayload')
+  @patch('user.User.GetAll')
+  def testRenderTokenListTemplate(self, mock_get_all, mock_generate):
+    fake_users = [FAKE_USER]
+    mock_get_all.return_value = fake_users
+    fake_dictionary = {}
+    fake_tuple = (FAKE_USER.email, FAKE_USER.public_key)
+    fake_dictionary[FAKE_DS_KEY] = fake_tuple
+    mock_generate.return_value = fake_dictionary
+
+    token_list_template = user._RenderTokenListTemplate()
+
+    mock_get_all.assert_called_once_with()
+    mock_generate.assert_called_once_with(fake_users)
+    self.assertTrue('token_payload:' in token_list_template)
+    self.assertTrue(FAKE_USER.email in token_list_template)
+    self.assertTrue(
+        ('user/getNewToken?key=' + FAKE_DS_KEY) in token_list_template)
+
+  @patch.object(user.User, 'key')
+  def testGenerateTokenPayload(self, mock_url_key):
+    mock_url_key.urlsafe.return_value = FAKE_DS_KEY
+    fake_users = [FAKE_USER]
+
+    user_token_payloads = user._GenerateTokenPayload(fake_users)
+
+    tup1 = (FAKE_USER.email, FAKE_USER.public_key)
+    self.assertEqual(user_token_payloads[FAKE_DS_KEY], tup1)
+
+    self.assertTrue(FAKE_USER.private_key not in user_token_payloads)
+    self.assertTrue(FAKE_USER.private_key not in user_token_payloads[FAKE_DS_KEY])
+
+  @patch.object(user.User, 'key')
+  def testGenerateUserPayload(self, mock_url_key):
+    mock_url_key.urlsafe.return_value = FAKE_DS_KEY
+    fake_users = [FAKE_USER]
+
+    user_payloads = user._GenerateUserPayload(fake_users)
+
+    self.assertEqual(user_payloads[FAKE_DS_KEY], FAKE_USER.email)
+
+    self.assertTrue(FAKE_USER.public_key not in user_payloads)
+    self.assertTrue(FAKE_USER.public_key not in user_payloads[FAKE_DS_KEY])
+    self.assertTrue(FAKE_USER.private_key not in user_payloads)
+    self.assertTrue(FAKE_USER.private_key not in user_payloads[FAKE_DS_KEY])
 
 if __name__ == '__main__':
     unittest.main()
