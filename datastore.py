@@ -59,7 +59,7 @@ class BaseModel(ndb.Model):
     return cls.get_by_id(id)
   
   @classmethod
-  def Get_By_Key(cls, url_key):
+  def GetByKey(cls, url_key):
     """Get a single entity by id from datastore.
 
     Args:
@@ -87,7 +87,7 @@ class BaseModel(ndb.Model):
     key.delete()
 
   @classmethod
-  def Delete_By_Key(cls, url_key):
+  def DeleteByKey(cls, url_key):
     """Delete an entity from the datastore.
 
     Args:

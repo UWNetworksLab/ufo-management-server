@@ -88,7 +88,7 @@ class DeleteUserHandler(webapp2.RequestHandler):
   @oauth_decorator.oauth_required
   def get(self):
     url_key = self.request.get('key')
-    User.Delete_By_Key(url_key)
+    User.DeleteByKey(url_key)
     self.response.write(_RenderUserListTemplate())
 
 

@@ -42,7 +42,7 @@ class UserTest(unittest.TestCase):
     self.testapp.get('/')
     mock_user_template.assert_called_once_with()
 
-  @patch('user.User.Delete_By_Key')
+  @patch('user.User.DeleteByKey')
   @patch('user._RenderUserListTemplate')
   def testDeleteUserHandler(self, mock_user_template,
                             mock_delete_user):
