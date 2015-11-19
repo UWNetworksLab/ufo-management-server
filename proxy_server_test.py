@@ -1,11 +1,11 @@
+import sys
+import unittest
+
 from mock import MagicMock
 from mock import patch
-import sys
+import webtest
 
 from datastore import ProxyServer
-
-import unittest
-import webtest
 
 
 # Need to mock the decorator at function definition time, i.e. when the module
@@ -28,6 +28,10 @@ FAKE_ID = 11111
 FAKE_IP_ADDRESS = '111.222.333.444'
 FAKE_SSH_PRIVATE_KEY = '4444333222111'
 FAKE_FINGERPRINT = '11:22:33:44'
+FAKE_KEYS = (
+    'ssh-rsa public_key1 foo@example.com\n'
+    'ssh-rsa public_key2 bar@example.com\n'
+)
 
 
 class ProxyServerTest(unittest.TestCase):
@@ -83,6 +87,25 @@ class ProxyServerTest(unittest.TestCase):
     self.testapp.get('/proxyserver/delete?id=' + str(FAKE_ID))
     mock_delete.assert_called_once_with(FAKE_ID)
     mock_render_list_template.assert_called_once_with()
+
+  @patch('httplib2.Http.request')
+  @patch('datastore.ProxyServer.GetAll')
+  def testDistributeKeyHandler(self, mock_get_all, mock_request):
+    fake_proxy_server = GetFakeProxyServer()
+    fake_proxy_servers = [fake_proxy_server]
+    mock_get_all.return_value = fake_proxy_servers
+
+    mock_response = MagicMock()
+    mock_response.status = 200
+    fake_content = ''
+    mock_request.return_value = mock_response, fake_content
+
+    self.testapp.get('/proxyserver/distributekey')
+    mock_request.assert_called_once_with(
+        'http://%s/key' % fake_proxy_server.ip_address,
+        headers={'content-type': 'text/plain'},
+        method='PUT',
+        body=FAKE_KEYS)
 
   def testRenderAddProxyServerTemplate(self):
     add_form = proxy_server._RenderProxyServerFormTemplate(None)

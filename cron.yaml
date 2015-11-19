@@ -1,0 +1,7 @@
+cron:
+# TODO(henry): Determine how often this needs to be run. Also see if some
+# logic to avoid running if user info has not changed since last run would be
+# beneficial.
+- description: Distribute keys to proxy servers.
+  url: /key/distribute
+  schedule: every 15 minutes

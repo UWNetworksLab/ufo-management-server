@@ -1,5 +1,8 @@
 """The module for handling proxy servers."""
 
+import logging
+
+import httplib2
 import webapp2
 
 import admin
@@ -8,6 +11,13 @@ from datastore import ProxyServer
 import xsrf
 
 from google.appengine.api import app_identity
+
+
+# TODO(henry): Retrieve users & keys (public) from the datastore.
+FAKE_KEYS = (
+    'ssh-rsa public_key1 foo@example.com\n'
+    'ssh-rsa public_key2 bar@example.com\n'
+)
 
 
 def _RenderProxyServerFormTemplate(proxy_server):
@@ -81,9 +91,35 @@ class ListProxyServersHandler(webapp2.RequestHandler):
     self.response.write(_RenderListProxyServerTemplate())
 
 
+class DistributeKeyHandler(webapp2.RequestHandler):
+
+  # This is accessed by the cron service, which only has appengine admin access.
+  # So if the admin check changes here, we might have to move this to a
+  # different module.
+  @admin.require_admin
+  def get(self):
+    # TODO(henry): See if we can use threading to parallelize the put requests.
+    proxy_servers = ProxyServer.GetAll()
+    for proxy_server in proxy_servers:
+      http = httplib2.Http()
+      # TODO(henry): Make the request secure.  The http object
+      # supports add_certificate() method.  http://goo.gl/mjU4Mh
+      # TODO(henry): Increase robustness here, e.g. add exception handling
+      # and retries.
+      response, content = http.request(
+          'http://%s/key' % proxy_server.ip_address,
+          headers={'content-type': 'text/plain'},
+          method='PUT',
+          body=FAKE_KEYS)
+      logging.info('Distributed keys to %s. Response: %s, Content: %s',
+                   proxy_server.ip_address, response.status, content)
+    self.response.write('all done!')
+
+
 app = webapp2.WSGIApplication([
     ('/proxyserver/add', AddProxyServerHandler),
     ('/proxyserver/delete', DeleteProxyServerHandler),
+    ('/proxyserver/distributekey', DistributeKeyHandler),
     ('/proxyserver/edit', EditProxyServerHandler),
     ('/proxyserver/list', ListProxyServersHandler),
 ], debug=True)
