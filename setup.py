@@ -5,22 +5,24 @@ from auth import oauth_decorator
 from datastore import User
 from datastore import OAuth
 from error_handlers import Handle500
+from google.appengine.api import app_identity
 from google_directory_service import GoogleDirectoryService
 import webapp2
 import xsrf
 import admin
 
 
-JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token
+JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token()
 
 
 def _RenderSetupOAuthClientTemplate():
   """Render a setup page with inputs for client id and secret."""
+  entity = OAuth.GetEntityOrSetDefault()
   template_values = {
-      'host': 'localhost:9999',
-      'client_id': 'Your client_id goes here',
-      'client_secret': 'Your client_secret goes here',
-      'xsrf_token': xsrf.xsrf_token(),
+      'host': app_identity.get_default_version_hostname(),
+      'client_id': entity.client_id,
+      'client_secret': entity.client_secret,
+      'xsrf_token': JINJA_ENVIRONMENT.globals['xsrf_token'],
   }
   template = JINJA_ENVIRONMENT.get_template('templates/setup_client.html')
   return template.render(template_values)
@@ -29,8 +31,8 @@ def _RenderSetupOAuthClientTemplate():
 def _RenderSetupUsersTemplate():
   """Render a setup page with an import users button."""
   template_values = {
-      'host': 'localhost:9999',
-      'xsrf_token': xsrf.xsrf_token(),
+      'host': app_identity.get_default_version_hostname(),
+      'xsrf_token': JINJA_ENVIRONMENT.globals['xsrf_token'],
   }
   template = JINJA_ENVIRONMENT.get_template('templates/setup_user.html')
   return template.render(template_values)
@@ -48,9 +50,9 @@ class SetupOAuthClientHandler(webapp2.RequestHandler):
   def post(self):
     client_id = self.request.get('client_id')
     client_secret = self.request.get('client_secret')
-    OAuth.SetEntity(client_id, client_secret)
+    OAuth.ResetEntity(client_id, client_secret)
     OAuth.Flush()
-    self.response.write(_RenderSetupUsersTemplate())
+    self.redirect('/setup/users?xsrf=' + JINJA_ENVIRONMENT.globals['xsrf_token'])
 
 
 class SetupUsersHandler(webapp2.RequestHandler):
@@ -59,16 +61,23 @@ class SetupUsersHandler(webapp2.RequestHandler):
   @admin.require_admin
   @xsrf.xsrf_protect
   @oauth_decorator.oauth_required
+  def get(self):
+    self.response.write(_RenderSetupUsersTemplate())
+
+  @admin.require_admin
+  @xsrf.xsrf_protect
+  @oauth_decorator.oauth_required
   def post(self):
     OAuth.Flush()
     if User.GetCount() > 0:
-      return self.response.write('Unable to setup because app is already'
+      return self.response.write('Unable to setup because app is already '
                                  'initialized.')
-
-    directory_service = GoogleDirectoryService(oauth_decorator)
-    directory_users = directory_service.GetUsers()
-    User.InsertUsers(directory_users)
-    self.response.write('Setup completed.')
+    else:
+      directory_service = GoogleDirectoryService(oauth_decorator)
+      directory_users = directory_service.GetUsers()
+      #directory_service.WatchUsers()
+      User.InsertUsers(directory_users)
+      self.redirect('/?xsrf=' + JINJA_ENVIRONMENT.globals['xsrf_token'])
 
 
 app = webapp2.WSGIApplication([
