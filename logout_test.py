@@ -19,13 +19,12 @@ class LogoutTest(unittest.TestCase):
   @patch('google.appengine.api.users.create_logout_url')
   def testLogoutHandler(self, mock_create_url):
     logout_relative_path = '/logout'
-    logout_full_path = 'http://localhost' + logout_relative_path
     fake_redirect_url = 'foo/bar'
     mock_create_url.return_value = fake_redirect_url
 
     response = self.testapp.get(logout_relative_path)
     
-    mock_create_url.assert_called_once_with(logout_full_path)
+    mock_create_url.assert_called_once_with(logout.LOG_BACK_IN_PATH)
     self.assertEqual(response.status_int, 302)
     self.assertTrue(fake_redirect_url in response.location)
 

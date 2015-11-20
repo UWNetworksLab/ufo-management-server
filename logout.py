@@ -4,12 +4,13 @@ from google.appengine.api import users
 import webapp2
 
 
+LOG_BACK_IN_PATH = '/'
 
 class LogoutHandler(webapp2.RequestHandler):
   """Logs the current user out."""
 
   def get(self):
-    logout_url = users.create_logout_url(self.request.url)
+    logout_url = users.create_logout_url(LOG_BACK_IN_PATH)
     self.redirect(logout_url)
 
 

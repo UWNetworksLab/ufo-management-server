@@ -203,8 +203,8 @@ class ProxyServer(BaseModel):
     entity.fingerprint = fingerprint
     entity.put()
 
-
-class OAuth(ndb.Model):
+# TODO(eholder): Add tests for this and other entities.
+class OAuth(BaseModel):
   """Store the client secret so that it's not checked into source code.
 
   Secret is accessible at:
@@ -218,37 +218,43 @@ class OAuth(ndb.Model):
 
   @staticmethod
   def GetSecret():
-    entity = OAuth.GetEntity()
+    entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
     return entity.client_secret
 
   @staticmethod
   def GetClientId():
-    entity = OAuth.GetEntity()
+    entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
     return entity.client_id
 
   @staticmethod
-  def GetEntity():
+  def GetEntityOrSetDefault():
     # Ensure there's only one key.
-    entity = OAuth.get_by_id(OAuth.CLIENT_SECRET_ID)
+    entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
     if not entity:
       OAuth.SetDefaultEntity()
-      entity = OAuth.get_by_id(OAuth.CLIENT_SECRET_ID)
+      entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
     return entity
 
   @staticmethod
   def SetDefaultEntity():
     # Ensure there's only one key.
+    OAuth.SetEntity(new_client_id='Change me to the real id.',
+                    new_client_secret='Change me to the real secret.')
+
+  @staticmethod
+  def SetEntity(new_client_id, new_client_secret):
+    # Ensure there's only one key.
     entity = OAuth(id=OAuth.CLIENT_SECRET_ID,
-                   client_id='Change me to the real id.',
-                   client_secret='Change me to the real secret.')
+                   client_id=new_client_id,
+                   client_secret=new_client_secret)
     entity.put()
 
   @staticmethod
-  def SetEntity(client_id, client_secret):
+  def ResetEntity(new_client_id, new_client_secret):
     # Ensure there's only one key.
-    entity = OAuth(id=OAuth.CLIENT_SECRET_ID,
-                   client_id=client_id,
-                   client_secret=client_secret)
+    entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
+    entity.client_id=new_client_id
+    entity.client_secret=new_client_secret
     entity.put()
 
   @staticmethod
