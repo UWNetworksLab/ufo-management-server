@@ -72,12 +72,10 @@ class SetupUsersHandler(webapp2.RequestHandler):
     if User.GetCount() > 0:
       return self.response.write('Unable to setup because app is already '
                                  'initialized.')
-    else:
-      directory_service = GoogleDirectoryService(oauth_decorator)
-      directory_users = directory_service.GetUsers()
-      #directory_service.WatchUsers()
-      User.InsertUsers(directory_users)
-      self.redirect('/?xsrf=' + JINJA_ENVIRONMENT.globals['xsrf_token'])
+    directory_service = GoogleDirectoryService(oauth_decorator)
+    directory_users = directory_service.GetUsers()
+    User.InsertUsers(directory_users)
+    self.redirect('/?xsrf=' + JINJA_ENVIRONMENT.globals['xsrf_token'])
 
 
 app = webapp2.WSGIApplication([
