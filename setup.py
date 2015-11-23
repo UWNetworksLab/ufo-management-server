@@ -17,7 +17,7 @@ JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token()
 
 def _RenderSetupOAuthClientTemplate():
   """Render a setup page with inputs for client id and secret."""
-  entity = OAuth.GetEntityOrSetDefault()
+  entity = OAuth.GetOrInsertDefault()
   template_values = {
       'host': app_identity.get_default_version_hostname(),
       'client_id': entity.client_id,
@@ -50,7 +50,7 @@ class SetupOAuthClientHandler(webapp2.RequestHandler):
   def post(self):
     client_id = self.request.get('client_id')
     client_secret = self.request.get('client_secret')
-    OAuth.ResetEntity(client_id, client_secret)
+    OAuth.Update(client_id, client_secret)
     OAuth.Flush()
     self.redirect('/setup/users?xsrf=' + JINJA_ENVIRONMENT.globals['xsrf_token'])
 

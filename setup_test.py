@@ -46,13 +46,13 @@ class SetupTest(unittest.TestCase):
     self.testapp.get('/setup/oauthclient')
     mock_render_oauth_template.assert_called_once_with()
 
-  @patch('datastore.OAuth.ResetEntity')
+  @patch('datastore.OAuth.Update')
   @patch('datastore.OAuth.Flush')
-  def testSetupOAuthClientPostHandler(self, mock_flush, mock_reset_entity):
+  def testSetupOAuthClientPostHandler(self, mock_flush, mock_update):
     resp = self.testapp.post('/setup/oauthclient?client_id={0}&client_secret={1}'
                              .format(unicode(FAKE_ID,'utf-8'),
                                      unicode(FAKE_SECRET,'utf-8')))
-    mock_reset_entity.assert_called_once_with(FAKE_ID, FAKE_SECRET)
+    mock_update.assert_called_once_with(FAKE_ID, FAKE_SECRET)
     mock_flush.assert_called_once_with()
     self.assertEqual(resp.status_int, 302)
     # TODO(eholder): Figure out why this test fails but works on appspot.
@@ -94,10 +94,10 @@ class SetupTest(unittest.TestCase):
     self.assertEqual(response.status_int, 302)
     self.assertTrue('/' in response.location)
 
-  @patch('datastore.OAuth.GetEntityOrSetDefault')
-  def testRenderSetupOAuthClientTemplate(self, mock_get_or_set):
-    mock_get_or_set.return_value.client_id = FAKE_ID
-    mock_get_or_set.return_value.client_secret = FAKE_SECRET
+  @patch('datastore.OAuth.GetOrInsertDefault')
+  def testRenderSetupOAuthClientTemplate(self, mock_get_or_insert):
+    mock_get_or_insert.return_value.client_id = FAKE_ID
+    mock_get_or_insert.return_value.client_secret = FAKE_SECRET
 
     setup_client_template = setup._RenderSetupOAuthClientTemplate()
 

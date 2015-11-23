@@ -151,7 +151,7 @@ class User(BaseModel):
     Args:
       key: A user's key in order to find the user's datastore entity.
     """
-    user = User.Get_By_Key(key)
+    user = User.GetByKey(key)
     key_pair = User._GenerateKeyPair()
     user.public_key=key_pair['public_key']
     user.private_key=key_pair['private_key']
@@ -203,7 +203,6 @@ class ProxyServer(BaseModel):
     entity.fingerprint = fingerprint
     entity.put()
 
-# TODO(eholder): Add tests for this and other entities.
 class OAuth(BaseModel):
   """Store the client secret so that it's not checked into source code.
 
@@ -213,36 +212,28 @@ class OAuth(BaseModel):
   """
   CLIENT_SECRET_ID = 'my_client_secret'
 
-  client_secret = ndb.StringProperty()
   client_id = ndb.StringProperty()
+  client_secret = ndb.StringProperty()
+  DEFAULT_ID = 'Change me to the real id.'
+  DEFAULT_SECRET = 'Change me to the real secret.'
 
   @staticmethod
-  def GetSecret():
-    entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
-    return entity.client_secret
-
-  @staticmethod
-  def GetClientId():
-    entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
-    return entity.client_id
-
-  @staticmethod
-  def GetEntityOrSetDefault():
+  def GetOrInsertDefault():
     # Ensure there's only one key.
     entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
     if not entity:
-      OAuth.SetDefaultEntity()
+      OAuth.InsertDefault()
       entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
     return entity
 
   @staticmethod
-  def SetDefaultEntity():
+  def InsertDefault():
     # Ensure there's only one key.
-    OAuth.SetEntity(new_client_id='Change me to the real id.',
-                    new_client_secret='Change me to the real secret.')
+    OAuth.Insert(new_client_id=OAuth.DEFAULT_ID,
+                 new_client_secret=OAuth.DEFAULT_SECRET)
 
   @staticmethod
-  def SetEntity(new_client_id, new_client_secret):
+  def Insert(new_client_id, new_client_secret):
     # Ensure there's only one key.
     entity = OAuth(id=OAuth.CLIENT_SECRET_ID,
                    client_id=new_client_id,
@@ -250,7 +241,7 @@ class OAuth(BaseModel):
     entity.put()
 
   @staticmethod
-  def ResetEntity(new_client_id, new_client_secret):
+  def Update(new_client_id, new_client_secret):
     # Ensure there's only one key.
     entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
     entity.client_id=new_client_id
