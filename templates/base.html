@@ -6,11 +6,11 @@
     {% endblock %}
 </head>
 <body>
-    <div id="navbar">
+    <div id="navbar" style="float:left;">
         {% block navbar %}
-        <h4>Navigation Links</h4>
+        <h3>Navigation Links</h3>
         <ul>
-            <li><a href="/users">Users</a></li>
+            <li><a href="/user">Users</a></li>
             <li><a href="/user/listTokens">Tokens</a></li>
             <li><a href="/proxyserver/list">Proxy Servers</a></li>
             <li><a href="/setup/oauthclient">Setup</a></li>
@@ -18,6 +18,14 @@
         </ul>
         {% endblock %}
     </div>
-    <div id="content">{% block body %}{% endblock %}</div>
+    <div id="content" style="float:left; margin-left:50px; margin-top:50px;">
+        {% block body %}{% endblock %}
+    </div>
+    <div id="footer" style="position:absolute;bottom:0px;left:0px;right:0px;text-align:center;">
+        {% block footer %}
+        <h2>UfO Management Server Prototype</h2>
+        <p>Caution: This management server is still in prototyping. It has bugs and will likely change frequently. Please be patient when using.</p>
+        {% endblock %}
+    </div>
 </body>
 </html>
