@@ -1,3 +1,5 @@
+{% extends "templates/base.html" %}
+{% block title %}Setup OAuth Client{% endblock %}
 {% block body %}
   <form method="post" action="https://{{ host }}/setup/oauthclient">
     client_id:<br>

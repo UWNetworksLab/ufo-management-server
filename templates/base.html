@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    {% block head %}
+    {% endblock %}
+</head>
+<body>
+    <div id="navbar">
+        {% block navbar %}
+        <h4>Navigation Links</h4>
+        <ul>
+            <li><a href="/users">Users</a></li>
+            <li><a href="/user/listTokens">Tokens</a></li>
+            <li><a href="/proxyserver/list">Proxy Servers</a></li>
+            <li><a href="/setup/oauthclient">Setup</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+        {% endblock %}
+    </div>
+    <div id="content">{% block body %}{% endblock %}</div>
+</body>
+</html>
