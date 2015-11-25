@@ -1,4 +1,5 @@
 {% block body %}
+  <a href="http://{{ host }}/user/add">Add Users</a><br />
   <a href="http://{{ host }}/user/listTokens">List Tokens</a><br />
   <ul>
   {% for key, email in user_payloads.iteritems() %}
