@@ -4,6 +4,7 @@ from appengine_config import JINJA_ENVIRONMENT
 from auth import oauth_decorator
 from datastore import User
 from datastore import OAuth
+from datastore import DomainVerification
 from error_handlers import Handle500
 from google.appengine.api import app_identity
 from google_directory_service import GoogleDirectoryService
@@ -18,10 +19,12 @@ JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token()
 def _RenderSetupOAuthClientTemplate():
   """Render a setup page with inputs for client id and secret."""
   entity = OAuth.GetOrInsertDefault()
+  domain_verification = DomainVerification.GetOrInsertDefault()
   template_values = {
       'host': app_identity.get_default_version_hostname(),
       'client_id': entity.client_id,
       'client_secret': entity.client_secret,
+      'dv_content': domain_verification.content,
       'xsrf_token': JINJA_ENVIRONMENT.globals['xsrf_token'],
   }
   template = JINJA_ENVIRONMENT.get_template('templates/setup_client.html')
@@ -52,6 +55,8 @@ class SetupOAuthClientHandler(webapp2.RequestHandler):
     client_secret = self.request.get('client_secret')
     OAuth.Update(client_id, client_secret)
     OAuth.Flush()
+    dv_content = self.request.get('dv_content')
+    DomainVerification.Update(dv_content)
     self.redirect('/setup/users?xsrf=' + JINJA_ENVIRONMENT.globals['xsrf_token'])
 
 
@@ -75,7 +80,7 @@ class SetupUsersHandler(webapp2.RequestHandler):
     directory_service = GoogleDirectoryService(oauth_decorator)
     directory_users = directory_service.GetUsers()
     User.InsertUsers(directory_users)
-    self.redirect('/?xsrf=' + JINJA_ENVIRONMENT.globals['xsrf_token'])
+    self.redirect('/user?xsrf=' + JINJA_ENVIRONMENT.globals['xsrf_token'])
 
 
 app = webapp2.WSGIApplication([

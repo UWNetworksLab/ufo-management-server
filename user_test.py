@@ -37,9 +37,14 @@ class UserTest(unittest.TestCase):
   def setUp(self):
     self.testapp = webtest.TestApp(user.app)
 
+  @patch('user._RenderLandingTemplate')
+  def testListUsersHandler(self, mock_landing_template):
+    self.testapp.get('/')
+    mock_landing_template.assert_called_once_with()
+
   @patch('user._RenderUserListTemplate')
   def testListUsersHandler(self, mock_user_template):
-    self.testapp.get('/')
+    self.testapp.get('/user')
     mock_user_template.assert_called_once_with()
 
   @patch('user.User.DeleteByKey')
@@ -101,6 +106,17 @@ class UserTest(unittest.TestCase):
     self.assertTrue(FAKE_USER.email in token_list_template)
     self.assertTrue(
         ('user/getNewToken?key=' + FAKE_DS_KEY) in token_list_template)
+
+  @patch('datastore.DomainVerification.GetOrInsertDefault')
+  def testRenderLandingTemplate(self, mock_domain_verif):
+    fake_content = 'foobarbaz'
+    fake_domain_verif = MagicMock(content=fake_content)
+    mock_domain_verif.return_value = fake_domain_verif
+
+    landing_template = user._RenderLandingTemplate()
+
+    mock_domain_verif.assert_called_once_with()
+    self.assertTrue(fake_content in landing_template)
 
   @patch.object(user.User, 'key')
   def testGenerateTokenPayload(self, mock_url_key):

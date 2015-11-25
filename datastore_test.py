@@ -44,6 +44,10 @@ FAKE_CLIENT_SECRET = 'secret abc'
 BAD_CLIENT_ID = 'id5678'
 BAD_CLIENT_SECRET = 'secret 123'
 
+# Domain Verification test globals
+FAKE_CONTENT = 'foo'
+BAD_CONTENT = 'bar'
+
 
 class DatastoreTest(unittest.TestCase):
 
@@ -366,6 +370,60 @@ class OAuthDatastoreTest(DatastoreTest):
     datastore.OAuth.Flush()
 
     mock_flush_all.assert_called_once_with()
+
+class DomainVerificationDatastoreTest(DatastoreTest):
+
+  def testGetOrInsertDefault(self):
+    self.assertEqual(datastore.DomainVerification.GetCount(), 0)
+
+    first_entity = datastore.DomainVerification.GetOrInsertDefault()
+
+    self.assertEqual(datastore.DomainVerification.GetCount(), 1)
+    self.assertEqual(first_entity.key.id(), datastore.DomainVerification.CONTENT_KEY)
+    self.assertEqual(first_entity.content, datastore.DomainVerification.DEFAULT_CONTENT)
+
+    datastore.DomainVerification.Update(FAKE_CONTENT)
+
+    second_entity = datastore.DomainVerification.GetOrInsertDefault()
+
+    self.assertEqual(datastore.DomainVerification.GetCount(), 1)
+    self.assertEqual(second_entity.key.id(), datastore.DomainVerification.CONTENT_KEY)
+    self.assertEqual(second_entity.content, FAKE_CONTENT)
+
+  def testInsertDefault(self):
+    self.assertEqual(datastore.DomainVerification.GetCount(), 0)
+
+    datastore.DomainVerification.InsertDefault()
+
+    self.assertEqual(datastore.DomainVerification.GetCount(), 1)
+    dvs_after_insert = datastore.DomainVerification.GetAll()
+    for dv in dvs_after_insert:
+        self.assertEqual(dv.key.id(), datastore.DomainVerification.CONTENT_KEY)
+        self.assertEqual(dv.content, datastore.DomainVerification.DEFAULT_CONTENT)
+
+  def testInsert(self):
+    self.assertEqual(datastore.DomainVerification.GetCount(), 0)
+
+    datastore.DomainVerification.Insert(FAKE_CONTENT)
+
+    self.assertEqual(datastore.DomainVerification.GetCount(), 1)
+    dvs_after_insert = datastore.DomainVerification.GetAll()
+    for dv in dvs_after_insert:
+        self.assertEqual(dv.key.id(), datastore.DomainVerification.CONTENT_KEY)
+        self.assertEqual(dv.content, FAKE_CONTENT)
+
+  def testUpdate(self):
+    datastore.DomainVerification.Insert(BAD_CONTENT)
+
+    self.assertEqual(datastore.DomainVerification.GetCount(), 1)
+    dv_before_update = datastore.DomainVerification.Get(datastore.DomainVerification.CONTENT_KEY)
+    self.assertEqual(dv_before_update.content, BAD_CONTENT)
+
+    datastore.DomainVerification.Update(FAKE_CONTENT)
+
+    self.assertEqual(datastore.DomainVerification.GetCount(), 1)
+    dv_after_update = datastore.DomainVerification.Get(datastore.DomainVerification.CONTENT_KEY)
+    self.assertEqual(dv_after_update.content, FAKE_CONTENT)
 
 if __name__ == '__main__':
     unittest.main()
