@@ -12,5 +12,7 @@ def Handle500(request, response, exception):
     response.write('Setup your client_secret in the datastore.')
   else:
     # TODO(henryc): Figure out a user-friendly way to handle general errors.
+    # TODO(eholder): Add tests for this.
     logging.exception(exception)
-    response.write('Unknown error has occurred.')
+    response.write('Unknown error has occurred: ' + exception.message)
+    
