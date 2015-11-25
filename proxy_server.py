@@ -8,16 +8,11 @@ import webapp2
 import admin
 from appengine_config import JINJA_ENVIRONMENT
 from datastore import ProxyServer
+from datastore import User
 import xsrf
 
 from google.appengine.api import app_identity
 
-
-# TODO(henry): Retrieve users & keys (public) from the datastore.
-FAKE_KEYS = (
-    'ssh-rsa public_key1 foo@example.com\n'
-    'ssh-rsa public_key2 bar@example.com\n'
-)
 
 
 def _RenderProxyServerFormTemplate(proxy_server):
@@ -40,6 +35,23 @@ def _RenderListProxyServerTemplate():
   }
   template = JINJA_ENVIRONMENT.get_template('templates/proxy_server.html')
   return template.render(template_values)
+
+
+def _MakeKeyString():
+  """Generate the key string for pushing to proxy servers.
+
+    Returns:
+      key_string: A string of users with associated key."""
+  users = User.GetAll()
+  key_string = ''
+  ssh_starting_portion = 'ssh-rsa'
+  space = ' '
+  endline = '\n'
+  for user in users:
+    user_string = ssh_starting_portion + space + user.public_key + space + user.email + endline
+    key_string += user_string
+
+  return key_string
 
 
 class AddProxyServerHandler(webapp2.RequestHandler):
@@ -99,6 +111,7 @@ class DistributeKeyHandler(webapp2.RequestHandler):
   @admin.require_admin
   def get(self):
     # TODO(henry): See if we can use threading to parallelize the put requests.
+    key_string = _MakeKeyString()
     proxy_servers = ProxyServer.GetAll()
     for proxy_server in proxy_servers:
       http = httplib2.Http()
@@ -110,7 +123,7 @@ class DistributeKeyHandler(webapp2.RequestHandler):
           'http://%s/key' % proxy_server.ip_address,
           headers={'content-type': 'text/plain'},
           method='PUT',
-          body=FAKE_KEYS)
+          body=key_string)
       logging.info('Distributed keys to %s. Response: %s, Content: %s',
                    proxy_server.ip_address, response.status, content)
     self.response.write('all done!')

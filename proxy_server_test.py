@@ -28,10 +28,6 @@ FAKE_ID = 11111
 FAKE_IP_ADDRESS = '111.222.333.444'
 FAKE_SSH_PRIVATE_KEY = '4444333222111'
 FAKE_FINGERPRINT = '11:22:33:44'
-FAKE_KEYS = (
-    'ssh-rsa public_key1 foo@example.com\n'
-    'ssh-rsa public_key2 bar@example.com\n'
-)
 
 
 class ProxyServerTest(unittest.TestCase):
@@ -88,9 +84,10 @@ class ProxyServerTest(unittest.TestCase):
     mock_delete.assert_called_once_with(FAKE_ID)
     mock_render_list_template.assert_called_once_with()
 
+  @patch('proxy_server._MakeKeyString')
   @patch('httplib2.Http.request')
   @patch('datastore.ProxyServer.GetAll')
-  def testDistributeKeyHandler(self, mock_get_all, mock_request):
+  def testDistributeKeyHandler(self, mock_get_all, mock_request, mock_key_string):
     fake_proxy_server = GetFakeProxyServer()
     fake_proxy_servers = [fake_proxy_server]
     mock_get_all.return_value = fake_proxy_servers
@@ -100,12 +97,15 @@ class ProxyServerTest(unittest.TestCase):
     fake_content = ''
     mock_request.return_value = mock_response, fake_content
 
+    fake_key_string = 'ssh-rsa public_key email'
+    mock_key_string.return_value = fake_key_string
+
     self.testapp.get('/proxyserver/distributekey')
     mock_request.assert_called_once_with(
         'http://%s/key' % fake_proxy_server.ip_address,
         headers={'content-type': 'text/plain'},
         method='PUT',
-        body=FAKE_KEYS)
+        body=fake_key_string)
 
   def testRenderAddProxyServerTemplate(self):
     add_form = proxy_server._RenderProxyServerFormTemplate(None)
@@ -135,6 +135,23 @@ class ProxyServerTest(unittest.TestCase):
     self.assertTrue(FAKE_IP_ADDRESS in list_proxy_server_template)
     self.assertTrue(FAKE_SSH_PRIVATE_KEY in list_proxy_server_template)
     self.assertTrue(FAKE_FINGERPRINT in list_proxy_server_template)
+
+  @patch('datastore.User.GetAll')
+  def testMakeKeyString(self, mock_get_all):
+    fake_email = 'foo@bar.com'
+    fake_pub_key = '123abc'
+    fake_user = MagicMock(email=fake_email, public_key=fake_pub_key)
+    fake_result = 'ssh-rsa ' + fake_pub_key + ' ' + fake_email + '\n'
+    fake_users = [fake_user, fake_user]
+    mock_get_all.return_value = fake_users
+
+    key_string = proxy_server._MakeKeyString()
+
+    mock_get_all.assert_called_once_with()
+
+    self.assertTrue(fake_pub_key in key_string)
+    self.assertTrue(fake_email in key_string)
+    self.assertEqual(fake_result + fake_result, key_string)
 
 
 def GetFakeProxyServer():
