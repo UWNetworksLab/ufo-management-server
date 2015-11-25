@@ -1,3 +1,5 @@
+{% extends "templates/base.html" %}
+{% block title %}Tokens{% endblock %}
 {% block body %}
   <ul>
   {% for key, (email, token_payload) in user_token_payloads.iteritems() %}

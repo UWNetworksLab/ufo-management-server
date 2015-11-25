@@ -1,3 +1,5 @@
+{% extends "templates/base.html" %}
+{% block title %}Proxy Server(s){% endblock %}
 {% block body %}
   {% if proxy_server %}
     <form method="post" action="http://{{ host }}/proxyserver/edit">
