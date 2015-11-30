@@ -25,6 +25,7 @@ sys.modules['xsrf'] = mock_xsrf
 import proxy_server
 
 FAKE_ID = 11111
+FAKE_NAME = 'US_WEST1'
 FAKE_IP_ADDRESS = '111.222.333.444'
 FAKE_SSH_PRIVATE_KEY = '4444333222111'
 FAKE_FINGERPRINT = '11:22:33:44'
@@ -53,7 +54,7 @@ class ProxyServerTest(unittest.TestCase):
   def testAddProxyServerPostHandler(self, mock_insert):
     response = self.testapp.post('/proxyserver/add')
 
-    mock_insert.assert_called_once_with('', '', '')
+    mock_insert.assert_called_once_with('', '', '', '')
     self.assertEqual(response.status_int, 302)
     self.assertTrue('/proxyserver/list' in response.location)
 
@@ -70,12 +71,13 @@ class ProxyServerTest(unittest.TestCase):
   @patch('datastore.ProxyServer.Update')
   def testEditProxyServerPostHandler(self, mock_update):
     params = {'id': str(FAKE_ID),
+              'name': FAKE_NAME,
               'ip_address': FAKE_IP_ADDRESS,
               'ssh_private_key': FAKE_SSH_PRIVATE_KEY,
               'fingerprint': FAKE_FINGERPRINT}
     response = self.testapp.post('/proxyserver/edit', params)
 
-    mock_update.assert_called_once_with(FAKE_ID, FAKE_IP_ADDRESS,
+    mock_update.assert_called_once_with(FAKE_ID, FAKE_NAME, FAKE_IP_ADDRESS,
                                         FAKE_SSH_PRIVATE_KEY, FAKE_FINGERPRINT)
     self.assertEqual(response.status_int, 302)
     self.assertTrue('/proxyserver/list' in response.location)
@@ -111,7 +113,7 @@ class ProxyServerTest(unittest.TestCase):
     add_form = proxy_server._RenderProxyServerFormTemplate(None)
     self.assertTrue('/proxyserver/add' in add_form)
     self.assertFalse('/proxyserver/edit' in add_form)
-    self.assertTrue('ip address:' in add_form)
+    self.assertTrue('name:' in add_form)
     self.assertTrue('ip address:' in add_form)
 
   def testRenderEditProxyServerTemplate(self):
@@ -119,9 +121,11 @@ class ProxyServerTest(unittest.TestCase):
     edit_form = proxy_server._RenderProxyServerFormTemplate(fake_proxy_server)
     self.assertFalse('/proxyserver/add' in edit_form)
     self.assertTrue('/proxyserver/edit' in edit_form)
-    self.assertTrue('ip address:' in edit_form)
     # TODO(henryc): We need better asserts on the exact elements and their
     # values.  Will circle back once the UI is in shape.
+    self.assertTrue('name:' in edit_form)
+    self.assertTrue(FAKE_NAME in edit_form)
+    self.assertTrue('ip address:' in edit_form)
     self.assertTrue(FAKE_IP_ADDRESS in edit_form)
 
   @patch('datastore.ProxyServer.GetAll')
@@ -132,6 +136,7 @@ class ProxyServerTest(unittest.TestCase):
     list_proxy_server_template = proxy_server._RenderListProxyServerTemplate()
 
     self.assertTrue('add new proxy server' in list_proxy_server_template)
+    self.assertTrue(FAKE_NAME in list_proxy_server_template)
     self.assertTrue(FAKE_IP_ADDRESS in list_proxy_server_template)
     self.assertTrue(FAKE_SSH_PRIVATE_KEY in list_proxy_server_template)
     self.assertTrue(FAKE_FINGERPRINT in list_proxy_server_template)
@@ -139,6 +144,7 @@ class ProxyServerTest(unittest.TestCase):
 
 def GetFakeProxyServer():
   return ProxyServer(id=FAKE_ID,
+                     name=FAKE_NAME,
                      ip_address=FAKE_IP_ADDRESS,
                      ssh_private_key=FAKE_SSH_PRIVATE_KEY,
                      fingerprint=FAKE_FINGERPRINT)

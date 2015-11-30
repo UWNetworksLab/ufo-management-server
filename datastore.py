@@ -4,17 +4,16 @@ TODO(henry): Refactor the common methods (get, insert, delete) into base class.
 """
 
 import base64
-import binascii
+import hashlib
+
 from Crypto.PublicKey import RSA
+
 from google.appengine.api import memcache
 from google.appengine.ext import ndb
-import hashlib
-import json
-import os
 
 
 class BaseModel(ndb.Model):
-  
+
   @classmethod
   def GetCount(cls):
     """Get a count of all the entities in the datastore.
@@ -42,7 +41,7 @@ class BaseModel(ndb.Model):
     """
     q = cls.query()
     return q.fetch()
-  
+
   @classmethod
   def Get(cls, id):
     """Get a single entity by id from datastore.
@@ -57,7 +56,7 @@ class BaseModel(ndb.Model):
       A datastore entity.
     """
     return cls.get_by_id(id)
-  
+
   @classmethod
   def GetByKey(cls, url_key):
     """Get a single entity by id from datastore.
@@ -113,6 +112,7 @@ class User(BaseModel):
 
     Args:
       directory_user: A dictionary of the dasher user.
+      key_pair: A dictionary with private_key and public_key in b64 value.
 
     Returns:
       user_entity: An appengine datastore entity of the user.
@@ -153,8 +153,8 @@ class User(BaseModel):
     """
     user = User.GetByKey(key)
     key_pair = User._GenerateKeyPair()
-    user.public_key=key_pair['public_key']
-    user.private_key=key_pair['private_key']
+    user.public_key = key_pair['public_key']
+    user.private_key = key_pair['private_key']
     user.put()
 
   @staticmethod
@@ -163,6 +163,7 @@ class User(BaseModel):
 
     Args:
       directory_user: A dictionary of the dasher user.
+      key_pair: A dictionary with private_key and public_key in b64 value.
     """
     user = User._CreateUser(directory_user, key_pair)
     user.put()
@@ -185,23 +186,27 @@ class ProxyServer(BaseModel):
   """Store data related to the proxy servers."""
 
   ip_address = ndb.StringProperty()
+  name = ndb.StringProperty()
   ssh_private_key = ndb.TextProperty()
   fingerprint = ndb.StringProperty()
 
   @staticmethod
-  def Insert(ip_address, ssh_private_key, fingerprint):
-    entity = ProxyServer(ip_address=ip_address,
+  def Insert(name, ip_address, ssh_private_key, fingerprint):
+    entity = ProxyServer(name=name,
+                         ip_address=ip_address,
                          ssh_private_key=ssh_private_key,
                          fingerprint=fingerprint)
     entity.put()
 
   @staticmethod
-  def Update(id, ip_address, ssh_private_key, fingerprint):
+  def Update(id, name, ip_address, ssh_private_key, fingerprint):
     entity = ProxyServer.Get(id)
+    entity.name = name
     entity.ip_address = ip_address
     entity.ssh_private_key = ssh_private_key
     entity.fingerprint = fingerprint
     entity.put()
+
 
 class OAuth(BaseModel):
   """Store the client secret so that it's not checked into source code.
@@ -244,8 +249,8 @@ class OAuth(BaseModel):
   def Update(new_client_id, new_client_secret):
     # Ensure there's only one key.
     entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
-    entity.client_id=new_client_id
-    entity.client_secret=new_client_secret
+    entity.client_id = new_client_id
+    entity.client_secret = new_client_secret
     entity.put()
 
   @staticmethod
