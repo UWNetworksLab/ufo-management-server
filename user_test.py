@@ -101,6 +101,29 @@ class UserTest(unittest.TestCase):
         ('user/delete?key=' + FAKE_DS_KEY) in user_list_template)
     self.assertTrue(
         ('user/getNewToken?key=' + FAKE_DS_KEY) in user_list_template)
+    self.assertTrue('Invite Code Below' not in user_list_template)
+
+  @patch('user._GenerateUserPayload')
+  @patch('user.User.GetAll')
+  def testRenderUserListTemplateWithInviteCode(self, mock_get_all,
+                                               mock_generate):
+    fake_users = [FAKE_USER]
+    mock_get_all.return_value = fake_users
+    fake_dictionary = {}
+    fake_dictionary[FAKE_DS_KEY] = FAKE_USER.email
+    mock_generate.return_value = fake_dictionary
+
+    user_list_template = user._RenderUserListTemplate('fake_invite_code')
+
+    mock_get_all.assert_called_once_with()
+    mock_generate.assert_called_once_with(fake_users)
+    self.assertTrue('List Tokens' in user_list_template)
+    self.assertTrue(FAKE_USER.email in user_list_template)
+    self.assertTrue(
+        ('user/delete?key=' + FAKE_DS_KEY) in user_list_template)
+    self.assertTrue(
+        ('user/getNewToken?key=' + FAKE_DS_KEY) in user_list_template)
+    self.assertTrue('Invite Code Below' in user_list_template)
 
   @patch('user._GenerateTokenPayload')
   @patch('user.User.GetAll')
