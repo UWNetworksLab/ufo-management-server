@@ -87,7 +87,8 @@ class ProxyServerTest(unittest.TestCase):
   @patch('proxy_server._MakeKeyString')
   @patch('httplib2.Http.request')
   @patch('datastore.ProxyServer.GetAll')
-  def testDistributeKeyHandler(self, mock_get_all, mock_request, mock_key_string):
+  def testDistributeKeyHandler(self, mock_get_all, mock_request,
+                               mock_make_key_string):
     fake_proxy_server = GetFakeProxyServer()
     fake_proxy_servers = [fake_proxy_server]
     mock_get_all.return_value = fake_proxy_servers
@@ -98,7 +99,7 @@ class ProxyServerTest(unittest.TestCase):
     mock_request.return_value = mock_response, fake_content
 
     fake_key_string = 'ssh-rsa public_key email'
-    mock_key_string.return_value = fake_key_string
+    mock_make_key_string.return_value = fake_key_string
 
     self.testapp.get('/proxyserver/distributekey')
     mock_request.assert_called_once_with(
@@ -138,20 +139,22 @@ class ProxyServerTest(unittest.TestCase):
 
   @patch('datastore.User.GetAll')
   def testMakeKeyString(self, mock_get_all):
-    fake_email = 'foo@bar.com'
-    fake_pub_key = '123abc'
-    fake_user = MagicMock(email=fake_email, public_key=fake_pub_key)
-    fake_result = 'ssh-rsa ' + fake_pub_key + ' ' + fake_email + '\n'
-    fake_users = [fake_user, fake_user]
+    fake_email_1 = 'foo@bar.com'
+    fake_public_key_1 = '123abc'
+    fake_user_1 = MagicMock(email=fake_email_1, public_key=fake_public_key_1)
+    fake_result_1 = 'ssh-rsa ' + fake_public_key_1 + ' ' + fake_email_1 + '\n'
+    fake_email_2 = 'bar@baz.com'
+    fake_public_key_2 = 'def456'
+    fake_user_2 = MagicMock(email=fake_email_2, public_key=fake_public_key_2)
+    fake_result_2 = 'ssh-rsa ' + fake_public_key_2 + ' ' + fake_email_2 + '\n'
+    fake_users = [fake_user_1, fake_user_2]
     mock_get_all.return_value = fake_users
 
     key_string = proxy_server._MakeKeyString()
 
     mock_get_all.assert_called_once_with()
 
-    self.assertTrue(fake_pub_key in key_string)
-    self.assertTrue(fake_email in key_string)
-    self.assertEqual(fake_result + fake_result, key_string)
+    self.assertEqual(fake_result_1 + fake_result_2, key_string)
 
 
 def GetFakeProxyServer():

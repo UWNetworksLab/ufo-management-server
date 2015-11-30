@@ -38,17 +38,21 @@ def _RenderListProxyServerTemplate():
 
 
 def _MakeKeyString():
-  """Generate the key string for pushing to proxy servers.
+  """Generate the key string in open ssh format for pushing to proxy servers.
+     This key string includes only the public key for each user in order to
+     grant the user access to each proxy server.
 
     Returns:
-      key_string: A string of users with associated key."""
+      key_string: A string of users with associated key.
+    """
   users = User.GetAll()
   key_string = ''
   ssh_starting_portion = 'ssh-rsa'
   space = ' '
   endline = '\n'
   for user in users:
-    user_string = ssh_starting_portion + space + user.public_key + space + user.email + endline
+    user_string = (ssh_starting_portion + space + user.public_key + space +
+                  user.email + endline)
     key_string += user_string
 
   return key_string
