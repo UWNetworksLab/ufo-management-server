@@ -140,7 +140,7 @@ class UserTest(unittest.TestCase):
     user_array.append(user_2)
     data = '?selected_user={0}&selected_user={1}'.format(FAKE_EMAIL_1,
                                                          FAKE_EMAIL_2)
-    response = self.testapp.post('/setup/users' + data)
+    response = self.testapp.post('/user/add' + data)
 
     mock_insert.assert_called_once_with(user_array)
     self.assertEqual(response.status_int, 302)
