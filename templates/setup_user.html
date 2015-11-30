@@ -3,7 +3,27 @@
 {% block body %}
   <form method="post" action="https://{{ host }}/setup/users">
     <br><br>
+    Select Users to Add.
+    <br><br>
+  <ul>
+  {% for directory_user in directory_users %}
+    <li>
+      <input type="checkbox" name="selected_user" value="{{ directory_user['email'] }}"> 
+      {{ directory_user['email'] }}<br>
+    </li>
+    <br />
+  {% endfor %}
+  </ul>
     <input type="hidden" name="xsrf" value="{{ xsrf_token }}">
-    <input type="submit" value="Set Users?">
+    <input type="submit" value="Add Selected Users">
+  </form>
+  <form method="get" action="https://{{ host }}/setup/users">
+    <br><br>
+    Input your group key to fetch more users.
+    <br><br>
+    <input type="textbox" name="group_key" value="{{ group_key }}"> 
+    <br><br>
+    <input type="hidden" name="xsrf" value="{{ xsrf_token }}">
+    <input type="submit" value="Fetch More Users">
   </form>
 {% endblock %}
