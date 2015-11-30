@@ -50,11 +50,13 @@ class SetupTest(unittest.TestCase):
   @patch('datastore.DomainVerification.Update')
   @patch('datastore.OAuth.Update')
   @patch('datastore.OAuth.Flush')
-  def testSetupOAuthClientPostHandler(self, mock_flush, mock_oauth_update, mock_dv_update):
-    resp = self.testapp.post('/setup/oauthclient?client_id={0}&client_secret={1}&dv_content={2}'
-                             .format(unicode(FAKE_ID,'utf-8'),
-                                     unicode(FAKE_SECRET,'utf-8'),
-                                     unicode(FAKE_CONTENT,'utf-8')))
+  def testSetupOAuthClientPostHandler(self, mock_flush, mock_oauth_update,
+                                      mock_dv_update):
+    post_url = ('/setup/oauthclient?client_id={0}&client_secret={1}' +
+                '&dv_content={2}')
+    resp = self.testapp.post(post_url.format(unicode(FAKE_ID,'utf-8'),
+                                             unicode(FAKE_SECRET,'utf-8'),
+                                             unicode(FAKE_CONTENT,'utf-8')))
     mock_oauth_update.assert_called_once_with(FAKE_ID, FAKE_SECRET)
     mock_flush.assert_called_once_with()
     mock_dv_update.assert_called_once_with(FAKE_CONTENT)

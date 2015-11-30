@@ -10,6 +10,7 @@ from google.appengine.api import memcache
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 import datastore
+from datastore import DomainVerification
 
 # User test globals
 FAKE_EMAIL = 'foo@bar.com'
@@ -374,55 +375,59 @@ class OAuthDatastoreTest(DatastoreTest):
 class DomainVerificationDatastoreTest(DatastoreTest):
 
   def testGetOrInsertDefault(self):
-    self.assertEqual(datastore.DomainVerification.GetCount(), 0)
+    self.assertEqual(DomainVerification.GetCount(), 0)
 
-    first_entity = datastore.DomainVerification.GetOrInsertDefault()
+    first_entity = DomainVerification.GetOrInsertDefault()
 
-    self.assertEqual(datastore.DomainVerification.GetCount(), 1)
-    self.assertEqual(first_entity.key.id(), datastore.DomainVerification.CONTENT_KEY)
-    self.assertEqual(first_entity.content, datastore.DomainVerification.DEFAULT_CONTENT)
+    self.assertEqual(DomainVerification.GetCount(), 1)
+    self.assertEqual(first_entity.key.id(),
+                     DomainVerification.CONTENT_ID)
+    self.assertEqual(first_entity.content,
+                     DomainVerification.DEFAULT_CONTENT)
 
-    datastore.DomainVerification.Update(FAKE_CONTENT)
+    DomainVerification.Update(FAKE_CONTENT)
 
-    second_entity = datastore.DomainVerification.GetOrInsertDefault()
+    second_entity = DomainVerification.GetOrInsertDefault()
 
-    self.assertEqual(datastore.DomainVerification.GetCount(), 1)
-    self.assertEqual(second_entity.key.id(), datastore.DomainVerification.CONTENT_KEY)
+    self.assertEqual(DomainVerification.GetCount(), 1)
+    self.assertEqual(second_entity.key.id(),
+                     DomainVerification.CONTENT_ID)
     self.assertEqual(second_entity.content, FAKE_CONTENT)
 
   def testInsertDefault(self):
-    self.assertEqual(datastore.DomainVerification.GetCount(), 0)
+    self.assertEqual(DomainVerification.GetCount(), 0)
 
-    datastore.DomainVerification.InsertDefault()
+    DomainVerification.InsertDefault()
 
-    self.assertEqual(datastore.DomainVerification.GetCount(), 1)
-    dvs_after_insert = datastore.DomainVerification.GetAll()
-    for dv in dvs_after_insert:
-        self.assertEqual(dv.key.id(), datastore.DomainVerification.CONTENT_KEY)
-        self.assertEqual(dv.content, datastore.DomainVerification.DEFAULT_CONTENT)
+    self.assertEqual(DomainVerification.GetCount(), 1)
+    dv_after_insert = DomainVerification.Get(DomainVerification.CONTENT_ID)
+    self.assertEqual(dv_after_insert.key.id(),
+                     DomainVerification.CONTENT_ID)
+    self.assertEqual(dv_after_insert.content,
+                     DomainVerification.DEFAULT_CONTENT)
 
   def testInsert(self):
-    self.assertEqual(datastore.DomainVerification.GetCount(), 0)
+    self.assertEqual(DomainVerification.GetCount(), 0)
 
-    datastore.DomainVerification.Insert(FAKE_CONTENT)
+    DomainVerification.Insert(FAKE_CONTENT)
 
-    self.assertEqual(datastore.DomainVerification.GetCount(), 1)
-    dvs_after_insert = datastore.DomainVerification.GetAll()
-    for dv in dvs_after_insert:
-        self.assertEqual(dv.key.id(), datastore.DomainVerification.CONTENT_KEY)
-        self.assertEqual(dv.content, FAKE_CONTENT)
+    self.assertEqual(DomainVerification.GetCount(), 1)
+    dv_after_insert = DomainVerification.Get(DomainVerification.CONTENT_ID)
+    self.assertEqual(dv_after_insert.key.id(),
+                     DomainVerification.CONTENT_ID)
+    self.assertEqual(dv_after_insert.content, FAKE_CONTENT)
 
   def testUpdate(self):
-    datastore.DomainVerification.Insert(BAD_CONTENT)
+    DomainVerification.Insert(BAD_CONTENT)
 
-    self.assertEqual(datastore.DomainVerification.GetCount(), 1)
-    dv_before_update = datastore.DomainVerification.Get(datastore.DomainVerification.CONTENT_KEY)
+    self.assertEqual(DomainVerification.GetCount(), 1)
+    dv_before_update = DomainVerification.Get(DomainVerification.CONTENT_ID)
     self.assertEqual(dv_before_update.content, BAD_CONTENT)
 
-    datastore.DomainVerification.Update(FAKE_CONTENT)
+    DomainVerification.Update(FAKE_CONTENT)
 
-    self.assertEqual(datastore.DomainVerification.GetCount(), 1)
-    dv_after_update = datastore.DomainVerification.Get(datastore.DomainVerification.CONTENT_KEY)
+    self.assertEqual(DomainVerification.GetCount(), 1)
+    dv_after_update = DomainVerification.Get(DomainVerification.CONTENT_ID)
     self.assertEqual(dv_after_update.content, FAKE_CONTENT)
 
 if __name__ == '__main__':
