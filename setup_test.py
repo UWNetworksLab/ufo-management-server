@@ -118,22 +118,22 @@ class SetupTest(unittest.TestCase):
 
   @patch('user.User.InsertUsers')
   def testSetupUsersPostHandler(self, mock_insert):
-    #json_data = json.dumps(FAKE_USER_ARRAY)
-    reformed_user_1 = {}
-    reformed_user_1['primaryEmail'] = FAKE_EMAIL_1
-    reformed_user_1['name'] = {}
-    reformed_user_1['name']['fullName'] = FAKE_EMAIL_1
-    reformed_user_2 = {}
-    reformed_user_2['primaryEmail'] = FAKE_EMAIL_2
-    reformed_user_2['name'] = {}
-    reformed_user_2['name']['fullName'] = FAKE_EMAIL_2
-    reformed_array = []
-    reformed_array.append(reformed_user_1)
-    reformed_array.append(reformed_user_2)
-    data = '?selected_user={0}&selected_user={1}'.format(FAKE_EMAIL_1, FAKE_EMAIL_2)
+    user_1 = {}
+    user_1['primaryEmail'] = FAKE_EMAIL_1
+    user_1['name'] = {}
+    user_1['name']['fullName'] = FAKE_EMAIL_1
+    user_2 = {}
+    user_2['primaryEmail'] = FAKE_EMAIL_2
+    user_2['name'] = {}
+    user_2['name']['fullName'] = FAKE_EMAIL_2
+    user_array = []
+    user_array.append(user_1)
+    user_array.append(user_2)
+    data = '?selected_user={0}&selected_user={1}'.format(FAKE_EMAIL_1,
+                                                         FAKE_EMAIL_2)
     response = self.testapp.post('/setup/users' + data)
 
-    mock_insert.assert_called_once_with(reformed_array)
+    mock_insert.assert_called_once_with(user_array)
     self.assertEqual(response.status_int, 302)
     # TODO(eholder): Figure out why this test fails but works on appspot.
     # self.assertTrue('/user' in response.location)

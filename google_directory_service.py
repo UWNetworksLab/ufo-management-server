@@ -19,6 +19,7 @@ class GoogleDirectoryService(object):
 
   def GetUsers(self):
     """Get the users of a customer account.
+
     Returns:
       users: A list of users.
     """
@@ -41,8 +42,10 @@ class GoogleDirectoryService(object):
 
   def GetUsersByGroupKey(self, group_key):
     """Get the users belonging to a group in a customer account.
+
     Args:
       group_key: A string identifying a google group for querying users.
+
     Returns:
       users: A list of group members which are users and not groups.
     """

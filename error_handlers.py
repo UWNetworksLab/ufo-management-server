@@ -15,4 +15,3 @@ def Handle500(request, response, exception):
     # TODO(eholder): Add tests for this.
     logging.exception(exception)
     response.write('Unknown error has occurred: ' + exception.message)
-    
