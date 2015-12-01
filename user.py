@@ -86,7 +86,6 @@ def _RenderAddUsersTemplate(directory_users):
   """Render a user add page that lets users be added by group key."""
   template_values = {
       'host': app_identity.get_default_version_hostname(),
-      'xsrf_token': JINJA_ENVIRONMENT.globals['xsrf_token'],
       'directory_users': directory_users,
   }
   template = JINJA_ENVIRONMENT.get_template('templates/add_user.html')
