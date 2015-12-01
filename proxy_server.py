@@ -8,16 +8,11 @@ import webapp2
 import admin
 from appengine_config import JINJA_ENVIRONMENT
 from datastore import ProxyServer
+from datastore import User
 import xsrf
 
 from google.appengine.api import app_identity
 
-
-# TODO(henry): Retrieve users & keys (public) from the datastore.
-FAKE_KEYS = (
-    'ssh-rsa public_key1 foo@example.com\n'
-    'ssh-rsa public_key2 bar@example.com\n'
-)
 
 
 def _RenderProxyServerFormTemplate(proxy_server):
@@ -42,6 +37,27 @@ def _RenderListProxyServerTemplate():
   return template.render(template_values)
 
 
+def _MakeKeyString():
+  """Generate the key string in open ssh format for pushing to proxy servers.
+     This key string includes only the public key for each user in order to
+     grant the user access to each proxy server.
+
+    Returns:
+      key_string: A string of users with associated key.
+    """
+  users = User.GetAll()
+  key_string = ''
+  ssh_starting_portion = 'ssh-rsa'
+  space = ' '
+  endline = '\n'
+  for user in users:
+    user_string = (ssh_starting_portion + space + user.public_key + space +
+                  user.email + endline)
+    key_string += user_string
+
+  return key_string
+
+
 class AddProxyServerHandler(webapp2.RequestHandler):
 
   @admin.require_admin
@@ -52,6 +68,7 @@ class AddProxyServerHandler(webapp2.RequestHandler):
   @xsrf.xsrf_protect
   def post(self):
     ProxyServer.Insert(
+        self.request.get('name'),
         self.request.get('ip_address'),
         self.request.get('ssh_private_key'),
         self.request.get('fingerprint'))
@@ -70,6 +87,7 @@ class EditProxyServerHandler(webapp2.RequestHandler):
   def post(self):
     ProxyServer.Update(
         int(self.request.get('id')),
+        self.request.get('name'),
         self.request.get('ip_address'),
         self.request.get('ssh_private_key'),
         self.request.get('fingerprint'))
@@ -99,6 +117,7 @@ class DistributeKeyHandler(webapp2.RequestHandler):
   @admin.require_admin
   def get(self):
     # TODO(henry): See if we can use threading to parallelize the put requests.
+    key_string = _MakeKeyString()
     proxy_servers = ProxyServer.GetAll()
     for proxy_server in proxy_servers:
       http = httplib2.Http()
@@ -110,7 +129,7 @@ class DistributeKeyHandler(webapp2.RequestHandler):
           'http://%s/key' % proxy_server.ip_address,
           headers={'content-type': 'text/plain'},
           method='PUT',
-          body=FAKE_KEYS)
+          body=key_string)
       logging.info('Distributed keys to %s. Response: %s, Content: %s',
                    proxy_server.ip_address, response.status, content)
     self.response.write('all done!')
