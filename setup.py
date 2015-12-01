@@ -22,7 +22,6 @@ def _RenderSetupOAuthClientTemplate():
       'host': app_identity.get_default_version_hostname(),
       'client_id': entity.client_id,
       'client_secret': entity.client_secret,
-      'xsrf_token': JINJA_ENVIRONMENT.globals['xsrf_token'],
   }
   template = JINJA_ENVIRONMENT.get_template('templates/setup_client.html')
   return template.render(template_values)
@@ -43,9 +42,9 @@ class SetupOAuthClientHandler(webapp2.RequestHandler):
     OAuth.Update(client_id, client_secret)
     OAuth.Flush()
     if User.GetCount() > 0:
-      self.redirect('/?xsrf=' + JINJA_ENVIRONMENT.globals['xsrf_token'])
+      self.redirect('/')
     else:
-      self.redirect('/user/add?xsrf=' + JINJA_ENVIRONMENT.globals['xsrf_token'])
+      self.redirect('/user/add')
 
 
 app = webapp2.WSGIApplication([

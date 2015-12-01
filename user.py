@@ -63,7 +63,6 @@ def _RenderUserListTemplate():
   user_payloads = _GenerateUserPayload(users)
   template_values = {
       'host': app_identity.get_default_version_hostname(),
-      'xsrf_token': JINJA_ENVIRONMENT.globals['xsrf_token'],
       'user_payloads': user_payloads
   }
   template = JINJA_ENVIRONMENT.get_template('templates/user.html')
@@ -77,7 +76,6 @@ def _RenderTokenListTemplate():
 
   template_values = {
       'host': app_identity.get_default_version_hostname(),
-      'xsrf_token': JINJA_ENVIRONMENT.globals['xsrf_token'],
       'user_token_payloads': user_token_payloads
   }
   template = JINJA_ENVIRONMENT.get_template('templates/token.html')
