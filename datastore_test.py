@@ -1,15 +1,11 @@
-from mock import MagicMock
-from mock import patch
-import sys
 import unittest
-import webapp2
-import webtest
 
+from mock import patch
 
-from google.appengine.api import memcache
+import datastore
+
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
-import datastore
 
 # User test globals
 FAKE_EMAIL = 'foo@bar.com'
@@ -31,9 +27,11 @@ BAD_DIR_USER['name'] = {}
 BAD_DIR_USER['name']['fullName'] = FAKE_NAME
 
 # Proxy server test globals
+FAKE_PROXY_SERVER_NAME = 'US_WEST1'
 FAKE_IP = '000.000.000.000'
 FAKE_SSH_PRI_KEY = 'fake private key'
 FAKE_FINGERPRINT = 'fake thumb'
+BAD_PROXY_SERVER_NAME = 'bad proxy server'
 BAD_IP = '111.111.111.111'
 BAD_SSH_PRI_KEY = 'this is a bad private key'
 BAD_FINGERPRINT = 'pinky'
@@ -162,6 +160,7 @@ class DatastoreTest(unittest.TestCase):
     self.assertTrue(FAKE_USER not in datastore.User.GetAll())
     self.assertTrue(USER_BAD_KEY not in datastore.User.GetAll())
 
+
 class UserDatastoreTest(DatastoreTest):
 
   @patch.object(ndb, 'Key')
@@ -215,7 +214,7 @@ class UserDatastoreTest(DatastoreTest):
     mock_generate.return_value = FAKE_KEY_PAIR
 
     datastore.User._UpdateKeyPair(BAD_KEY_URLSAFE)
-    
+
     mock_generate.assert_called_once_with()
     user_after_test = datastore.User.GetByKey(BAD_KEY_URLSAFE)
     self.assertEqual(user_after_test.public_key, FAKE_PUBLIC_KEY)
@@ -229,7 +228,7 @@ class UserDatastoreTest(DatastoreTest):
     self.assertEqual(user_before_test, None)
 
     datastore.User.InsertUser(FAKE_DIRECTORY_USER, FAKE_KEY_PAIR)
-    
+
     mock_create.assert_called_once_with(FAKE_DIRECTORY_USER, FAKE_KEY_PAIR)
 
     user_after_test = datastore.User.GetByKey(FAKE_KEY_URLSAFE)
@@ -256,7 +255,7 @@ class UserDatastoreTest(DatastoreTest):
     self.assertTrue(not users_before_test)
 
     datastore.User.InsertUsers(directory_users)
-    
+
     self.assertEqual(mock_generate.call_count, len(directory_users))
     mock_create.assert_any_call(FAKE_DIRECTORY_USER, FAKE_KEY_PAIR)
     mock_create.assert_any_call(BAD_DIR_USER, FAKE_KEY_PAIR)
@@ -266,22 +265,26 @@ class UserDatastoreTest(DatastoreTest):
     self.assertTrue(USER_BAD_KEY in users_after_test)
     self.assertTrue(FAKE_USER in users_after_test)
 
+
 class ProxyServerDatastoreTest(DatastoreTest):
 
   def testInsert(self):
     self.assertEqual(datastore.ProxyServer.GetCount(), 0)
 
-    datastore.ProxyServer.Insert(FAKE_IP, FAKE_SSH_PRI_KEY, FAKE_FINGERPRINT)
+    datastore.ProxyServer.Insert(FAKE_PROXY_SERVER_NAME, FAKE_IP,
+                                 FAKE_SSH_PRI_KEY, FAKE_FINGERPRINT)
 
     self.assertEqual(datastore.ProxyServer.GetCount(), 1)
     proxys_after_insert = datastore.ProxyServer.GetAll()
     for proxy in proxys_after_insert:
+        self.assertEqual(proxy.name, FAKE_PROXY_SERVER_NAME)
         self.assertEqual(proxy.ip_address, FAKE_IP)
         self.assertEqual(proxy.ssh_private_key, FAKE_SSH_PRI_KEY)
         self.assertEqual(proxy.fingerprint, FAKE_FINGERPRINT)
 
   def testUpdate(self):
-    bad_proxy = datastore.ProxyServer(ip_address=BAD_IP,
+    bad_proxy = datastore.ProxyServer(name=BAD_PROXY_SERVER_NAME,
+                                      ip_address=BAD_IP,
                                       ssh_private_key=BAD_SSH_PRI_KEY,
                                       fingerprint=BAD_FINGERPRINT)
     bad_proxy.put()
@@ -289,17 +292,21 @@ class ProxyServerDatastoreTest(DatastoreTest):
 
     self.assertEqual(datastore.ProxyServer.GetCount(), 1)
     proxy_before_update = datastore.ProxyServer.Get(bad_proxy_id)
+    self.assertEqual(proxy_before_update.name, BAD_PROXY_SERVER_NAME)
     self.assertEqual(proxy_before_update.ip_address, BAD_IP)
     self.assertEqual(proxy_before_update.ssh_private_key, BAD_SSH_PRI_KEY)
     self.assertEqual(proxy_before_update.fingerprint, BAD_FINGERPRINT)
 
-    datastore.ProxyServer.Update(bad_proxy_id, FAKE_IP, FAKE_SSH_PRI_KEY, FAKE_FINGERPRINT)
+    datastore.ProxyServer.Update(bad_proxy_id, FAKE_PROXY_SERVER_NAME, FAKE_IP,
+                                 FAKE_SSH_PRI_KEY, FAKE_FINGERPRINT)
 
     self.assertEqual(datastore.ProxyServer.GetCount(), 1)
     proxy_after_update = datastore.ProxyServer.Get(bad_proxy_id)
+    self.assertEqual(proxy_after_update.name, FAKE_PROXY_SERVER_NAME)
     self.assertEqual(proxy_after_update.ip_address, FAKE_IP)
     self.assertEqual(proxy_after_update.ssh_private_key, FAKE_SSH_PRI_KEY)
     self.assertEqual(proxy_after_update.fingerprint, FAKE_FINGERPRINT)
+
 
 class OAuthDatastoreTest(DatastoreTest):
 
@@ -368,4 +375,4 @@ class OAuthDatastoreTest(DatastoreTest):
     mock_flush_all.assert_called_once_with()
 
 if __name__ == '__main__':
-    unittest.main()
+  unittest.main()

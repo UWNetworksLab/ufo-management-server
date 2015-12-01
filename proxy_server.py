@@ -52,6 +52,7 @@ class AddProxyServerHandler(webapp2.RequestHandler):
   @xsrf.xsrf_protect
   def post(self):
     ProxyServer.Insert(
+        self.request.get('name'),
         self.request.get('ip_address'),
         self.request.get('ssh_private_key'),
         self.request.get('fingerprint'))
@@ -70,6 +71,7 @@ class EditProxyServerHandler(webapp2.RequestHandler):
   def post(self):
     ProxyServer.Update(
         int(self.request.get('id')),
+        self.request.get('name'),
         self.request.get('ip_address'),
         self.request.get('ssh_private_key'),
         self.request.get('fingerprint'))
