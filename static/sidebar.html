@@ -1,0 +1,26 @@
+<link rel="import" href="/bower_components/paper-toolbar/paper-toolbar.html" />
+<link rel="import" href="/bower_components/paper-menu/paper-menu.html" />
+<link rel="import" href="/bower_components/paper-item/paper-item.html" />
+
+<dom-module id="ufo-sidebar">
+    <template>
+        <style>
+            h1.ufo-title {
+                font-size: 18px;
+            }
+            paper-item {
+                cursor: pointer;
+            }
+        </style>
+        <paper-toolbar>
+            <h1 class="ufo-title">UFO Management Server</h1>
+        </paper-toolbar>
+        <paper-menu selected="{{currentPage(pages)}}">
+            <template is="dom-repeat" items="{{pages}}">
+                <paper-item on-click="itemClicked" data-href$="{{item.href}}">{{item.text}}</paper-item>
+            </template>
+        </paper-menu>
+    </template>
+
+    <script src="sidebar.js"></script>
+</dom-module>

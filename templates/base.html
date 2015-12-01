@@ -2,30 +2,20 @@
 <html lang="en">
 <head>
     <title>{% block title %}{% endblock %}</title>
+    <link rel="import" href="/bower_components/polymer/polymer.html" />
+    <link rel="import" href="/bower_components/paper-drawer-panel/paper-drawer-panel.html" />
+    <link rel="import" href="/static/sidebar.html" />
     {% block head %}
     {% endblock %}
 </head>
 <body>
-    <div id="navbar" style="float:left;">
-        {% block navbar %}
-        <h3>Navigation Links</h3>
-        <ul>
-            <li><a href="/user">Users</a></li>
-            <li><a href="/user/listTokens">Tokens</a></li>
-            <li><a href="/proxyserver/list">Proxy Servers</a></li>
-            <li><a href="/setup/oauthclient">Setup</a></li>
-            <li><a href="/logout">Logout</a></li>
-        </ul>
-        {% endblock %}
-    </div>
-    <div id="content" style="float:left; margin-left:50px; margin-top:50px;">
-        {% block body %}{% endblock %}
-    </div>
-    <div id="footer" style="position:absolute;bottom:0px;left:0px;right:0px;text-align:center;">
-        {% block footer %}
-        <h2>UfO Management Server Prototype</h2>
-        <p>Caution: This management server is still in prototyping. It has bugs and will likely change frequently. Please be patient when using.</p>
-        {% endblock %}
-    </div>
+    <paper-drawer-panel>
+        <div drawer>
+            <ufo-sidebar></ufo-sidebar>
+        </div>
+        <section main class="fit">
+            {% block body %}{% endblock %}
+        </section>
+    </paper-drawer-panel>
 </body>
 </html>
