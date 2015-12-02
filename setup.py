@@ -1,7 +1,7 @@
 """The setup module for first-time initialization of the app."""
 
 from appengine_config import JINJA_ENVIRONMENT
-from auth import oauth_decorator
+from auth import OAUTH_DECORATOR
 from datastore import User
 from datastore import OAuth
 from error_handlers import Handle500
@@ -62,7 +62,7 @@ class SetupUsersHandler(webapp2.RequestHandler):
   """Setup users in the datastore."""
 
   @admin.require_admin
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def get(self):
     OAuth.Flush()
     if User.GetCount() > 0:
@@ -72,13 +72,13 @@ class SetupUsersHandler(webapp2.RequestHandler):
     if group_key is None or group_key is '':
       self.response.write(_RenderSetupUsersTemplate([]))
     else:
-      directory_service = GoogleDirectoryService(oauth_decorator)
+      directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
       directory_users = directory_service.GetUsersByGroupKey(group_key)
       self.response.write(_RenderSetupUsersTemplate(directory_users))
 
   @admin.require_admin
   @xsrf.xsrf_protect
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def post(self):
     params = self.request.get_all('selected_user')
     self.response.write(params)
@@ -97,7 +97,7 @@ class SetupUsersHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/setup/oauthclient', SetupOAuthClientHandler),
     ('/setup/users', SetupUsersHandler),
-    (oauth_decorator.callback_path, oauth_decorator.callback_handler()),
+    (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.

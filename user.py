@@ -1,7 +1,7 @@
 """The module for handling users."""
 
 from appengine_config import JINJA_ENVIRONMENT
-from auth import oauth_decorator
+from auth import OAUTH_DECORATOR
 import base64
 from datastore import User
 from datastore import ProxyServer
@@ -125,14 +125,14 @@ def _RenderTokenListTemplate():
 
 class ListUsersHandler(webapp2.RequestHandler):
 
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def get(self):
     self.response.write(_RenderUserListTemplate())
 
 
 class DeleteUserHandler(webapp2.RequestHandler):
 
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def get(self):
     url_key = self.request.get('key')
     User.DeleteByKey(url_key)
@@ -141,14 +141,14 @@ class DeleteUserHandler(webapp2.RequestHandler):
 
 class ListTokensHandler(webapp2.RequestHandler):
 
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def get(self):
     self.response.write(_RenderTokenListTemplate())
 
 
 class GetInviteCodeHandler(webapp2.RequestHandler):
 
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def get(self):
     url_key = self.request.get('key')
     user = User.GetByKey(url_key)
@@ -159,7 +159,7 @@ class GetInviteCodeHandler(webapp2.RequestHandler):
 
 class GetNewTokenHandler(webapp2.RequestHandler):
 
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def get(self):
     url_key = self.request.get('key')
     User.UpdateKeyPair(url_key)
@@ -173,7 +173,7 @@ app = webapp2.WSGIApplication([
     ('/user/listTokens', ListTokensHandler),
     ('/user/getInviteCode', GetInviteCodeHandler),
     ('/user/getNewToken', GetNewTokenHandler),
-    (oauth_decorator.callback_path, oauth_decorator.callback_handler()),
+    (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.

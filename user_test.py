@@ -19,7 +19,7 @@ def noop_decorator(func):
   return func
 
 mock_auth = MagicMock()
-mock_auth.oauth_decorator.oauth_required = noop_decorator
+mock_auth.OAUTH_DECORATOR.oauth_required = noop_decorator
 sys.modules['auth'] = mock_auth
 import user
 

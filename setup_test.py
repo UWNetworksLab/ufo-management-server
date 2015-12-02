@@ -16,7 +16,7 @@ def noop_decorator(func):
   return func
 
 mock_auth = MagicMock()
-mock_auth.oauth_decorator.oauth_required = noop_decorator
+mock_auth.OAUTH_DECORATOR.oauth_required = noop_decorator
 sys.modules['auth'] = mock_auth
 
 mock_xsrf = MagicMock()
@@ -112,7 +112,7 @@ class SetupTest(unittest.TestCase):
     mock_flush.assert_called_once_with()
     mock_get_count.assert_called_once_with()
 
-    mock_ds.assert_called_once_with(mock_auth.oauth_decorator)
+    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
     mock_get_users.assert_called_once_with(group_key)
     mock_render_users_template.assert_called_once_with(FAKE_USER_ARRAY)
 
