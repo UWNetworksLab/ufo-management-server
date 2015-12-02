@@ -13,6 +13,7 @@ from google.appengine.ext import ndb
 
 
 class BaseModel(ndb.Model):
+  """Base model that provides generic methods for inheriting classes."""
 
   @classmethod
   def GetCount(cls):
@@ -138,8 +139,8 @@ class User(BaseModel):
     public_key = base64.urlsafe_b64encode(rsa_key.publickey().exportKey())
 
     key_pair = {
-      'private_key': private_key,
-      'public_key': public_key
+        'private_key': private_key,
+        'public_key': public_key
     }
 
     return key_pair
@@ -192,6 +193,15 @@ class ProxyServer(BaseModel):
 
   @staticmethod
   def Insert(name, ip_address, ssh_private_key, fingerprint):
+    """Insert a new ProxyServer entity in the datastore with the given values.
+
+    Args:
+      name: What to set the proxy server's name field to.
+      ip_address: What to set the proxy server's ip_address field to.
+      ssh_private_key: What to set the proxy server's ssh_private_key field to.
+      fingerprint: What to set the proxy server's fingerprint field to.
+    """
+
     entity = ProxyServer(name=name,
                          ip_address=ip_address,
                          ssh_private_key=ssh_private_key,
@@ -200,6 +210,17 @@ class ProxyServer(BaseModel):
 
   @staticmethod
   def Update(entity_id, name, ip_address, ssh_private_key, fingerprint):
+    """Update a ProxyServer with the given id in the datastore with new values.
+
+    Args:
+      entity_id: A integer or a string of the entity's id.  Auto assigned id
+                 will be integers.
+      name: What to set the proxy server's name field to.
+      ip_address: What to set the proxy server's ip_address field to.
+      ssh_private_key: What to set the proxy server's ssh_private_key field to.
+      fingerprint: What to set the proxy server's fingerprint field to.
+    """
+
     entity = ProxyServer.Get(entity_id)
     entity.name = name
     entity.ip_address = ip_address
@@ -224,7 +245,15 @@ class OAuth(BaseModel):
 
   @staticmethod
   def GetOrInsertDefault():
-    # Ensure there's only one key.
+    """Get the OAuth entity from the datastore.
+
+    If no entity exists in the datastore currently, this inserts an entity with
+    default values and returns that.
+
+    Returns:
+      The datastore entity for OAuth.
+    """
+
     entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
     if not entity:
       OAuth.InsertDefault()
@@ -233,13 +262,23 @@ class OAuth(BaseModel):
 
   @staticmethod
   def InsertDefault():
-    # Ensure there's only one key.
+    """Insert an entity with default client id and secret into the datastore.
+    """
+
     OAuth.Insert(new_client_id=OAuth.DEFAULT_ID,
                  new_client_secret=OAuth.DEFAULT_SECRET)
 
   @staticmethod
   def Insert(new_client_id, new_client_secret):
-    # Ensure there's only one key.
+    """Insert an entity with the new client id and secret into the datastore.
+
+    By inserting with the set id, we ensure never to generate multiple OAuth
+    entities.
+
+    Args:
+      new_client_id: The client id value to set on the OAuth entity.
+      new_client_secret: The client secret value to set on the OAuth entity.
+    """
     entity = OAuth(id=OAuth.CLIENT_SECRET_ID,
                    client_id=new_client_id,
                    client_secret=new_client_secret)
@@ -247,7 +286,13 @@ class OAuth(BaseModel):
 
   @staticmethod
   def Update(new_client_id, new_client_secret):
-    # Ensure there's only one key.
+    """Update the OAuth entity with the new client id and secret.
+
+    Args:
+      new_client_id: The client id value to set on the OAuth entity.
+      new_client_secret: The client secret value to set on the OAuth entity.
+    """
+
     entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
     entity.client_id = new_client_id
     entity.client_secret = new_client_secret
@@ -255,5 +300,7 @@ class OAuth(BaseModel):
 
   @staticmethod
   def Flush():
+    """Flush the memcache for OAuth."""
+
     # Make sure to update the memcache
     memcache.flush_all()
