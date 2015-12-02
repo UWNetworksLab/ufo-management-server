@@ -34,10 +34,14 @@ UFO_MS_GIT_REPO="https://github.com/uProxy/ufo-management-server.git";
 UFO_MS_LOCAL_DIR="$ROOT_DIR/$UFO_MS_NAME/";
 UFO_MS_LOCAL_LIB="$UFO_MS_LOCAL_DIR/lib";
 
+UFO_MS_UP="$UP_DIR/$UFO_MS_NAME/";
+
 TEMP_BASH_PROFILE=".bash_profile";
 
-# A simple bash script to run commands to setup and install all dev dependencies
-# (including non-npm ones)
+UFO_TGZ="UfO-release.tgz"
+
+# A simple bash script to run commands to setup and install all dev
+# dependencies (including non-npm ones)
 function runAndAssertCmd ()
 {
     echo "Running: $1"
@@ -60,13 +64,13 @@ function addVendorPackage ()
   runAndAssertCmd "pip install -t $UFO_MS_LOCAL_LIB google-api-python-client pycrypto"
 }
 
-function AddAppEngineRuntimePackages ()
+function addAppEngineRuntimePackages ()
 {
   runAndAssertCmd "pip install Jinja2"
   runAndAssertCmd "pip install pyyaml"
 }
 
-function AddTestingPackages ()
+function addTestingPackages ()
 {
   runAndAssertCmd "pip install WebTest"
   runAndAssertCmd "pip install pytest"
@@ -87,8 +91,9 @@ function setupDevelopmentEnvironment ()
   if [ ! -d  "$AE_PYTHON_LOCAL_DIR" ] && [ ! -d  "$AE_PYTHON_UP" ]; then
     setupAppEngine
     addVendorPackage
-    AddAppEngineRuntimePackages
+    addAppEngineRuntimePackages
     addAllExports
+    ddTestingPackages
   else
     echo "Development environment already setup with appengine and packages."
   fi
@@ -110,7 +115,6 @@ function setupUnitTests ()
 {
   fixTravisCIEnvironment
   setupDevelopmentEnvironment
-  AddTestingPackages
 }
 
 function runUnitTests ()
@@ -119,16 +123,52 @@ function runUnitTests ()
   runAndAssertCmd "python -m unittest discover -p '*_test.py'"
 }
 
+function package ()
+{
+  DIR_TO_PACKAGE="*"
+  if [ -d  "$UFO_MS_LOCAL_DIR" ]; then
+    DIR_TO_PACKAGE="$UFO_MS_NAME/*"
+  elif [ -d  "$UFO_MS_UP" ]; then
+    DIR_TO_PACKAGE="../$UFO_MS_NAME/*"
+  else
+    echo "Couldn't find UfO directory so packaging current dir."
+  fi
+  runAndAssertCmd "tar -czf $UFO_TGZ $DIR_TO_PACKAGE"
+}
+
 function release ()
 {
   runUnitTests
-  #package
-  #push
+  package
+  # Not sure how to automatically push this while maintaining some control over
+  # who can push. For right now, push will just be a manual step after the tgz
+  # is generated.
+  echo "Success! $UFO_TGZ has been generated. Please push it manually."
 }
 
 function deploy ()
 {
-  runAndAssertCmd "$AE_PYTHON_LOCAL_DIR/appcfg.py -A uproxy-management-server update $UFO_MS_LOCAL_DIR"
+  AE_FILE=""
+  if [ -d  "$AE_PYTHON_LOCAL_DIR" ]; then
+    AE_FILE="${AE_PYTHON_LOCAL_DIR}appcfg.py"
+  elif [ -d  "$AE_PYTHON_UP" ]; then
+    AE_FILE="${AE_PYTHON_UP}appcfg.py"
+  else
+    echo "$AE_PYTHON_NAME directory not found. Run './setup.sh setup_tests' to fix then retry."
+  fi
+
+  UFO_DIR="."
+  if [ -d  "$UFO_MS_LOCAL_DIR" ]; then
+    UFO_DIR="$UFO_MS_LOCAL_DIR"
+  elif [ -d  "$UFO_MS_UP" ]; then
+    UFO_DIR="$UFO_MS_UP"
+  else
+    echo "Couldn't find UfO directory so packaging current dir."
+  fi
+
+  if [ ! -z  "$AE_FILE" ]; then
+    runAndAssertCmd "$AE_FILE -A uproxy-management-server update $UFO_DIR"
+  fi
 }
 
 function setupManagementServer ()
@@ -157,7 +197,7 @@ else
   echo "Usage: setup.sh [install|release|deploy|run_tests|setup_tests]"
   echo
   echo "  install      - Sets up the entire project from github."
-  echo "  release      - Runs the tests and uploads a zip if successful."
+  echo "  release      - Runs the tests and generate a tgz if successful."
   echo "  deploy       - Uploads the local code copy to appspot."
   echo "  run_tests    - Prepares the machine for unit testing and runs."
   echo "  setup_tests  - Prepares the machine for unit testing."
