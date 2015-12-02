@@ -43,19 +43,19 @@ class BaseModel(ndb.Model):
     return q.fetch()
 
   @classmethod
-  def Get(cls, id):
+  def Get(cls, entity_id):
     """Get a single entity by id from datastore.
 
     Args:
       cls is an object that holds the sub-class itself, not an instance
       of the sub-class.
-      id: A integer or a string of the entity's id.  Auto assigned id will be
-          integers.
+      entity_id: A integer or a string of the entity's id.  Auto assigned id
+                 will be integers.
 
     Returns:
       A datastore entity.
     """
-    return cls.get_by_id(id)
+    return cls.get_by_id(entity_id)
 
   @classmethod
   def GetByKey(cls, url_key):
@@ -73,16 +73,16 @@ class BaseModel(ndb.Model):
     return key.get()
 
   @classmethod
-  def Delete(cls, id):
+  def Delete(cls, entity_id):
     """Delete an entity from the datastore.
 
     Args:
       cls is an object that holds the sub-class itself, not an instance
       of the sub-class.
-      id: A integer or a string of the entity's id.  Auto assigned id will be
-          integers.
+      entity_id: A integer or a string of the entity's id.  Auto assigned id
+                 will be integers.
     """
-    key = ndb.Key(cls, id)
+    key = ndb.Key(cls, entity_id)
     key.delete()
 
   @classmethod
@@ -145,7 +145,7 @@ class User(BaseModel):
     return key_pair
 
   @staticmethod
-  def _UpdateKeyPair(key):
+  def UpdateKeyPair(key):
     """Update an existing appengine datastore user entity with a new key pair.
 
     Args:
@@ -199,8 +199,8 @@ class ProxyServer(BaseModel):
     entity.put()
 
   @staticmethod
-  def Update(id, name, ip_address, ssh_private_key, fingerprint):
-    entity = ProxyServer.Get(id)
+  def Update(entity_id, name, ip_address, ssh_private_key, fingerprint):
+    entity = ProxyServer.Get(entity_id)
     entity.name = name
     entity.ip_address = ip_address
     entity.ssh_private_key = ssh_private_key

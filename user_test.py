@@ -74,7 +74,7 @@ class UserTest(unittest.TestCase):
     mock_make_invite_code.assert_called_once_with(fake_url_key)
     mock_user_template.assert_called_once_with(fake_invite_code)
 
-  @patch('user.User._UpdateKeyPair')
+  @patch('user.User.UpdateKeyPair')
   @patch('user._RenderTokenListTemplate')
   def testGetNewTokenHandler(self, mock_token_template,
                              mock_update):

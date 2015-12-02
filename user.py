@@ -162,7 +162,7 @@ class GetNewTokenHandler(webapp2.RequestHandler):
   @oauth_decorator.oauth_required
   def get(self):
     url_key = self.request.get('key')
-    User._UpdateKeyPair(url_key)
+    User.UpdateKeyPair(url_key)
 
     self.response.write(_RenderTokenListTemplate())
 
