@@ -1,3 +1,10 @@
+[MASTER]
+
+# Could turn errors only on if necessary, leave off for now.
+# errors-only=yes
+
+[FORMAT]
+
 # String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
 # tab). We use two spaces however.
 indent-string='  '
