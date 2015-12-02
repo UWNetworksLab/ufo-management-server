@@ -3,12 +3,19 @@
 {% block body %}
   <a href="http://{{ host }}/user/add">Add Users</a><br />
   <a href="http://{{ host }}/user/listTokens">List Tokens</a><br />
+  {% if invite_code %}
+    <h4>Invite Code Below</h4>
+    <textarea rows="20" cols="80">{{ invite_code }}</textarea><br>
+  {% endif %}
   <ul>
   {% for key, email in user_payloads.iteritems() %}
     <li>{{ email }}
       <a href="http://{{ host }}/user/delete?key={{ key }}">(Delete User)</a>
-      <a href="http://{{ host }}/user/getNewToken?key={{ key }}">(Get New Token)</a>
+      <a href="http://{{ host }}/user/getInviteCode?key={{ key }}">
+        (Get Invite Code)</a>
       <br />
+      <a href="http://{{ host }}/user/getNewToken?key={{ key }}">
+        (Get New Token)</a>
     </li>
     <br />
   {% endfor %}

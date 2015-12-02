@@ -2,18 +2,22 @@
 {% block title %}Proxy Server(s){% endblock %}
 {% block body %}
   {% if proxy_server %}
-    <form method="post" action="http://{{ host }}/proxyserver/edit">
+    <form method="post" action="https://{{ host }}/proxyserver/edit">
       ip address:<br>
       <input type="text" name="ip_address" value="{{ proxy_server.ip_address }}"><br>
+      name:<br>
+      <input type="text" name="name" value="{{ proxy_server.name }}"><br>
       ssh private key:<br>
       <input type="text" name="ssh_private_key" value="{{ proxy_server.ssh_private_key }}"><br>
       fingerprint:<br>
       <input type="text" name="fingerprint" value="{{ proxy_server.fingerprint }}">
       <input type="hidden" name="id" value="{{ proxy_server.key.id() }}">
   {% else %}
-    <form method="post" action="http://{{ host }}/proxyserver/add">
+    <form method="post" action="https://{{ host }}/proxyserver/add">
       ip address:<br>
       <input type="text" name="ip_address" value="{{ proxy_server.ip_address }}"><br>
+      name:<br>
+      <input type="text" name="name" value="{{ proxy_server.name }}"><br>
       ssh private key:<br>
       <input type="text" name="ssh_private_key" value="{{ proxy_server.ssh_private_key }}"><br>
       fingerprint:<br>
