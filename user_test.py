@@ -192,11 +192,11 @@ class UserTest(unittest.TestCase):
     fake_ip_2 = '1.2.3.4'
     fake_proxy_2 = MagicMock(ip_address=fake_ip_2)
     mock_get_all_proxies.return_value = [fake_proxy_1, fake_proxy_2]
-    ip_list = [fake_ip_1, fake_ip_2]
+    fake_ip_list = [fake_ip_1, fake_ip_2]
 
     invite_code_ip = user._GetInviteCodeIp()
 
-    self.assertTrue(invite_code_ip in ip_list)
+    self.assertTrue(invite_code_ip in fake_ip_list)
 
 if __name__ == '__main__':
     unittest.main()
