@@ -60,8 +60,7 @@ class SetupTest(unittest.TestCase):
     mock_flush.assert_called_once_with()
     mock_get_count.assert_called_once_with()
     self.assertEqual(resp.status_int, 302)
-    # TODO(eholder): Figure out why this test fails but works on appspot.
-    # self.assertTrue('/setup/users' in resp.location)
+    self.assertTrue('/' in resp.location)
 
   @patch('user.User.GetCount')
   @patch('datastore.OAuth.Update')
@@ -76,10 +75,9 @@ class SetupTest(unittest.TestCase):
     mock_update.assert_called_once_with(FAKE_ID, FAKE_SECRET)
     mock_flush.assert_called_once_with()
     mock_get_count.assert_called_once_with()
-    
+
     self.assertEqual(resp.status_int, 302)
-    # TODO(eholder): Figure out why this test fails but works on appspot.
-    # self.assertTrue('/setup/users' in resp.location)
+    self.assertTrue('/user/add' in resp.location)
 
   @patch('datastore.OAuth.GetOrInsertDefault')
   def testRenderSetupOAuthClientTemplate(self, mock_get_or_insert):

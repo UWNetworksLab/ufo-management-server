@@ -153,17 +153,15 @@ class AddUsersHandler(webapp2.RequestHandler):
   @oauth_decorator.oauth_required
   def post(self):
     params = self.request.get_all('selected_user')
-    self.response.write(params)
     users = []
     for param in params:
-      self.response.write(param)
       user = {}
       user['primaryEmail'] = param
       user['name'] = {}
       user['name']['fullName'] = param
       users.append(user)
     User.InsertUsers(users)
-    self.redirect('/user?xsrf=' + JINJA_ENVIRONMENT.globals['xsrf_token'])
+    self.redirect('/user')
 
 
 app = webapp2.WSGIApplication([
