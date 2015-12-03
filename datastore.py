@@ -257,3 +257,38 @@ class OAuth(BaseModel):
   def Flush():
     # Make sure to update the memcache
     memcache.flush_all()
+
+class DomainVerification(BaseModel):
+  """Store the domain verification content.
+
+  This is for accessing push notifications so that any admin's actual domain
+  verification content is not checked into source code.
+  """
+  CONTENT_ID = 'my_domain_verification_content'
+  DEFAULT_CONTENT = 'Change me to the real domain verification content.'
+
+  content = ndb.StringProperty()
+
+  @staticmethod
+  def GetOrInsertDefault():
+    entity = DomainVerification.Get(DomainVerification.CONTENT_ID)
+    if not entity:
+      DomainVerification.InsertDefault()
+      entity = DomainVerification.Get(DomainVerification.CONTENT_ID)
+    return entity
+
+  @staticmethod
+  def InsertDefault():
+    DomainVerification.Insert(DomainVerification.DEFAULT_CONTENT)
+
+  @staticmethod
+  def Insert(new_content):
+    entity = DomainVerification(id=DomainVerification.CONTENT_ID,
+                                content=new_content)
+    entity.put()
+
+  @staticmethod
+  def Update(new_content):
+    entity = DomainVerification.Get(DomainVerification.CONTENT_ID)
+    entity.content = new_content
+    entity.put()

@@ -4,6 +4,7 @@ from appengine_config import JINJA_ENVIRONMENT
 from auth import oauth_decorator
 import base64
 from datastore import User
+from datastore import DomainVerification
 from datastore import ProxyServer
 from error_handlers import Handle500
 from google.appengine.api import app_identity
@@ -129,6 +130,16 @@ def _RenderTokenListTemplate():
   return template.render(template_values)
 
 
+def _RenderLandingTemplate():
+  """Render the default landing page."""
+  template_values = {
+      'host': app_identity.get_default_version_hostname(),
+      'site_verification_content': DomainVerification.GetOrInsertDefault().content,
+  }
+  template = JINJA_ENVIRONMENT.get_template('templates/landing.html')
+  return template.render(template_values)
+
+
 def _RenderAddUsersTemplate(directory_users):
   """Render a user add page that lets users be added by group key."""
   template_values = {
@@ -137,6 +148,12 @@ def _RenderAddUsersTemplate(directory_users):
   }
   template = JINJA_ENVIRONMENT.get_template('templates/add_user.html')
   return template.render(template_values)
+
+
+class LandingPageHandler(webapp2.RequestHandler):
+
+  def get(self):
+    self.response.write(_RenderLandingTemplate())
 
 
 class ListUsersHandler(webapp2.RequestHandler):
@@ -223,7 +240,8 @@ class AddUsersHandler(webapp2.RequestHandler):
 
 
 app = webapp2.WSGIApplication([
-    ('/', ListUsersHandler),
+    ('/', LandingPageHandler),
+    ('/user', ListUsersHandler),
     ('/user/delete', DeleteUserHandler),
     ('/user/listTokens', ListTokensHandler),
     ('/user/getInviteCode', GetInviteCodeHandler),
