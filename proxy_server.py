@@ -111,6 +111,7 @@ class ListProxyServersHandler(webapp2.RequestHandler):
 
 class DistributeKeyHandler(webapp2.RequestHandler):
 
+  # This handler requires admin login, and is controlled in the app.yaml.
   def get(self):
     # TODO(henry): See if we can use threading to parallelize the put requests.
     key_string = _MakeKeyString()
