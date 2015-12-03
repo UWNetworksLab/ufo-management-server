@@ -1,0 +1,10 @@
+{
+  "name": "ufo-management-server",
+  "dependencies": {
+    "polymer": "~1.2.3",
+    "paper-drawer-panel": "PolymerElements/paper-drawer-panel#~1.0.5",
+    "paper-toolbar": "PolymerElements/paper-toolbar#~1.1.1",
+    "paper-menu": "PolymerElements/paper-menu#~1.2.0",
+    "paper-item": "PolymerElements/paper-item#~1.1.2"
+  }
+}
