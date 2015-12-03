@@ -10,7 +10,6 @@ Management Server component of uProxy for Orgs (UfO)
 ## Tools
 
 UfO is built using the following tools:
- - [Grunt](http://gruntjs.com/) to write the tasks that build uProxy
  - [Python](https://www.python.org/) as the primary language we code in.
  - [Google AppEngine](https://cloud.google.com/appengine/docs) for basic server functionality on Google infrastructure.
  - [Polymer](http://www.polymer-project.org/) for UI.
