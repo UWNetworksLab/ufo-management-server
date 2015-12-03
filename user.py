@@ -58,24 +58,42 @@ def _GenerateUserPayload(users):
 def _MakeInviteCode(user):
   """Create an invite code for the given user.
 
-  The invite code is a format created by the uproxy team. It includes the host
-  ip (of the proxy server or load balancer) to connect the user to, the user
-  username (user's email) to connect with, and the credential (private key)
-  necessary to authenticate with the host.
+  The invite code is a format created by the uproxy team.
+  Below is an example of an unencoded invite code for a cloud instance:
 
-    Args:
-      user: A user from the datastore to generate an invite code for.
+  {
+    "networkName": "Cloud",
+    "networkData": "{
+      \"host\":\"178.62.123.172\",
+      \"user\":\"giver\",
+      \"key\":\"base64_key"
+    }"
+  }
 
-    Returns:
-      invite_code: A base64 encoded dictionary of host, user, and pass which
-      correspond to the proxy server/load balancer's ip, the user's email, and
-      the user's private key, respectively.
+  It includes the host ip (of the proxy server or load balancer) to connect
+  the user to, the user username (user's email) to connect with, and
+  the credential (private key) necessary to authenticate with the host.
+
+  TODO: Guard against any future breakage when the invite code format
+  is changed again.  Possibly adding a test on the uproxy-lib side
+  to fail and point to updating this here.
+
+  Args:
+    user: A user from the datastore to generate an invite code for.
+
+  Returns:
+    invite_code: A base64 encoded dictionary of host, user, and pass which
+    correspond to the proxy server/load balancer's ip, the user's email, and
+    the user's private key, respectively.  See example above.
   """
-  invite_code_dictionary = {}
-  invite_code_dictionary['host'] = _GetInviteCodeIp()
-  invite_code_dictionary['user'] = user.email
-  invite_code_dictionary['pass'] = user.private_key
-  json_data = json.dumps(invite_code_dictionary)
+  invite_code_data = {
+      'networkName': 'Cloud',
+      'networkData': {}
+  }
+  invite_code_data['networkData']['host'] = _GetInviteCodeIp()
+  invite_code_data['networkData']['user'] = user.email
+  invite_code_data['networkData']['pass'] = user.private_key
+  json_data = json.dumps(invite_code_data)
   invite_code = base64.urlsafe_b64encode(json_data)
 
   return invite_code
@@ -134,8 +152,8 @@ class DeleteUserHandler(webapp2.RequestHandler):
 
   @oauth_decorator.oauth_required
   def get(self):
-    url_key = self.request.get('key')
-    User.DeleteByKey(url_key)
+    urlsafe_key = self.request.get('key')
+    User.DeleteByKey(urlsafe_key)
     self.response.write(_RenderUserListTemplate())
 
 
@@ -150,8 +168,8 @@ class GetInviteCodeHandler(webapp2.RequestHandler):
 
   @oauth_decorator.oauth_required
   def get(self):
-    url_key = self.request.get('key')
-    user = User.GetByKey(url_key)
+    urlsafe_key = self.request.get('key')
+    user = User.GetByKey(urlsafe_key)
     invite_code = _MakeInviteCode(user)
 
     self.response.write(_RenderUserListTemplate(invite_code))
@@ -161,8 +179,8 @@ class GetNewTokenHandler(webapp2.RequestHandler):
 
   @oauth_decorator.oauth_required
   def get(self):
-    url_key = self.request.get('key')
-    User._UpdateKeyPair(url_key)
+    urlsafe_key = self.request.get('key')
+    User._UpdateKeyPair(urlsafe_key)
 
     self.response.write(_RenderTokenListTemplate())
 
