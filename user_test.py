@@ -19,7 +19,7 @@ def noop_decorator(func):
   return func
 
 mock_auth = MagicMock()
-mock_auth.oauth_decorator.oauth_required = noop_decorator
+mock_auth.OAUTH_DECORATOR.oauth_required = noop_decorator
 sys.modules['auth'] = mock_auth
 
 mock_xsrf = MagicMock()
@@ -97,7 +97,7 @@ class UserTest(unittest.TestCase):
     mock_make_invite_code.assert_called_once_with(fake_url_key)
     mock_user_template.assert_called_once_with(fake_invite_code)
 
-  @patch('user.User._UpdateKeyPair')
+  @patch('user.User.UpdateKeyPair')
   @patch('user._RenderTokenListTemplate')
   def testGetNewTokenHandler(self, mock_token_template,
                              mock_update):
@@ -130,7 +130,7 @@ class UserTest(unittest.TestCase):
     response = self.testapp.get('/user/add?group_key=' + group_key)
 
     mock_get_users.assert_not_called()
-    mock_ds.assert_called_once_with(mock_auth.oauth_decorator)
+    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
     mock_get_by_key.assert_called_once_with(group_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -145,7 +145,7 @@ class UserTest(unittest.TestCase):
     response = self.testapp.get('/user/add?get_all=true')
 
     mock_get_by_key.assert_not_called()
-    mock_ds.assert_called_once_with(mock_auth.oauth_decorator)
+    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
     mock_get_users.assert_called_once_with()
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 

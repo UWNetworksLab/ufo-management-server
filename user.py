@@ -1,7 +1,7 @@
 """The module for handling users."""
 
 from appengine_config import JINJA_ENVIRONMENT
-from auth import oauth_decorator
+from auth import OAUTH_DECORATOR
 import base64
 from datastore import User
 from datastore import DomainVerification
@@ -158,14 +158,14 @@ class LandingPageHandler(webapp2.RequestHandler):
 
 class ListUsersHandler(webapp2.RequestHandler):
 
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def get(self):
     self.response.write(_RenderUserListTemplate())
 
 
 class DeleteUserHandler(webapp2.RequestHandler):
 
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def get(self):
     url_key = self.request.get('key')
     User.DeleteByKey(url_key)
@@ -174,14 +174,14 @@ class DeleteUserHandler(webapp2.RequestHandler):
 
 class ListTokensHandler(webapp2.RequestHandler):
 
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def get(self):
     self.response.write(_RenderTokenListTemplate())
 
 
 class GetInviteCodeHandler(webapp2.RequestHandler):
 
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def get(self):
     url_key = self.request.get('key')
     user = User.GetByKey(url_key)
@@ -192,10 +192,10 @@ class GetInviteCodeHandler(webapp2.RequestHandler):
 
 class GetNewTokenHandler(webapp2.RequestHandler):
 
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def get(self):
     url_key = self.request.get('key')
-    User._UpdateKeyPair(url_key)
+    User.UpdateKeyPair(url_key)
 
     self.response.write(_RenderTokenListTemplate())
 
@@ -204,16 +204,16 @@ class AddUsersHandler(webapp2.RequestHandler):
   """Add users into the datastore."""
 
   @admin.require_admin
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def get(self):
     get_all = self.request.get('get_all')
     group_key = self.request.get('group_key')
     if get_all:
-      directory_service = GoogleDirectoryService(oauth_decorator)
+      directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
       directory_users = directory_service.GetUsers()
       self.response.write(_RenderAddUsersTemplate(directory_users))
     elif group_key is not None and group_key is not '':
-      directory_service = GoogleDirectoryService(oauth_decorator)
+      directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
       directory_users = directory_service.GetUsersByGroupKey(group_key)
       fixed_users = []
       for user in directory_users:
@@ -225,7 +225,7 @@ class AddUsersHandler(webapp2.RequestHandler):
 
   @admin.require_admin
   @xsrf.xsrf_protect
-  @oauth_decorator.oauth_required
+  @OAUTH_DECORATOR.oauth_required
   def post(self):
     params = self.request.get_all('selected_user')
     users = []
@@ -247,7 +247,7 @@ app = webapp2.WSGIApplication([
     ('/user/getInviteCode', GetInviteCodeHandler),
     ('/user/getNewToken', GetNewTokenHandler),
     ('/user/add', AddUsersHandler),
-    (oauth_decorator.callback_path, oauth_decorator.callback_handler()),
+    (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.

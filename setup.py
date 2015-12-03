@@ -1,7 +1,7 @@
 """The setup module for first-time initialization of the app."""
 
 from appengine_config import JINJA_ENVIRONMENT
-from auth import oauth_decorator
+from auth import OAUTH_DECORATOR
 from datastore import User
 from datastore import OAuth
 from datastore import DomainVerification
@@ -54,7 +54,7 @@ class SetupOAuthClientHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/setup/oauthclient', SetupOAuthClientHandler),
-    (oauth_decorator.callback_path, oauth_decorator.callback_handler()),
+    (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.

@@ -218,7 +218,7 @@ class UserDatastoreTest(DatastoreTest):
 
     mock_generate.return_value = FAKE_KEY_PAIR
 
-    datastore.User._UpdateKeyPair(BAD_KEY_URLSAFE)
+    datastore.User.UpdateKeyPair(BAD_KEY_URLSAFE)
 
     mock_generate.assert_called_once_with()
     user_after_test = datastore.User.GetByKey(BAD_KEY_URLSAFE)
