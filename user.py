@@ -170,6 +170,7 @@ def _RenderAddUsersTemplate(directory_users):
 
 class LandingPageHandler(webapp2.RequestHandler):
   """Display the landing page which doesn't require oauth."""
+  # pylint: disable=too-few-public-methods
 
   def get(self):
     """Output the landing page template."""

@@ -58,6 +58,7 @@ def const_time_compare(a, b):
 
 class XsrfSecret(ndb.Model):
   """Model for datastore to store the XSRF secret."""
+  # pylint: disable=too-few-public-methods
   secret = ndb.StringProperty(required=True)
 
   @staticmethod

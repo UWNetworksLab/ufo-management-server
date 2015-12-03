@@ -103,6 +103,7 @@ class EditProxyServerHandler(webapp2.RequestHandler):
 
 class DeleteProxyServerHandler(webapp2.RequestHandler):
   """Handler for deleting an existing proxy server."""
+  # pylint: disable=too-few-public-methods
 
   @admin.require_admin
   def get(self):
