@@ -4,12 +4,19 @@ from appengine_config import JINJA_ENVIRONMENT
 from auth import OAUTH_DECORATOR
 import base64
 from datastore import User
+from datastore import DomainVerification
 from datastore import ProxyServer
 from error_handlers import Handle500
 from google.appengine.api import app_identity
+from google_directory_service import GoogleDirectoryService
 import json
 import random
 import webapp2
+import xsrf
+import admin
+
+
+JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token()
 
 
 def _GenerateTokenPayload(users):
@@ -123,6 +130,32 @@ def _RenderTokenListTemplate():
   return template.render(template_values)
 
 
+def _RenderLandingTemplate():
+  """Render the default landing page."""
+  template_values = {
+      'host': app_identity.get_default_version_hostname(),
+      'site_verification_content': DomainVerification.GetOrInsertDefault().content,
+  }
+  template = JINJA_ENVIRONMENT.get_template('templates/landing.html')
+  return template.render(template_values)
+
+
+def _RenderAddUsersTemplate(directory_users):
+  """Render a user add page that lets users be added by group key."""
+  template_values = {
+      'host': app_identity.get_default_version_hostname(),
+      'directory_users': directory_users,
+  }
+  template = JINJA_ENVIRONMENT.get_template('templates/add_user.html')
+  return template.render(template_values)
+
+
+class LandingPageHandler(webapp2.RequestHandler):
+
+  def get(self):
+    self.response.write(_RenderLandingTemplate())
+
+
 class ListUsersHandler(webapp2.RequestHandler):
 
   @OAUTH_DECORATOR.oauth_required
@@ -167,12 +200,53 @@ class GetNewTokenHandler(webapp2.RequestHandler):
     self.response.write(_RenderTokenListTemplate())
 
 
+class AddUsersHandler(webapp2.RequestHandler):
+  """Add users into the datastore."""
+
+  @admin.require_admin
+  @OAUTH_DECORATOR.oauth_required
+  def get(self):
+    get_all = self.request.get('get_all')
+    group_key = self.request.get('group_key')
+    if get_all:
+      directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
+      directory_users = directory_service.GetUsers()
+      self.response.write(_RenderAddUsersTemplate(directory_users))
+    elif group_key is not None and group_key is not '':
+      directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
+      directory_users = directory_service.GetUsersByGroupKey(group_key)
+      fixed_users = []
+      for user in directory_users:
+        user['primaryEmail'] = user['email']
+        fixed_users.append(user)
+      self.response.write(_RenderAddUsersTemplate(fixed_users))
+    else:
+      self.response.write(_RenderAddUsersTemplate([]))
+
+  @admin.require_admin
+  @xsrf.xsrf_protect
+  @OAUTH_DECORATOR.oauth_required
+  def post(self):
+    params = self.request.get_all('selected_user')
+    users = []
+    for param in params:
+      user = {}
+      user['primaryEmail'] = param
+      user['name'] = {}
+      user['name']['fullName'] = param
+      users.append(user)
+    User.InsertUsers(users)
+    self.redirect('/user')
+
+
 app = webapp2.WSGIApplication([
-    ('/', ListUsersHandler),
+    ('/', LandingPageHandler),
+    ('/user', ListUsersHandler),
     ('/user/delete', DeleteUserHandler),
     ('/user/listTokens', ListTokensHandler),
     ('/user/getInviteCode', GetInviteCodeHandler),
     ('/user/getNewToken', GetNewTokenHandler),
+    ('/user/add', AddUsersHandler),
     (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
 
