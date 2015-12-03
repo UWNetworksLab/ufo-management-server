@@ -117,6 +117,7 @@ class DeleteProxyServerHandler(webapp2.RequestHandler):
 
 class ListProxyServersHandler(webapp2.RequestHandler):
   """Handler for listing all existing proxy servers."""
+  # pylint: disable=too-few-public-methods
 
   @admin.require_admin
   def get(self):
@@ -126,6 +127,7 @@ class ListProxyServersHandler(webapp2.RequestHandler):
 
 class DistributeKeyHandler(webapp2.RequestHandler):
   """Handler for distributing authorization keys out to each proxy server."""
+  # pylint: disable=too-few-public-methods
 
   # This handler requires admin login, and is controlled in the app.yaml.
   def get(self):

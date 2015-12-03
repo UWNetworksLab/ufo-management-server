@@ -179,6 +179,7 @@ class LandingPageHandler(webapp2.RequestHandler):
 
 class ListUsersHandler(webapp2.RequestHandler):
   """List the current users."""
+  # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
   def get(self):
@@ -188,6 +189,7 @@ class ListUsersHandler(webapp2.RequestHandler):
 
 class DeleteUserHandler(webapp2.RequestHandler):
   """Delete a given user."""
+  # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
   def get(self):
@@ -202,6 +204,7 @@ class DeleteUserHandler(webapp2.RequestHandler):
 
 class ListTokensHandler(webapp2.RequestHandler):
   """List the tokens and associated users."""
+  # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
   def get(self):
@@ -211,6 +214,7 @@ class ListTokensHandler(webapp2.RequestHandler):
 
 class GetInviteCodeHandler(webapp2.RequestHandler):
   """Get an invite code for a given user."""
+  # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
   def get(self):
@@ -224,6 +228,7 @@ class GetInviteCodeHandler(webapp2.RequestHandler):
 
 class GetNewTokenHandler(webapp2.RequestHandler):
   """Create a new token for a given user."""
+  # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
   def get(self):
