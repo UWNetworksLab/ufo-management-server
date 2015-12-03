@@ -3,5 +3,5 @@ cron:
 # logic to avoid running if user info has not changed since last run would be
 # beneficial.
 - description: Distribute keys to proxy servers.
-  url: /key/distribute
+  url: /cron/proxyserver/distributekey
   schedule: every 15 minutes
