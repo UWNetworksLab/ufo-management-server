@@ -181,10 +181,14 @@ class UserTest(unittest.TestCase):
     invite_code_data = json.loads(json_string)
 
     mock_get_ip.assert_called_once_with()
-    self.assertEqual('Cloud', invite_code_data['networkName'])
-    self.assertEqual(FAKE_USER.email, invite_code_data['networkData']['user'])
-    self.assertEqual(FAKE_USER.private_key, invite_code_data['networkData']['pass'])
-    self.assertEqual(fake_ip, invite_code_data['networkData']['host'])
+    self.assertEqual('Cloud',
+                     invite_code_data['networkName'])
+    self.assertEqual(FAKE_USER.email,
+                     invite_code_data['networkData']['user'])
+    self.assertEqual(FAKE_USER.private_key,
+                     invite_code_data['networkData']['pass'])
+    self.assertEqual(fake_ip,
+                     invite_code_data['networkData']['host'])
 
   @patch('user.ProxyServer.GetAll')
   def testGetInviteCodeIp(self, mock_get_all_proxies):
