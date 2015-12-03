@@ -93,7 +93,7 @@ function setupDevelopmentEnvironment ()
     addVendorPackage
     addAppEngineRuntimePackages
     addAllExports
-    ddTestingPackages
+    addTestingPackages
   else
     echo "Development environment already setup with appengine and packages."
   fi
