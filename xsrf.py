@@ -17,6 +17,7 @@ from google.appengine.ext import ndb
 
 
 def xsrf_token():
+  """Generate a new xsrf secret and output it in urlsafe base64 encoding."""
   digester = hmac.new(str(XsrfSecret.get()))
   digester.update(str(users.get_current_user().user_id()))
   return base64.urlsafe_b64encode(digester.digest())
@@ -25,6 +26,12 @@ def xsrf_token():
 def xsrf_protect(func):
   """Decorator to require valid XSRF token."""
   def decorate(self, *args, **kwargs):
+    """Actual decorate function that requires a valid XSRF token.
+
+    Args:
+      args: Parameters passed on to the specified function if successful.
+      kwargs: Parameters passed on to the specified function if successful.
+    """
     token = self.request.get('xsrf', None)
     if not token:
       logging.error('xsrf token not included')
