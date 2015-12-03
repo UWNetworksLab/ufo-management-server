@@ -4,7 +4,7 @@ from google.appengine.api import users
 import webapp2
 
 
-LOG_BACK_IN_PATH = '/'
+LOG_BACK_IN_PATH = '/user'
 
 class LogoutHandler(webapp2.RequestHandler):
   """Logs the current user out."""

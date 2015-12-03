@@ -39,5 +39,3 @@ handlers:
 
 - url: /.*
   script: user.app
-  login: required
-  secure: always

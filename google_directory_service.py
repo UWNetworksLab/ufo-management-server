@@ -1,6 +1,5 @@
 """Module to interact with Google Directory API."""
 
-from google.appengine.api import app_identity
 from googleapiclient.discovery import build
 
 
@@ -72,4 +71,4 @@ class GoogleDirectoryService(object):
         users.append(member)
 
     return users
-    
+

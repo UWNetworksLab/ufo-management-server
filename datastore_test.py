@@ -6,6 +6,7 @@ import datastore
 
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
+from datastore import DomainVerification
 
 # User test globals
 FAKE_EMAIL = 'foo@bar.com'
@@ -41,6 +42,10 @@ FAKE_CLIENT_ID = 'id1234'
 FAKE_CLIENT_SECRET = 'secret abc'
 BAD_CLIENT_ID = 'id5678'
 BAD_CLIENT_SECRET = 'secret 123'
+
+# Domain Verification test globals
+FAKE_CONTENT = 'foo'
+BAD_CONTENT = 'bar'
 
 
 class DatastoreTest(unittest.TestCase):
@@ -213,7 +218,7 @@ class UserDatastoreTest(DatastoreTest):
 
     mock_generate.return_value = FAKE_KEY_PAIR
 
-    datastore.User._UpdateKeyPair(BAD_KEY_URLSAFE)
+    datastore.User.UpdateKeyPair(BAD_KEY_URLSAFE)
 
     mock_generate.assert_called_once_with()
     user_after_test = datastore.User.GetByKey(BAD_KEY_URLSAFE)
@@ -373,6 +378,64 @@ class OAuthDatastoreTest(DatastoreTest):
     datastore.OAuth.Flush()
 
     mock_flush_all.assert_called_once_with()
+
+class DomainVerificationDatastoreTest(DatastoreTest):
+
+  def testGetOrInsertDefault(self):
+    self.assertEqual(DomainVerification.GetCount(), 0)
+
+    first_entity = DomainVerification.GetOrInsertDefault()
+
+    self.assertEqual(DomainVerification.GetCount(), 1)
+    self.assertEqual(first_entity.key.id(),
+                     DomainVerification.CONTENT_ID)
+    self.assertEqual(first_entity.content,
+                     DomainVerification.DEFAULT_CONTENT)
+
+    DomainVerification.Update(FAKE_CONTENT)
+
+    second_entity = DomainVerification.GetOrInsertDefault()
+
+    self.assertEqual(DomainVerification.GetCount(), 1)
+    self.assertEqual(second_entity.key.id(),
+                     DomainVerification.CONTENT_ID)
+    self.assertEqual(second_entity.content, FAKE_CONTENT)
+
+  def testInsertDefault(self):
+    self.assertEqual(DomainVerification.GetCount(), 0)
+
+    DomainVerification.InsertDefault()
+
+    self.assertEqual(DomainVerification.GetCount(), 1)
+    dv_after_insert = DomainVerification.Get(DomainVerification.CONTENT_ID)
+    self.assertEqual(dv_after_insert.key.id(),
+                     DomainVerification.CONTENT_ID)
+    self.assertEqual(dv_after_insert.content,
+                     DomainVerification.DEFAULT_CONTENT)
+
+  def testInsert(self):
+    self.assertEqual(DomainVerification.GetCount(), 0)
+
+    DomainVerification.Insert(FAKE_CONTENT)
+
+    self.assertEqual(DomainVerification.GetCount(), 1)
+    dv_after_insert = DomainVerification.Get(DomainVerification.CONTENT_ID)
+    self.assertEqual(dv_after_insert.key.id(),
+                     DomainVerification.CONTENT_ID)
+    self.assertEqual(dv_after_insert.content, FAKE_CONTENT)
+
+  def testUpdate(self):
+    DomainVerification.Insert(BAD_CONTENT)
+
+    self.assertEqual(DomainVerification.GetCount(), 1)
+    dv_before_update = DomainVerification.Get(DomainVerification.CONTENT_ID)
+    self.assertEqual(dv_before_update.content, BAD_CONTENT)
+
+    DomainVerification.Update(FAKE_CONTENT)
+
+    self.assertEqual(DomainVerification.GetCount(), 1)
+    dv_after_update = DomainVerification.Get(DomainVerification.CONTENT_ID)
+    self.assertEqual(dv_after_update.content, FAKE_CONTENT)
 
 if __name__ == '__main__':
   unittest.main()
