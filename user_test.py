@@ -283,12 +283,17 @@ class UserTest(unittest.TestCase):
 
     invite_code = user._MakeInviteCode(FAKE_USER)
     json_string = base64.urlsafe_b64decode(invite_code)
-    data = json.loads(json_string)
+    invite_code_data = json.loads(json_string)
 
     mock_get_ip.assert_called_once_with()
-    self.assertTrue(FAKE_USER.email == data['user'])
-    self.assertTrue(FAKE_USER.private_key in data['pass'])
-    self.assertTrue(fake_ip == data['host'])
+    self.assertEqual('Cloud',
+                     invite_code_data['networkName'])
+    self.assertEqual(FAKE_USER.email,
+                     invite_code_data['networkData']['user'])
+    self.assertEqual(FAKE_USER.private_key,
+                     invite_code_data['networkData']['pass'])
+    self.assertEqual(fake_ip,
+                     invite_code_data['networkData']['host'])
 
   @patch('user.ProxyServer.GetAll')
   def testGetInviteCodeIp(self, mock_get_all_proxies):

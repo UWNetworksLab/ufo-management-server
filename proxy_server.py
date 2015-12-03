@@ -111,10 +111,7 @@ class ListProxyServersHandler(webapp2.RequestHandler):
 
 class DistributeKeyHandler(webapp2.RequestHandler):
 
-  # This is accessed by the cron service, which only has appengine admin access.
-  # So if the admin check changes here, we might have to move this to a
-  # different module.
-  @admin.require_admin
+  # This handler requires admin login, and is controlled in the app.yaml.
   def get(self):
     # TODO(henry): See if we can use threading to parallelize the put requests.
     key_string = _MakeKeyString()
@@ -138,7 +135,8 @@ class DistributeKeyHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/proxyserver/add', AddProxyServerHandler),
     ('/proxyserver/delete', DeleteProxyServerHandler),
-    ('/proxyserver/distributekey', DistributeKeyHandler),
     ('/proxyserver/edit', EditProxyServerHandler),
     ('/proxyserver/list', ListProxyServersHandler),
+
+    ('/cron/proxyserver/distributekey', DistributeKeyHandler),
 ], debug=True)

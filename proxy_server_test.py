@@ -103,7 +103,7 @@ class ProxyServerTest(unittest.TestCase):
     fake_key_string = 'ssh-rsa public_key email'
     mock_make_key_string.return_value = fake_key_string
 
-    self.testapp.get('/proxyserver/distributekey')
+    self.testapp.get('/cron/proxyserver/distributekey')
     mock_request.assert_called_once_with(
         'http://%s/key' % fake_proxy_server.ip_address,
         headers={'content-type': 'text/plain'},
