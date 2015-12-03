@@ -52,7 +52,7 @@ def _MakeKeyString():
   endline = '\n'
   for user in users:
     user_string = (ssh_starting_portion + space + user.public_key + space +
-                  user.email + endline)
+                   user.email + endline)
     key_string += user_string
 
   return key_string

@@ -236,12 +236,19 @@ class OAuth(BaseModel):
   https://console.developers.google.com/project
   Set the secret using the Datastore Viewer at https://appengine.google.com
   """
-  CLIENT_SECRET_ID = 'my_client_secret'
+  # The comment below disables landscape.io checking on that line so that it
+  # does not think we have an actual secret stored which we do not. The
+  # object it is used to get has a parameter which is the actual secret. This
+  # however is not.
+  CLIENT_SECRET_ID = 'my_client_secret'  # noqa
 
   client_id = ndb.StringProperty()
   client_secret = ndb.StringProperty()
   DEFAULT_ID = 'Change me to the real id.'
-  DEFAULT_SECRET = 'Change me to the real secret.'
+  # The comment below disables landscape.io checking on that line so that it
+  # does not think we have an actual secret stored which we do not. This is a
+  # default value to use in place of a real secret in the datastore.
+  DEFAULT_SECRET = 'Change me to the real secret.'  # noqa
 
   @staticmethod
   def GetOrInsertDefault():
