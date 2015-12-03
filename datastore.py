@@ -318,6 +318,15 @@ class DomainVerification(BaseModel):
 
   @staticmethod
   def GetOrInsertDefault():
+    """Get the DomainVerification entity from the datastore.
+
+    If no entity exists in the datastore currently, this inserts an entity with
+    default values and returns that.
+
+    Returns:
+      The datastore entity for DomainVerification.
+    """
+
     entity = DomainVerification.Get(DomainVerification.CONTENT_ID)
     if not entity:
       DomainVerification.InsertDefault()
@@ -326,16 +335,34 @@ class DomainVerification(BaseModel):
 
   @staticmethod
   def InsertDefault():
+    """Insert the DV entity with default content into the datastore.
+    """
+
     DomainVerification.Insert(DomainVerification.DEFAULT_CONTENT)
 
   @staticmethod
   def Insert(new_content):
+    """Insert an entity with the new content into the datastore.
+
+    By inserting with the set id, we ensure never to generate multiple DV
+    entities.
+
+    Args:
+      new_content: The content value to set on the DomainVerification entity.
+    """
+
     entity = DomainVerification(id=DomainVerification.CONTENT_ID,
                                 content=new_content)
     entity.put()
 
   @staticmethod
   def Update(new_content):
+    """Update the DomainVerification entity with the new content.
+
+    Args:
+      new_content: The content value to set on the DomainVerification entity.
+    """
+
     entity = DomainVerification.Get(DomainVerification.CONTENT_ID)
     entity.content = new_content
     entity.put()
