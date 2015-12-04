@@ -119,32 +119,59 @@ class UserTest(unittest.TestCase):
     mock_render.assert_called_once_with([])
 
   @patch('user._RenderAddUsersTemplate')
+  @patch('google_directory_service.GoogleDirectoryService.SearchForUser')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
   def testAddUsersGetHandlerWithGroup(self, mock_ds, mock_get_users,
-                                      mock_get_by_key, mock_render):
+                                      mock_get_by_key, mock_search,
+                                      mock_render):
     mock_ds.return_value = None
+    # Email address could refer to group or user
     group_key = 'foo@bar.mybusiness.com'
     mock_get_by_key.return_value = FAKE_USER_ARRAY
     response = self.testapp.get('/user/add?group_key=' + group_key)
 
     mock_get_users.assert_not_called()
+    mock_search.assert_not_called()
     mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
     mock_get_by_key.assert_called_once_with(group_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
   @patch('user._RenderAddUsersTemplate')
+  @patch('google_directory_service.GoogleDirectoryService.SearchForUser')
+  @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
+  @patch('google_directory_service.GoogleDirectoryService.GetUsers')
+  @patch('google_directory_service.GoogleDirectoryService.__init__')
+  def testAddUsersGetHandlerWithUser(self, mock_ds, mock_get_users,
+                                     mock_get_by_key, mock_search,
+                                     mock_render):
+    mock_ds.return_value = None
+    # Email address could refer to group or user
+    user_key = 'foo@bar.mybusiness.com'
+    mock_search.return_value = FAKE_USER_ARRAY
+    response = self.testapp.get('/user/add?user_key=' + user_key)
+
+    mock_get_users.assert_not_called()
+    mock_get_by_key.assert_not_called()
+    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_search.assert_called_once_with(user_key)
+    mock_render.assert_called_once_with(FAKE_USER_ARRAY)
+
+  @patch('user._RenderAddUsersTemplate')
+  @patch('google_directory_service.GoogleDirectoryService.SearchForUser')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
   def testAddUsersGetHandlerWithAll(self, mock_ds, mock_get_users,
-                                    mock_get_by_key, mock_render):
+                                    mock_get_by_key, mock_search,
+                                    mock_render):
     mock_ds.return_value = None
     mock_get_users.return_value = FAKE_USER_ARRAY
     response = self.testapp.get('/user/add?get_all=true')
 
     mock_get_by_key.assert_not_called()
+    mock_search.assert_not_called()
     mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
     mock_get_users.assert_called_once_with()
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
@@ -244,7 +271,13 @@ class UserTest(unittest.TestCase):
     mock_domain_verif.assert_called_once_with()
     self.assertTrue(fake_content in landing_template)
 
-  def testRenderAddUsersTemplate(self):
+  def testRenderAddUsersTemplateWithNoUsers(self):
+    add_users_template = user._RenderAddUsersTemplate([])
+    no_user_string = 'No users found. Try another query below.'
+    self.assertTrue(no_user_string in add_users_template)
+    self.assertTrue('xsrf' not in add_users_template)
+
+  def testRenderAddUsersTemplateWithSomeUsers(self):
     add_users_template = user._RenderAddUsersTemplate(FAKE_USER_ARRAY)
     self.assertTrue('Add Selected Users' in add_users_template)
     self.assertTrue('xsrf' in add_users_template)

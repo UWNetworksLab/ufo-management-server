@@ -255,6 +255,7 @@ class AddUsersHandler(webapp2.RequestHandler):
     """
     get_all = self.request.get('get_all')
     group_key = self.request.get('group_key')
+    user_key = self.request.get('user_key')
     if get_all:
       directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
       directory_users = directory_service.GetUsers()
@@ -267,6 +268,10 @@ class AddUsersHandler(webapp2.RequestHandler):
         user['primaryEmail'] = user['email']
         fixed_users.append(user)
       self.response.write(_RenderAddUsersTemplate(fixed_users))
+    elif user_key is not None and user_key is not '':
+      directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
+      directory_users = directory_service.SearchForUser(user_key)
+      self.response.write(_RenderAddUsersTemplate(directory_users))
     else:
       self.response.write(_RenderAddUsersTemplate([]))
 
