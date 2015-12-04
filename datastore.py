@@ -241,14 +241,14 @@ class OAuth(BaseModel):
   # object it is used to get has a parameter which is the actual secret. This
   # however is not.
   CLIENT_SECRET_ID = 'my_client_secret'  # noqa
-
-  client_id = ndb.StringProperty()
-  client_secret = ndb.StringProperty()
   DEFAULT_ID = 'Change me to the real id.'
   # The comment below disables landscape.io checking on that line so that it
   # does not think we have an actual secret stored which we do not. This is a
   # default value to use in place of a real secret in the datastore.
   DEFAULT_SECRET = 'Change me to the real secret.'  # noqa
+
+  client_id = ndb.StringProperty()
+  client_secret = ndb.StringProperty()
 
   @staticmethod
   def GetOrInsertDefault():
@@ -269,8 +269,7 @@ class OAuth(BaseModel):
 
   @staticmethod
   def InsertDefault():
-    """Insert an entity with default client id and secret into the datastore.
-    """
+    """Insert entity with default client id and secret into the datastore."""
 
     OAuth.Insert(new_client_id=OAuth.DEFAULT_ID,
                  new_client_secret=OAuth.DEFAULT_SECRET)
@@ -342,8 +341,7 @@ class DomainVerification(BaseModel):
 
   @staticmethod
   def InsertDefault():
-    """Insert the DV entity with default content into the datastore.
-    """
+    """Insert the DV entity with default content into the datastore."""
 
     DomainVerification.Insert(DomainVerification.DEFAULT_CONTENT)
 
