@@ -56,6 +56,14 @@ function runAndAssertCmd ()
     # code.
     set -e && cd $ROOT_DIR && eval $1
 }
+function runInUfOAndAssertCmd ()
+{
+    echo "Running: $1"
+    echo
+    # We use set -e to make sure this will fail if the command returns an error
+    # code.
+    set -e && cd $UFO_MS_LOCAL_DIR && eval $1
+}
 
 function setupAppEngine ()
 {
@@ -103,7 +111,7 @@ function addBower ()
   runAndAssertCmd "npm install -g bower"
   # May need the following if node doesn't install correctly.
   #runAndAssertCmd "ln -s /usr/bin/nodejs /usr/bin/node"
-  runAndAssertCmd "bower install"
+  runInUfOAndAssertCmd "bower install"
 }
 
 function setupDevelopmentEnvironment ()
