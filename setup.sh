@@ -33,12 +33,17 @@ UFO_MS_NAME="ufo-management-server-master"
 UFO_MS_GIT_REPO="https://github.com/uProxy/ufo-management-server.git";
 UFO_MS_LOCAL_DIR="$ROOT_DIR/$UFO_MS_NAME/";
 UFO_MS_LOCAL_LIB="$UFO_MS_LOCAL_DIR/lib";
+UFO_MS_LOCAL_OTHER_LIB="$ROOT_DIR/lib";
 
 UFO_MS_UP="$UP_DIR/$UFO_MS_NAME/";
 
 TEMP_BASH_PROFILE=".bash_profile";
 
 UFO_TGZ="UfO-release.tgz"
+
+NODE_MODULES_ROOT="$ROOT_DIR/node_modules"
+NODE_MODULES_UFO="$UFO_MS_LOCAL_DIR/node_modules"
+NODE_MODULES_UP="$UFO_MS_UP/node_modules"
 
 # A simple bash script to run commands to setup and install all dev
 # dependencies (including non-npm ones)
@@ -86,6 +91,16 @@ function addAllExports ()
   runAndAssertCmd "source $TEMP_BASH_PROFILE"
 }
 
+function addBower ()
+{
+  runAndAssertCmd "apt-get install nodejs"
+  runAndAssertCmd "apt-get install npm"
+  runAndAssertCmd "npm install -g bower"
+  # May need the following if node doesn't install correctly.
+  #runAndAssertCmd "ln -s /usr/bin/nodejs /usr/bin/node"
+  runAndAssertCmd "bower install"
+}
+
 function setupDevelopmentEnvironment ()
 {
   if [ ! -d  "$AE_PYTHON_LOCAL_DIR" ] && [ ! -d  "$AE_PYTHON_UP" ]; then
@@ -94,6 +109,7 @@ function setupDevelopmentEnvironment ()
     addAppEngineRuntimePackages
     addAllExports
     addTestingPackages
+    addBower
   else
     echo "Development environment already setup with appengine and packages."
   fi
@@ -108,6 +124,40 @@ function fixTravisCIEnvironment ()
     runAndAssertCmd "rm -fr $TEMP_FILES"
   else
     echo "Code files already in proper directory."
+  fi
+}
+
+function clean ()
+{
+  # Dirs
+  if [ -d  "$AE_PYTHON_LOCAL_DIR" ]; then
+    runAndAssertCmd "rm -fr $AE_PYTHON_LOCAL_DIR"
+  fi
+  if [ -d  "$AE_PYTHON_UP" ]; then
+    runAndAssertCmd "rm -fr $AE_PYTHON_UP"
+  fi
+  if [ -d  "$UFO_MS_LOCAL_LIB" ]; then
+    runAndAssertCmd "rm -fr $UFO_MS_LOCAL_LIB"
+  fi
+  if [ -d  "$UFO_MS_LOCAL_OTHER_LIB" ]; then
+    runAndAssertCmd "rm -fr $UFO_MS_LOCAL_OTHER_LIB"
+  fi
+  if [ -d  "$NODE_MODULES_ROOT" ]; then
+    runAndAssertCmd "rm -fr $NODE_MODULES_ROOT"
+  fi
+  if [ -d  "$NODE_MODULES_UFO" ]; then
+    runAndAssertCmd "rm -fr $NODE_MODULES_UFO"
+  fi
+  if [ -d  "$NODE_MODULES_UP" ]; then
+    runAndAssertCmd "rm -fr $NODE_MODULES_UP"
+  fi
+
+  # Files
+  if [ -e  "$TEMP_BASH_PROFILE" ]; then
+    runAndAssertCmd "rm -fr $TEMP_BASH_PROFILE"
+  fi
+  if [ -e  "$UFO_TGZ" ]; then
+    runAndAssertCmd "rm -fr $UFO_TGZ"
   fi
 }
 
@@ -182,6 +232,30 @@ function installManagementServer ()
   setupDevelopmentEnvironment
 }
 
+function printHelp ()
+{
+  echo
+  echo "Usage: setup.sh [install|release|deploy|run_tests|setup_tests|clean]"
+  echo
+  echo "  install      - Sets up the entire project from github."
+  echo "  release      - Runs the tests and generate a tgz if successful."
+  echo "  deploy       - Uploads the local code copy to appspot."
+  echo "  run_tests    - Prepares the machine for unit testing and runs."
+  echo "  setup_tests  - Prepares the machine for unit testing."
+  echo "  clean        - Remove existing dependency setup."
+  echo
+  echo
+  echo "If you're having trouble with dependencies and installing, try this:"
+  echo "sudo ./setup.sh clean"
+  echo "sudo ./setup.sh setup_tests"
+  echo "which will install the latest versions with raised permissions."
+  echo
+  echo
+  echo "For problems with node, try this:"
+  echo "ln -s /usr/bin/nodejs /usr/bin/node"
+  echo
+}
+
 if [ "$1" == 'install' ]; then
   installManagementServer
 elif [ "$1" == 'release' ]; then
@@ -192,15 +266,9 @@ elif [ "$1" == 'run_tests' ]; then
   runUnitTests
 elif [ "$1" == 'setup_tests' ]; then
   setupUnitTests
+elif [ "$1" == 'clean' ]; then
+  clean
 else
-  echo
-  echo "Usage: setup.sh [install|release|deploy|run_tests|setup_tests]"
-  echo
-  echo "  install      - Sets up the entire project from github."
-  echo "  release      - Runs the tests and generate a tgz if successful."
-  echo "  deploy       - Uploads the local code copy to appspot."
-  echo "  run_tests    - Prepares the machine for unit testing and runs."
-  echo "  setup_tests  - Prepares the machine for unit testing."
-  echo
+  printHelp
   exit 0
 fi
