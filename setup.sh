@@ -56,6 +56,7 @@ function runAndAssertCmd ()
     # code.
     set -e && cd $ROOT_DIR && eval $1
 }
+
 function runInUfOAndAssertCmd ()
 {
     echo "Running: $1"
@@ -273,6 +274,41 @@ function printHelp ()
   echo
 }
 
+function bareMetalInstall ()
+{
+  # Using variables here to make things fit on 80 character lines.
+  PYTHON_DEPS1="libreadline-gplv2-dev libncursesw5-dev libssl-dev"
+  PYTHON_DEPS2="libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev"
+  PYTHON_NAME="Python-2.7.9"
+  PYTHON_TGZ="wget https://www.python.org/ftp/python/2.7.9/${PYTHON_NAME}.tgz"
+  PYTHON_EXTRACT="tar -xvf ${PYTHON_NAME}.tgz"
+
+  echo "If this fails, consider retrying with sudo pre-fixed."
+
+  echo "Step 1/4: Installing Python"
+  runAndAssertCmd "apt-get install build-essential"
+  runAndAssertCmd "apt-get install $PYTHON_DEPS1 $PYTHON_DEPS2"
+  set -e && cd ~/Downloads/ && eval $PYTHON_TGZ
+  set -e && cd ~/Downloads/ && eval $PYTHON_EXTRACT
+  set -e && cd $PYTHON_NAME && eval "./configure"
+  set -e && cd $PYTHON_NAME && eval "make"
+  set -e && cd $PYTHON_NAME && eval "make install"
+
+  echo "Step 2/4: Installing Pip"
+  runAndAssertCmd "apt-get install python-pip"
+
+  echo "Step 3/4: Installing Git"
+  runAndAssertCmd "apt-get install git-all"
+
+  # I probably need to have another step in here for setting environment vars
+  # correctly so that python, pip, and git can be run correctly. I can't test
+  # this currently though, so I'm assuming it works and will iterate on it
+  # later if necessary.
+
+  echo "Step 4/4: Installing Management Server"
+  installManagementServer
+}
+
 if [ "$1" == 'install' ]; then
   installManagementServer
 elif [ "$1" == 'release' ]; then
@@ -285,6 +321,8 @@ elif [ "$1" == 'setup' ]; then
   setupDevelopmentEnvironment
 elif [ "$1" == 'clean' ]; then
   clean
+elif [ "$1" == 'metal' ]; then
+  bareMetalInstall
 else
   printHelp
   exit 0
