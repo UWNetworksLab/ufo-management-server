@@ -169,38 +169,56 @@ def _RenderAddUsersTemplate(directory_users):
 
 
 class LandingPageHandler(webapp2.RequestHandler):
+  """Display the landing page which doesn't require oauth."""
+  # pylint: disable=too-few-public-methods
 
   def get(self):
+    """Output the landing page template."""
     self.response.write(_RenderLandingTemplate())
 
 
 class ListUsersHandler(webapp2.RequestHandler):
+  """List the current users."""
+  # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
   def get(self):
+    """Output a list of all current users along with some metadata."""
     self.response.write(_RenderUserListTemplate())
 
 
 class DeleteUserHandler(webapp2.RequestHandler):
+  """Delete a given user."""
+  # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
   def get(self):
+    """Delete the user corresponding to the passed in key.
+
+    If we had access to a delete method then we would not use get here.
+    """
     urlsafe_key = self.request.get('key')
     User.DeleteByKey(urlsafe_key)
     self.response.write(_RenderUserListTemplate())
 
 
 class ListTokensHandler(webapp2.RequestHandler):
+  """List the tokens and associated users."""
+  # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
   def get(self):
+    """Output a list of all current users along with each's token."""
     self.response.write(_RenderTokenListTemplate())
 
 
 class GetInviteCodeHandler(webapp2.RequestHandler):
+  """Get an invite code for a given user."""
+  # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
   def get(self):
+    """Output a list of all current users along with the requested token."""
     urlsafe_key = self.request.get('key')
     user = User.GetByKey(urlsafe_key)
     invite_code = _MakeInviteCode(user)
@@ -209,9 +227,12 @@ class GetInviteCodeHandler(webapp2.RequestHandler):
 
 
 class GetNewTokenHandler(webapp2.RequestHandler):
+  """Create a new token for a given user."""
+  # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
   def get(self):
+    """Find the user matching the specified key and generate a new token."""
     urlsafe_key = self.request.get('key')
     User.UpdateKeyPair(urlsafe_key)
 
@@ -224,6 +245,14 @@ class AddUsersHandler(webapp2.RequestHandler):
   @admin.require_admin
   @OAUTH_DECORATOR.oauth_required
   def get(self):
+    """Get the form for adding new users.
+
+    If get_all is passed in, all users in the domain will be listed to select.
+    If a group_key is passed in and that group is found, all users in that
+    group will be listed to select. We do not list groups within groups though.
+    If neither is passed in, the form is still displayed without any users
+    listed.
+    """
     get_all = self.request.get('get_all')
     group_key = self.request.get('group_key')
     if get_all:
@@ -245,6 +274,7 @@ class AddUsersHandler(webapp2.RequestHandler):
   @xsrf.xsrf_protect
   @OAUTH_DECORATOR.oauth_required
   def post(self):
+    """Add all of the selected users into the datastore."""
     params = self.request.get_all('selected_user')
     users = []
     for param in params:

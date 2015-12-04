@@ -52,21 +52,25 @@ def _MakeKeyString():
   endline = '\n'
   for user in users:
     user_string = (ssh_starting_portion + space + user.public_key + space +
-                  user.email + endline)
+                   user.email + endline)
     key_string += user_string
 
   return key_string
 
 
 class AddProxyServerHandler(webapp2.RequestHandler):
+  """Handler for adding new proxy servers."""
 
   @admin.require_admin
   def get(self):
+    """Get the form for adding new proxy servers."""
+
     self.response.write(_RenderProxyServerFormTemplate(None))
 
   @admin.require_admin
   @xsrf.xsrf_protect
   def post(self):
+    """Add a new proxy server with the post parameters passed in."""
     ProxyServer.Insert(
         self.request.get('name'),
         self.request.get('ip_address'),
@@ -76,15 +80,18 @@ class AddProxyServerHandler(webapp2.RequestHandler):
 
 
 class EditProxyServerHandler(webapp2.RequestHandler):
+  """Handler for editing an existing proxy server."""
 
   @admin.require_admin
   def get(self):
+    """Get a proxy server's current data and display its edit form."""
     proxy_server = ProxyServer.Get(int(self.request.get('id')))
     self.response.write(_RenderProxyServerFormTemplate(proxy_server))
 
   @admin.require_admin
   @xsrf.xsrf_protect
   def post(self):
+    """Set an existing proxy server with the post parameters passed in."""
     ProxyServer.Update(
         int(self.request.get('id')),
         self.request.get('name'),
@@ -95,24 +102,40 @@ class EditProxyServerHandler(webapp2.RequestHandler):
 
 
 class DeleteProxyServerHandler(webapp2.RequestHandler):
+  """Handler for deleting an existing proxy server."""
+  # pylint: disable=too-few-public-methods
 
   @admin.require_admin
   def get(self):
+    """Delete the proxy server corresponding to the passed in id.
+
+    If we had access to a delete method then we would not use get here.
+    """
     ProxyServer.Delete(int(self.request.get('id')))
     self.response.write(_RenderListProxyServerTemplate())
 
 
 class ListProxyServersHandler(webapp2.RequestHandler):
+  """Handler for listing all existing proxy servers."""
+  # pylint: disable=too-few-public-methods
 
   @admin.require_admin
   def get(self):
+    """Get all current proxy servers and list them with their metadata."""
     self.response.write(_RenderListProxyServerTemplate())
 
 
 class DistributeKeyHandler(webapp2.RequestHandler):
+  """Handler for distributing authorization keys out to each proxy server."""
+  # pylint: disable=too-few-public-methods
 
   # This handler requires admin login, and is controlled in the app.yaml.
   def get(self):
+    """Send the current users and associated key out to each proxy server.
+
+    This handler is not intended primarily for a typical user, but for a cron
+    job to periodically trigger.
+    """
     # TODO(henry): See if we can use threading to parallelize the put requests.
     key_string = _MakeKeyString()
     proxy_servers = ProxyServer.GetAll()
