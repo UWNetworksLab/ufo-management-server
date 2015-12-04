@@ -29,7 +29,8 @@ AE_PYTHON_FANCY="${AE_PYTHON_LIB}fancy_urllib/";
 
 AE_PYTHON_UP="$UP_DIR/$AE_PYTHON_NAME/";
 
-UFO_MS_NAME="ufo-management-server-master"
+UFO_MS_MASTER_NAME="ufo-management-server-master"
+UFO_MS_NAME="ufo-management-server"
 UFO_MS_GIT_REPO="https://github.com/uProxy/ufo-management-server.git";
 UFO_MS_LOCAL_DIR="$ROOT_DIR/$UFO_MS_NAME/";
 UFO_MS_LOCAL_LIB="$UFO_MS_LOCAL_DIR/lib";
@@ -91,10 +92,14 @@ function addAllExports ()
   runAndAssertCmd "source $TEMP_BASH_PROFILE"
 }
 
-function addBower ()
+function addNode ()
 {
   runAndAssertCmd "apt-get install nodejs"
   runAndAssertCmd "apt-get install npm"
+}
+
+function addBower ()
+{
   runAndAssertCmd "npm install -g bower"
   # May need the following if node doesn't install correctly.
   #runAndAssertCmd "ln -s /usr/bin/nodejs /usr/bin/node"
@@ -103,19 +108,21 @@ function addBower ()
 
 function setupDevelopmentEnvironment ()
 {
+  fixDirectoryEnvironment
   if [ ! -d  "$AE_PYTHON_LOCAL_DIR" ] && [ ! -d  "$AE_PYTHON_UP" ]; then
     setupAppEngine
     addVendorPackage
     addAppEngineRuntimePackages
     addAllExports
     addTestingPackages
+    addNode
     addBower
   else
     echo "Development environment already setup with appengine and packages."
   fi
 }
 
-function fixTravisCIEnvironment ()
+function fixDirectoryEnvironment ()
 {
   if [ ! -d  "$UFO_MS_LOCAL_DIR" ] && [ ! -d  "$AE_PYTHON_UP" ]; then
     TEMP_FILES="$(ls -A)"
@@ -161,16 +168,15 @@ function clean ()
   fi
 }
 
-function setupUnitTests ()
+function travis ()
 {
-  fixTravisCIEnvironment
-  setupDevelopmentEnvironment
-}
-
-function runUnitTests ()
-{
-  setupUnitTests
-  runAndAssertCmd "python -m unittest discover -p '*_test.py'"
+  fixDirectoryEnvironment
+  setupAppEngine
+  addVendorPackage
+  addAppEngineRuntimePackages
+  addAllExports
+  addTestingPackages
+  addBower
 }
 
 function package ()
@@ -188,7 +194,8 @@ function package ()
 
 function release ()
 {
-  runUnitTests
+  travis
+  runAndAssertCmd "python -m unittest discover -p '*_test.py'"
   package
   # Not sure how to automatically push this while maintaining some control over
   # who can push. For right now, push will just be a manual step after the tgz
@@ -235,24 +242,26 @@ function installManagementServer ()
 function printHelp ()
 {
   echo
-  echo "Usage: setup.sh [install|release|deploy|run_tests|setup_tests|clean]"
+  echo "Usage: setup.sh [install|release|deploy|travis|setup|clean]"
   echo
   echo "  install      - Sets up the entire project from github."
   echo "  release      - Runs the tests and generate a tgz if successful."
   echo "  deploy       - Uploads the local code copy to appspot."
-  echo "  run_tests    - Prepares the machine for unit testing and runs."
-  echo "  setup_tests  - Prepares the machine for unit testing."
+  echo "  travis       - Prepares the machine for unit testing."
+  echo "  setup        - Prepares the machine for development and testing."
   echo "  clean        - Remove existing dependency setup."
   echo
   echo
   echo "If you're having trouble with dependencies and installing, try this:"
   echo "sudo ./setup.sh clean"
-  echo "sudo ./setup.sh setup_tests"
+  echo "sudo ./setup.sh setup"
   echo "which will install the latest versions with raised permissions."
   echo
   echo
-  echo "For problems with node, try this:"
+  echo "For problems with running bower, try this:"
   echo "ln -s /usr/bin/nodejs /usr/bin/node"
+  echo "and then run bower install again:"
+  echo "bower install"
   echo
 }
 
@@ -262,10 +271,10 @@ elif [ "$1" == 'release' ]; then
   release
 elif [ "$1" == 'deploy' ]; then
   deploy
-elif [ "$1" == 'run_tests' ]; then
-  runUnitTests
-elif [ "$1" == 'setup_tests' ]; then
-  setupUnitTests
+elif [ "$1" == 'travis' ]; then
+  travis
+elif [ "$1" == 'setup' ]; then
+  setupDevelopmentEnvironment
 elif [ "$1" == 'clean' ]; then
   clean
 else
