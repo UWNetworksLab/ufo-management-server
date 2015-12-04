@@ -4,7 +4,7 @@ python:
   - "2.7"
 # command to setup environment and install dependencies
 install:
- - ./setup.sh setup_tests
+ - ./setup.sh travis
 before_script:
  - source .bash_profile
 # command to run tests
