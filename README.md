@@ -51,7 +51,7 @@ modify (`/usr/local`) to being editable by your user (`sudo chown -R $USER /usr/
 
  1. Navigate into UfO's root directory with `cd ufo-management-server`
 
- 1. Setup build tools and third-party dependencies, run `./setup.sh setup_tests`
+ 1. Setup build tools and third-party dependencies, run `./setup.sh setup`
 
 #### Setup with Setup.sh
 
@@ -59,16 +59,12 @@ modify (`/usr/local`) to being editable by your user (`sudo chown -R $USER /usr/
 
  1. Run `./setup.sh install`
 
-#### Installing Client-Side Components
-
-Currently, the setup script does not account for installing client-side components through bower. Later versions will support this, but it is not yet implemented.
-
- 1. Install bower, with node this is simply `npm install bower`.
- 1. Run `bower install` to get the client-side components.
-
 #### Note About Dependency Changes
 
-Note that if any local dependencies have changed (i.e. changes to bower dependencies, updates to pip packages), you will have to remove your appengine directory and run `./setup.sh setup_tests` to update these dependencies.
+Note that if any local dependencies have changed (i.e. changes to bower dependencies, updates to pip packages, releases of appengine), you will have to add the new dependency manually or reset completely with the script. To reset with the script, perform the following:
+
+ 1. Run `sudo ./setup.sh clean`
+ 1. Run `./setup.sh setup`
 
 ### Setting Up OAuth
 
@@ -99,9 +95,8 @@ As part of the OAuth flow, the server must present a “secret” in order to pr
 
 Our tests run on [Travis](https://travis-ci.org/) for every commit, push, and pull request automatically. To execute the tests locally before commit, perform the following:
 
- 1. Ensure your environment is configured properly. Run `./setup.sh setup_tests` if not.
+ 1. Ensure your environment is configured properly. Run `./setup.sh setup` if not.
  1. Execute the tests with your modified code.
-   * Run `./setup.sh run_tests` or
    * Run `python -m unittest discover -p "*_test.py"`
 
 ### Running the Server
@@ -110,7 +105,7 @@ Our tests run on [Travis](https://travis-ci.org/) for every commit, push, and pu
 
 Once you have the source code and dependencies in your environment, running the code on your local machine should be very straightforward.
 
- 1. Ensure your environment is configured properly. Run `./setup.sh setup_tests` if not.
+ 1. Ensure your environment is configured properly. Run `./setup.sh setup` if not.
  1. Deploy the server locally:
    * Run `<path_to_appengine_sdk>/dev_appserver.py --port=9999 .` Note the trailing period is required.
    * This is typically `../google_appengine/dev_appserver.py --port=9999 .`
@@ -119,7 +114,7 @@ Once you have the source code and dependencies in your environment, running the 
 
 #### Deploying Cloud Server (Appspot)
 
- 1. Ensure your environment is configured properly. Run `./setup.sh setup_tests` if not.
+ 1. Ensure your environment is configured properly. Run `./setup.sh setup` if not.
  1. Deploy the server to the cloud:
    * Deploy directly:
      * Run `<path_to_appengine_sdk>/appcfg.py -A <your-project-name-here> update .` Note the trailing period is required.
