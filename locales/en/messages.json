@@ -1,0 +1,46 @@
+{
+  "UFO_SHORT": {
+    "description": "Name for uProxy for Organizations in acronym form.",
+    "message": "UfO"
+  },
+  "UFO_LONG": {
+    "description": "Name for uProxy for Organizations written out.",
+    "message": "uProxy for Organizations"
+  },
+  "UFO_SERVER": {
+    "description": "Name of the management server.",
+    "message": "UfO Management Server"
+  },
+  "HOME_PAGE_TITLE": {
+    "description": "Title of home page for the web application.",
+    "message": "Home"
+  },
+  "USERS_PAGE_TITLE": {
+    "description": "Title of users page for the web application.",
+    "message": "Users"
+  },
+  "TOKENS_PAGE_TITLE": {
+    "description": "Title of tokens page for the web application.",
+    "message": "Tokens"
+  },
+  "PROXYS_PAGE_TITLE": {
+    "description": "Title of proxy servers page for the web application.",
+    "message": "Proxy Servers"
+  },
+  "SETUP_PAGE_TITLE": {
+    "description": "Title of setup page for the web application.",
+    "message": "Setup"
+  },
+  "LOGOUT_PAGE_TITLE": {
+    "description": "Title of logout page handler for the web application.",
+    "message": "Logout"
+  },
+  "ADD_USERS_PAGE_TITLE": {
+    "description": "Title of add users page for the web application.",
+    "message": "Add Users"
+  },
+  "LANDING_DIRECTIONS": {
+    "description": "Directions for what to do when visiting the landing page. This should tell a user to click a navigation link which will then prompt the user to login.",
+    "message": "Click one of the links on the side to login and administer the server."
+  }
+}
