@@ -73,15 +73,17 @@ class GoogleDirectoryService(object):
 
     return users
 
-  def SearchForUser(self, user_key):
-    """Search for a user based on a user key.
+  def GetUser(self, user_key):
+    """Get a user based on a user key.
+
+    List format is used here for consistency with the other methods and to
+    simplify rendering a template based on the response.
 
     Args:
       user_key: A string identifying an individual user.
 
     Returns:
       users: A list with that user in it or empty.
-      List format is used here for consistency with the other methods.
     """
     users = []
     request = self.service.users().get(userKey=user_key, projection='full')

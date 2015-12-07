@@ -274,7 +274,7 @@ class AddUsersHandler(webapp2.RequestHandler):
         self.response.write(_RenderAddUsersTemplate(fixed_users))
       elif user_key is not None and user_key is not '':
         directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
-        directory_users = directory_service.SearchForUser(user_key)
+        directory_users = directory_service.GetUser(user_key)
         self.response.write(_RenderAddUsersTemplate(directory_users))
       else:
         self.response.write(_RenderAddUsersTemplate([]))

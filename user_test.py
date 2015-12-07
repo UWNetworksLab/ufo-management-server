@@ -120,12 +120,12 @@ class UserTest(unittest.TestCase):
     mock_render.assert_called_once_with([])
 
   @patch('user._RenderAddUsersTemplate')
-  @patch('google_directory_service.GoogleDirectoryService.SearchForUser')
+  @patch('google_directory_service.GoogleDirectoryService.GetUser')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
   def testAddUsersGetHandlerWithGroup(self, mock_ds, mock_get_users,
-                                      mock_get_by_key, mock_search,
+                                      mock_get_by_key, mock_get_user,
                                       mock_render):
     mock_ds.return_value = None
     # Email address could refer to group or user
@@ -134,56 +134,56 @@ class UserTest(unittest.TestCase):
     response = self.testapp.get('/user/add?group_key=' + group_key)
 
     mock_get_users.assert_not_called()
-    mock_search.assert_not_called()
+    mock_get_user.assert_not_called()
     mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
     mock_get_by_key.assert_called_once_with(group_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
   @patch('user._RenderAddUsersTemplate')
-  @patch('google_directory_service.GoogleDirectoryService.SearchForUser')
+  @patch('google_directory_service.GoogleDirectoryService.GetUser')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
   def testAddUsersGetHandlerWithUser(self, mock_ds, mock_get_users,
-                                     mock_get_by_key, mock_search,
+                                     mock_get_by_key, mock_get_user,
                                      mock_render):
     mock_ds.return_value = None
     # Email address could refer to group or user
     user_key = 'foo@bar.mybusiness.com'
-    mock_search.return_value = FAKE_USER_ARRAY
+    mock_get_user.return_value = FAKE_USER_ARRAY
     response = self.testapp.get('/user/add?user_key=' + user_key)
 
     mock_get_users.assert_not_called()
     mock_get_by_key.assert_not_called()
     mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
-    mock_search.assert_called_once_with(user_key)
+    mock_get_user.assert_called_once_with(user_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
   @patch('user._RenderAddUsersTemplate')
-  @patch('google_directory_service.GoogleDirectoryService.SearchForUser')
+  @patch('google_directory_service.GoogleDirectoryService.GetUser')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
   def testAddUsersGetHandlerWithAll(self, mock_ds, mock_get_users,
-                                    mock_get_by_key, mock_search,
+                                    mock_get_by_key, mock_get_user,
                                     mock_render):
     mock_ds.return_value = None
     mock_get_users.return_value = FAKE_USER_ARRAY
     response = self.testapp.get('/user/add?get_all=true')
 
     mock_get_by_key.assert_not_called()
-    mock_search.assert_not_called()
+    mock_get_user.assert_not_called()
     mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
     mock_get_users.assert_called_once_with()
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
   @patch('user._RenderAddUsersTemplate')
-  @patch('google_directory_service.GoogleDirectoryService.SearchForUser')
+  @patch('google_directory_service.GoogleDirectoryService.GetUser')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
   def testAddUsersGetHandlerWithError(self, mock_ds, mock_get_users,
-                                      mock_get_by_key, mock_search,
+                                      mock_get_by_key, mock_get_user,
                                       mock_render):
     fake_status = '404'
     fake_response = MagicMock(status=fake_status)
@@ -195,7 +195,7 @@ class UserTest(unittest.TestCase):
 
     mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
     mock_get_by_key.assert_not_called()
-    mock_search.assert_not_called()
+    mock_get_user.assert_not_called()
     mock_get_users.assert_not_called()
     mock_render.assert_called_once_with([], fake_error)
 
