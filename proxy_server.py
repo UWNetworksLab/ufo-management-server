@@ -18,7 +18,6 @@ from google.appengine.api import app_identity
 def _RenderProxyServerFormTemplate(proxy_server):
   """Render the form to add or edit a proxy server."""
   template_values = {
-      'host': app_identity.get_default_version_hostname(),
       'proxy_server': proxy_server,
       'xsrf_token': xsrf.xsrf_token(),
   }
@@ -30,7 +29,6 @@ def _RenderListProxyServerTemplate():
   """Render a list of proxy servers."""
   proxy_servers = ProxyServer.GetAll()
   template_values = {
-      'host': app_identity.get_default_version_hostname(),
       'proxy_servers': proxy_servers
   }
   template = JINJA_ENVIRONMENT.get_template('templates/proxy_server.html')

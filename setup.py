@@ -13,7 +13,6 @@ import xsrf
 import admin
 
 
-JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token()
 
 
 def _RenderSetupOAuthClientTemplate():
@@ -21,7 +20,6 @@ def _RenderSetupOAuthClientTemplate():
   entity = OAuth.GetOrInsertDefault()
   domain_verification = DomainVerification.GetOrInsertDefault()
   template_values = {
-      'host': app_identity.get_default_version_hostname(),
       'client_id': entity.client_id,
       'client_secret': entity.client_secret,
       'dv_content': domain_verification.content,
