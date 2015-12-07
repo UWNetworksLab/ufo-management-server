@@ -7,6 +7,7 @@ MY_CUSTOMER_ALIAS = 'my_customer'
 
 NUM_RETRIES = 3
 
+# TODO(eholder): Write tests for these functions.
 
 class GoogleDirectoryService(object):
   """Interact with Google Directory API."""
@@ -69,6 +70,26 @@ class GoogleDirectoryService(object):
     for member in members:
       if 'type' in member and member['type'] == user:
         users.append(member)
+
+    return users
+
+  def GetUser(self, user_key):
+    """Get a user based on a user key.
+
+    List format is used here for consistency with the other methods and to
+    simplify rendering a template based on the response.
+
+    Args:
+      user_key: A string identifying an individual user.
+
+    Returns:
+      users: A list with that user in it or empty.
+    """
+    users = []
+    request = self.service.users().get(userKey=user_key, projection='full')
+    result = request.execute(num_retries=NUM_RETRIES)
+    if result['primaryEmail']:
+      users.append(result)
 
     return users
 

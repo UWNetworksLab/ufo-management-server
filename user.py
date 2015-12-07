@@ -1,19 +1,20 @@
 """The module for handling users."""
 
+import admin
 from appengine_config import JINJA_ENVIRONMENT
 from auth import OAUTH_DECORATOR
 import base64
-from datastore import User
 from datastore import DomainVerification
 from datastore import ProxyServer
+from datastore import User
 from error_handlers import Handle500
+from googleapiclient import errors
 from google.appengine.api import app_identity
 from google_directory_service import GoogleDirectoryService
 import json
 import random
 import webapp2
 import xsrf
-import admin
 
 
 JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token()
@@ -158,12 +159,14 @@ def _RenderLandingTemplate():
   return template.render(template_values)
 
 
-def _RenderAddUsersTemplate(directory_users):
+def _RenderAddUsersTemplate(directory_users, error=None):
   """Render a user add page that lets users be added by group key."""
   template_values = {
       'host': app_identity.get_default_version_hostname(),
       'directory_users': directory_users,
   }
+  if error is not None:
+    template_values['error'] = error
   template = JINJA_ENVIRONMENT.get_template('templates/add_user.html')
   return template.render(template_values)
 
@@ -255,20 +258,28 @@ class AddUsersHandler(webapp2.RequestHandler):
     """
     get_all = self.request.get('get_all')
     group_key = self.request.get('group_key')
-    if get_all:
-      directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
-      directory_users = directory_service.GetUsers()
-      self.response.write(_RenderAddUsersTemplate(directory_users))
-    elif group_key is not None and group_key is not '':
-      directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
-      directory_users = directory_service.GetUsersByGroupKey(group_key)
-      fixed_users = []
-      for user in directory_users:
-        user['primaryEmail'] = user['email']
-        fixed_users.append(user)
-      self.response.write(_RenderAddUsersTemplate(fixed_users))
-    else:
-      self.response.write(_RenderAddUsersTemplate([]))
+    user_key = self.request.get('user_key')
+    try:
+      if get_all:
+        directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
+        directory_users = directory_service.GetUsers()
+        self.response.write(_RenderAddUsersTemplate(directory_users))
+      elif group_key is not None and group_key is not '':
+        directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
+        directory_users = directory_service.GetUsersByGroupKey(group_key)
+        fixed_users = []
+        for user in directory_users:
+          user['primaryEmail'] = user['email']
+          fixed_users.append(user)
+        self.response.write(_RenderAddUsersTemplate(fixed_users))
+      elif user_key is not None and user_key is not '':
+        directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
+        directory_users = directory_service.GetUser(user_key)
+        self.response.write(_RenderAddUsersTemplate(directory_users))
+      else:
+        self.response.write(_RenderAddUsersTemplate([]))
+    except errors.HttpError as error:
+      self.response.write(_RenderAddUsersTemplate([], error))
 
   @admin.require_admin
   @xsrf.xsrf_protect
