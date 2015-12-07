@@ -10,15 +10,20 @@
       <br><br>
       Select Users to Add.
       <br><br>
-    <ul>
-    {% for directory_user in directory_users %}
-      <li>
-        <input type="checkbox" name="selected_user" value="{{ directory_user['primaryEmail'] }}">
-        {{ directory_user['primaryEmail'] }}<br>
-      </li>
-      <br />
-    {% endfor %}
-    </ul>
+      <table>
+        <tr>
+          <th>-</th>
+          <th>Name</th>
+          <th>Email</th>
+        </tr>
+      {% for directory_user in directory_users %}
+        <tr>
+          <td><input type="checkbox" name="selected_user" value="{{ directory_user }}"></td>
+          <td>{{ directory_user['name']['fullName'] }}</td>
+          <td>{{ directory_user['primaryEmail'] }}</td>
+        </tr>
+      {% endfor %}
+      </table>
       <input type="hidden" name="xsrf" value="{{ xsrf_token }}">
       <input type="submit" value="Add Selected Users">
     </form>

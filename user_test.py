@@ -48,6 +48,8 @@ FAKE_EMAIL_1 = u'foo@business.com'
 FAKE_EMAIL_2 = u'bar@business.com'
 FAKE_ADD_USER = {}
 FAKE_ADD_USER['primaryEmail'] = FAKE_EMAIL_1
+FAKE_ADD_USER['name'] = {}
+FAKE_ADD_USER['name']['fullName'] = FAKE_NAME
 FAKE_ADD_USER['email'] = FAKE_EMAIL_1
 FAKE_ADD_USER['role'] = 'MEMBER'
 FAKE_ADD_USER['type'] = 'USER'
@@ -107,20 +109,23 @@ class UserTest(unittest.TestCase):
     mock_token_template.assert_called_once_with()
 
   @patch('user._RenderAddUsersTemplate')
+  @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
   def testAddUsersGetHandlerNoParam(self, mock_ds, mock_get_users,
-                                    mock_get_by_key, mock_render):
+                                    mock_get_by_key, mock_get_user,
+                                    mock_render):
     response = self.testapp.get('/user/add')
 
     mock_ds.assert_not_called()
     mock_get_users.assert_not_called()
+    mock_get_user.assert_not_called()
     mock_get_by_key.assert_not_called()
     mock_render.assert_called_once_with([])
 
   @patch('user._RenderAddUsersTemplate')
-  @patch('google_directory_service.GoogleDirectoryService.GetUser')
+  @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
@@ -140,7 +145,7 @@ class UserTest(unittest.TestCase):
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
   @patch('user._RenderAddUsersTemplate')
-  @patch('google_directory_service.GoogleDirectoryService.GetUser')
+  @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
@@ -160,7 +165,7 @@ class UserTest(unittest.TestCase):
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
   @patch('user._RenderAddUsersTemplate')
-  @patch('google_directory_service.GoogleDirectoryService.GetUser')
+  @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
@@ -178,7 +183,7 @@ class UserTest(unittest.TestCase):
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
   @patch('user._RenderAddUsersTemplate')
-  @patch('google_directory_service.GoogleDirectoryService.GetUser')
+  @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
@@ -212,8 +217,7 @@ class UserTest(unittest.TestCase):
     user_array = []
     user_array.append(user_1)
     user_array.append(user_2)
-    data = '?selected_user={0}&selected_user={1}'.format(FAKE_EMAIL_1,
-                                                         FAKE_EMAIL_2)
+    data = '?selected_user={0}&selected_user={1}'.format(user_1, user_2)
     response = self.testapp.post('/user/add' + data)
 
     mock_insert.assert_called_once_with(user_array)
