@@ -6,7 +6,6 @@ from datastore import User
 from datastore import OAuth
 from datastore import DomainVerification
 from error_handlers import Handle500
-from google.appengine.api import app_identity
 import json
 import webapp2
 import xsrf

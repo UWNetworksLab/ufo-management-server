@@ -10,7 +10,6 @@ from datastore import ProxyServer
 from datastore import User
 from error_handlers import Handle500
 from googleapiclient import errors
-from google.appengine.api import app_identity
 from google_directory_service import GoogleDirectoryService
 import json
 import random

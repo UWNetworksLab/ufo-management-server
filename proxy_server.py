@@ -11,8 +11,6 @@ from datastore import ProxyServer
 from datastore import User
 import xsrf
 
-from google.appengine.api import app_identity
-
 
 
 def _RenderProxyServerFormTemplate(proxy_server):

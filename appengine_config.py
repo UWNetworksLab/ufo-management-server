@@ -17,8 +17,8 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 
 
 JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token()
-_host = str(app_identity.get_default_version_hostname())
-JINJA_ENVIRONMENT.globals['BASE_URL'] = ('https://' + _host)
+HOST = str(app_identity.get_default_version_hostname())
+JINJA_ENVIRONMENT.globals['BASE_URL'] = ('https://' + HOST)
 
 # Add any libraries installed in the "lib" folder.
 vendor.add('lib')
