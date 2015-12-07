@@ -29,16 +29,22 @@ AE_PYTHON_FANCY="${AE_PYTHON_LIB}fancy_urllib/";
 
 AE_PYTHON_UP="$UP_DIR/$AE_PYTHON_NAME/";
 
-UFO_MS_NAME="ufo-management-server-master"
+UFO_MS_MASTER_NAME="ufo-management-server-master"
+UFO_MS_NAME="ufo-management-server"
 UFO_MS_GIT_REPO="https://github.com/uProxy/ufo-management-server.git";
 UFO_MS_LOCAL_DIR="$ROOT_DIR/$UFO_MS_NAME/";
 UFO_MS_LOCAL_LIB="$UFO_MS_LOCAL_DIR/lib";
+UFO_MS_LOCAL_OTHER_LIB="$ROOT_DIR/lib";
 
 UFO_MS_UP="$UP_DIR/$UFO_MS_NAME/";
 
 TEMP_BASH_PROFILE=".bash_profile";
 
 UFO_TGZ="UfO-release.tgz"
+
+NODE_MODULES_ROOT="$ROOT_DIR/node_modules"
+NODE_MODULES_UFO="$UFO_MS_LOCAL_DIR/node_modules"
+NODE_MODULES_UP="$UFO_MS_UP/node_modules"
 
 # A simple bash script to run commands to setup and install all dev
 # dependencies (including non-npm ones)
@@ -49,6 +55,15 @@ function runAndAssertCmd ()
     # We use set -e to make sure this will fail if the command returns an error
     # code.
     set -e && cd $ROOT_DIR && eval $1
+}
+
+function runInUfOAndAssertCmd ()
+{
+    echo "Running: $1"
+    echo
+    # We use set -e to make sure this will fail if the command returns an error
+    # code.
+    set -e && cd $UFO_MS_LOCAL_DIR && eval $1
 }
 
 function setupAppEngine ()
@@ -86,20 +101,37 @@ function addAllExports ()
   runAndAssertCmd "source $TEMP_BASH_PROFILE"
 }
 
+function addNode ()
+{
+  runAndAssertCmd "apt-get install nodejs"
+  runAndAssertCmd "apt-get install npm"
+}
+
+function addBower ()
+{
+  runAndAssertCmd "npm install -g bower"
+  # May need the following if node doesn't install correctly.
+  #runAndAssertCmd "ln -s /usr/bin/nodejs /usr/bin/node"
+  runInUfOAndAssertCmd "bower install"
+}
+
 function setupDevelopmentEnvironment ()
 {
+  fixDirectoryEnvironment
   if [ ! -d  "$AE_PYTHON_LOCAL_DIR" ] && [ ! -d  "$AE_PYTHON_UP" ]; then
     setupAppEngine
     addVendorPackage
     addAppEngineRuntimePackages
     addAllExports
     addTestingPackages
+    addNode
+    addBower
   else
     echo "Development environment already setup with appengine and packages."
   fi
 }
 
-function fixTravisCIEnvironment ()
+function fixDirectoryEnvironment ()
 {
   if [ ! -d  "$UFO_MS_LOCAL_DIR" ] && [ ! -d  "$AE_PYTHON_UP" ]; then
     TEMP_FILES="$(ls -A)"
@@ -111,16 +143,49 @@ function fixTravisCIEnvironment ()
   fi
 }
 
-function setupUnitTests ()
+function clean ()
 {
-  fixTravisCIEnvironment
-  setupDevelopmentEnvironment
+  # Dirs
+  if [ -d  "$AE_PYTHON_LOCAL_DIR" ]; then
+    runAndAssertCmd "rm -fr $AE_PYTHON_LOCAL_DIR"
+  fi
+  if [ -d  "$AE_PYTHON_UP" ]; then
+    runAndAssertCmd "rm -fr $AE_PYTHON_UP"
+  fi
+  if [ -d  "$UFO_MS_LOCAL_LIB" ]; then
+    runAndAssertCmd "rm -fr $UFO_MS_LOCAL_LIB"
+  fi
+  if [ -d  "$UFO_MS_LOCAL_OTHER_LIB" ]; then
+    runAndAssertCmd "rm -fr $UFO_MS_LOCAL_OTHER_LIB"
+  fi
+  if [ -d  "$NODE_MODULES_ROOT" ]; then
+    runAndAssertCmd "rm -fr $NODE_MODULES_ROOT"
+  fi
+  if [ -d  "$NODE_MODULES_UFO" ]; then
+    runAndAssertCmd "rm -fr $NODE_MODULES_UFO"
+  fi
+  if [ -d  "$NODE_MODULES_UP" ]; then
+    runAndAssertCmd "rm -fr $NODE_MODULES_UP"
+  fi
+
+  # Files
+  if [ -e  "$TEMP_BASH_PROFILE" ]; then
+    runAndAssertCmd "rm -fr $TEMP_BASH_PROFILE"
+  fi
+  if [ -e  "$UFO_TGZ" ]; then
+    runAndAssertCmd "rm -fr $UFO_TGZ"
+  fi
 }
 
-function runUnitTests ()
+function testOntravis ()
 {
-  setupUnitTests
-  runAndAssertCmd "python -m unittest discover -p '*_test.py'"
+  fixDirectoryEnvironment
+  setupAppEngine
+  addVendorPackage
+  addAppEngineRuntimePackages
+  addAllExports
+  addTestingPackages
+  addBower
 }
 
 function package ()
@@ -138,7 +203,8 @@ function package ()
 
 function release ()
 {
-  runUnitTests
+  testOntravis
+  runAndAssertCmd "python -m unittest discover -p '*_test.py'"
   package
   # Not sure how to automatically push this while maintaining some control over
   # who can push. For right now, push will just be a manual step after the tgz
@@ -182,25 +248,82 @@ function installManagementServer ()
   setupDevelopmentEnvironment
 }
 
+function printHelp ()
+{
+  echo
+  echo "Usage: setup.sh [install|release|deploy|travis|setup|clean]"
+  echo
+  echo "  install      - Sets up the entire project from github."
+  echo "  release      - Runs the tests and generate a tgz if successful."
+  echo "  deploy       - Uploads the local code copy to appspot."
+  echo "  travis       - Prepares the machine for unit testing."
+  echo "  setup        - Prepares the machine for development and testing."
+  echo "  clean        - Remove existing dependency setup."
+  echo
+  echo
+  echo "If you're having trouble with dependencies and installing, try this:"
+  echo "sudo ./setup.sh clean"
+  echo "sudo ./setup.sh setup"
+  echo "which will install the latest versions with raised permissions."
+  echo
+  echo
+  echo "For problems with running bower, try this:"
+  echo "ln -s /usr/bin/nodejs /usr/bin/node"
+  echo "and then run bower install again:"
+  echo "bower install"
+  echo
+}
+
+function installFromBareMetal ()
+{
+  # Using variables here to make things fit on 80 character lines.
+  PYTHON_DEPS1="libreadline-gplv2-dev libncursesw5-dev libssl-dev"
+  PYTHON_DEPS2="libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev"
+  PYTHON_NAME="Python-2.7.9"
+  PYTHON_TGZ="wget https://www.python.org/ftp/python/2.7.9/${PYTHON_NAME}.tgz"
+  PYTHON_EXTRACT="tar -xvf ${PYTHON_NAME}.tgz"
+
+  echo "If this fails, consider retrying with sudo pre-fixed."
+
+  echo "Step 1/4: Installing Python"
+  runAndAssertCmd "apt-get install build-essential"
+  runAndAssertCmd "apt-get install $PYTHON_DEPS1 $PYTHON_DEPS2"
+  set -e && cd ~/Downloads/ && eval $PYTHON_TGZ
+  set -e && cd ~/Downloads/ && eval $PYTHON_EXTRACT
+  set -e && cd $PYTHON_NAME && eval "./configure"
+  set -e && cd $PYTHON_NAME && eval "make"
+  set -e && cd $PYTHON_NAME && eval "make install"
+
+  echo "Step 2/4: Installing Pip"
+  runAndAssertCmd "apt-get install python-pip"
+
+  echo "Step 3/4: Installing Git"
+  runAndAssertCmd "apt-get install git-all"
+
+  # I probably need to have another step in here for setting environment vars
+  # correctly so that python, pip, and git can be run correctly. I can't test
+  # this currently though, so I'm assuming it works and will iterate on it
+  # later if necessary.
+
+  echo "Step 4/4: Installing Management Server"
+  installManagementServer
+}
+
 if [ "$1" == 'install' ]; then
   installManagementServer
 elif [ "$1" == 'release' ]; then
   release
 elif [ "$1" == 'deploy' ]; then
   deploy
-elif [ "$1" == 'run_tests' ]; then
-  runUnitTests
-elif [ "$1" == 'setup_tests' ]; then
-  setupUnitTests
+elif [ "$1" == 'travis' ]; then
+  testOntravis
+elif [ "$1" == 'setup' ]; then
+  setupDevelopmentEnvironment
+elif [ "$1" == 'clean' ]; then
+  clean
+elif [ "$1" == 'metal' ]; then
+  installFromBareMetal
 else
-  echo
-  echo "Usage: setup.sh [install|release|deploy|run_tests|setup_tests]"
-  echo
-  echo "  install      - Sets up the entire project from github."
-  echo "  release      - Runs the tests and generate a tgz if successful."
-  echo "  deploy       - Uploads the local code copy to appspot."
-  echo "  run_tests    - Prepares the machine for unit testing and runs."
-  echo "  setup_tests  - Prepares the machine for unit testing."
-  echo
+  printHelp
   exit 0
 fi
