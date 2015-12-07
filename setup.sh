@@ -177,7 +177,7 @@ function clean ()
   fi
 }
 
-function travis ()
+function testOntravis ()
 {
   fixDirectoryEnvironment
   setupAppEngine
@@ -203,7 +203,7 @@ function package ()
 
 function release ()
 {
-  travis
+  testOntravis
   runAndAssertCmd "python -m unittest discover -p '*_test.py'"
   package
   # Not sure how to automatically push this while maintaining some control over
@@ -274,7 +274,7 @@ function printHelp ()
   echo
 }
 
-function bareMetalInstall ()
+function installFromBareMetal ()
 {
   # Using variables here to make things fit on 80 character lines.
   PYTHON_DEPS1="libreadline-gplv2-dev libncursesw5-dev libssl-dev"
@@ -316,13 +316,13 @@ elif [ "$1" == 'release' ]; then
 elif [ "$1" == 'deploy' ]; then
   deploy
 elif [ "$1" == 'travis' ]; then
-  travis
+  testOntravis
 elif [ "$1" == 'setup' ]; then
   setupDevelopmentEnvironment
 elif [ "$1" == 'clean' ]; then
   clean
 elif [ "$1" == 'metal' ]; then
-  bareMetalInstall
+  installFromBareMetal
 else
   printHelp
   exit 0
