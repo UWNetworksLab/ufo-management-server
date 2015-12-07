@@ -5,6 +5,7 @@ import sys
 import base64
 from datastore import User
 from datastore import ProxyServer
+from googleapiclient import errors
 from google.appengine.ext import ndb
 import hashlib
 import json
@@ -176,6 +177,28 @@ class UserTest(unittest.TestCase):
     mock_get_users.assert_called_once_with()
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
+  @patch('user._RenderAddUsersTemplate')
+  @patch('google_directory_service.GoogleDirectoryService.SearchForUser')
+  @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
+  @patch('google_directory_service.GoogleDirectoryService.GetUsers')
+  @patch('google_directory_service.GoogleDirectoryService.__init__')
+  def testAddUsersGetHandlerWithError(self, mock_ds, mock_get_users,
+                                      mock_get_by_key, mock_search,
+                                      mock_render):
+    fake_status = '404'
+    fake_response = MagicMock(status=fake_status)
+    fake_content = b'some error content'
+    fake_error = errors.HttpError(fake_response, fake_content)
+    mock_ds.side_effect = fake_error
+    mock_get_users.return_value = FAKE_USER_ARRAY
+    response = self.testapp.get('/user/add?get_all=true')
+
+    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_get_by_key.assert_not_called()
+    mock_search.assert_not_called()
+    mock_get_users.assert_not_called()
+    mock_render.assert_called_once_with([], fake_error)
+
   @patch('user.User.InsertUsers')
   def testAddUsersPostHandler(self, mock_insert):
     user_1 = {}
@@ -195,8 +218,7 @@ class UserTest(unittest.TestCase):
 
     mock_insert.assert_called_once_with(user_array)
     self.assertEqual(response.status_int, 302)
-    # TODO(eholder): Figure out why this test fails but works on appspot.
-    # self.assertTrue('/user' in response.location)
+    self.assertTrue('/user' in response.location)
 
   @patch('user._GenerateUserPayload')
   @patch('user.User.GetAll')
@@ -276,11 +298,19 @@ class UserTest(unittest.TestCase):
     no_user_string = 'No users found. Try another query below.'
     self.assertTrue(no_user_string in add_users_template)
     self.assertTrue('xsrf' not in add_users_template)
+    self.assertTrue('An error occurred while' not in add_users_template)
 
   def testRenderAddUsersTemplateWithSomeUsers(self):
     add_users_template = user._RenderAddUsersTemplate(FAKE_USER_ARRAY)
     self.assertTrue('Add Selected Users' in add_users_template)
     self.assertTrue('xsrf' in add_users_template)
+    self.assertTrue('An error occurred while' not in add_users_template)
+
+  def testRenderAddUsersTemplateWithError(self):
+    fake_error = 'foo bar happened causing baz'
+    add_users_template = user._RenderAddUsersTemplate([], fake_error)
+    self.assertTrue('An error occurred while' in add_users_template)
+    self.assertTrue(fake_error in add_users_template)
 
   @patch.object(user.User, 'key')
   def testGenerateTokenPayload(self, mock_url_key):

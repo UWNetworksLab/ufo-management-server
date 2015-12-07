@@ -1,6 +1,10 @@
 {% extends "templates/base.html" %}
 {% block title %}Add Users{% endblock %}
 {% block body %}
+  {% if error%}
+    <p>An error occurred while processing the request. Please retry or select another query. The error text is below.</p>
+    <p>{{ error }}</p>
+  {% endif %}
   {% if directory_users%}
     <form method="post" action="https://{{ host }}/user/add">
       <br><br>
