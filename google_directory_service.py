@@ -68,12 +68,26 @@ class GoogleDirectoryService(object):
     user = 'USER'
     # Limit to only users, not groups
     for member in members:
-      if 'type' in member and member['type'] == user:
-        users.append(member)
+      if 'type' in member and member['type'] == user and member['id']:
+        users.append(self.GetUser(member['id']))
 
     return users
 
   def GetUser(self, user_key):
+    """Get a user based on a user key.
+
+    Args:
+      user_key: A string identifying an individual user.
+
+    Returns:
+      users: The user if found.
+    """
+    request = self.service.users().get(userKey=user_key, projection='full')
+    result = request.execute(num_retries=NUM_RETRIES)
+
+    return result
+
+  def GetUserAsList(self, user_key):
     """Get a user based on a user key.
 
     List format is used here for consistency with the other methods and to
@@ -86,8 +100,7 @@ class GoogleDirectoryService(object):
       users: A list with that user in it or empty.
     """
     users = []
-    request = self.service.users().get(userKey=user_key, projection='full')
-    result = request.execute(num_retries=NUM_RETRIES)
+    result = self.GetUser(user_key)
     if result['primaryEmail']:
       users.append(result)
 

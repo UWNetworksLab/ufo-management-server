@@ -2,6 +2,7 @@
 
 import admin
 from appengine_config import JINJA_ENVIRONMENT
+from ast import literal_eval
 from auth import OAUTH_DECORATOR
 import base64
 from datastore import DomainVerification
@@ -267,14 +268,10 @@ class AddUsersHandler(webapp2.RequestHandler):
       elif group_key is not None and group_key is not '':
         directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
         directory_users = directory_service.GetUsersByGroupKey(group_key)
-        fixed_users = []
-        for user in directory_users:
-          user['primaryEmail'] = user['email']
-          fixed_users.append(user)
-        self.response.write(_RenderAddUsersTemplate(fixed_users))
+        self.response.write(_RenderAddUsersTemplate(directory_users))
       elif user_key is not None and user_key is not '':
         directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
-        directory_users = directory_service.GetUser(user_key)
+        directory_users = directory_service.GetUserAsList(user_key)
         self.response.write(_RenderAddUsersTemplate(directory_users))
       else:
         self.response.write(_RenderAddUsersTemplate([]))
@@ -286,15 +283,12 @@ class AddUsersHandler(webapp2.RequestHandler):
   @OAUTH_DECORATOR.oauth_required
   def post(self):
     """Add all of the selected users into the datastore."""
-    params = self.request.get_all('selected_user')
-    users = []
-    for param in params:
-      user = {}
-      user['primaryEmail'] = param
-      user['name'] = {}
-      user['name']['fullName'] = param
-      users.append(user)
-    User.InsertUsers(users)
+    users = self.request.get_all('selected_user')
+    decoded_users = []
+    for user in users:
+      decoded_user = literal_eval(user)
+      decoded_users.append(decoded_user)
+    User.InsertUsers(decoded_users)
     self.redirect('/user')
 
 
