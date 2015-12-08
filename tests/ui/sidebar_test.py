@@ -10,7 +10,7 @@ from selenium import webdriver
 class SidebarTest(unittest.TestCase):
 
   def setUp(self):
-    self.driver = webdriver.Chrome('../../chromedriver')
+    self.driver = webdriver.Chrome('../../lib/chromedriver')
     DevServerLoginPage(self.driver).Login()
 
   def testLinks(self):
