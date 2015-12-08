@@ -14,8 +14,8 @@ class UserPageTest(unittest.TestCase):
     DevServerLoginPage(self.driver).Login()
 
   def testUserPage(self):
-    add_users = 'Add Users'
-    list_tokens = 'List Tokens'
+    add_users = (u'Add Users').upper()
+    list_tokens = (u'List Tokens').upper()
 
     self.driver.get('http://localhost:9999/user')
     user_page = UserPage(self.driver)
