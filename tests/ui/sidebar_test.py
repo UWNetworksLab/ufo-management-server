@@ -2,6 +2,7 @@ import unittest
 
 from login_page import DevServerLoginPage
 from sidebar import Sidebar
+from test_config import CHROME_DRIVER_LOCATION
 from user_page import UserPage
 
 from selenium import webdriver
@@ -10,7 +11,7 @@ from selenium import webdriver
 class SidebarTest(unittest.TestCase):
 
   def setUp(self):
-    self.driver = webdriver.Chrome('../../lib/chromedriver')
+    self.driver = webdriver.Chrome(CHROME_DRIVER_LOCATION)
     DevServerLoginPage(self.driver).Login()
 
   def testLinks(self):
