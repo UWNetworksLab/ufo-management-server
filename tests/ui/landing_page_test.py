@@ -2,6 +2,7 @@ import unittest
 
 from login_page import DevServerLoginPage
 from landing_page import LandingPage
+from test_config import CHROME_DRIVER_LOCATION
 
 from selenium import webdriver
 
@@ -9,7 +10,7 @@ from selenium import webdriver
 class LandingPageTest(unittest.TestCase):
 
   def setUp(self):
-    self.driver = webdriver.Chrome('../../chromedriver')
+    self.driver = webdriver.Chrome(CHROME_DRIVER_LOCATION)
     DevServerLoginPage(self.driver).Login()
 
   def testLandingPage(self):
