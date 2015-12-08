@@ -124,7 +124,7 @@ function addBower ()
 {
   runAndAssertCmd "npm install -g bower"
   # May need the following if node doesn't install correctly.
-  runAndAssertCmd "ln -s /usr/bin/nodejs /usr/bin/node"
+  # runAndAssertCmd "ln -s /usr/bin/nodejs /usr/bin/node"
   runInUfOAndAssertCmd "bower install"
 }
 
