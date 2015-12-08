@@ -2,20 +2,23 @@
 {% block title %}Users{% endblock %}
 {% block head %}
   <link rel="import" href="/bower_components/paper-button/paper-button.html" />
+  <link rel="import" href="/bower_components/paper-card/paper-card.html" />
   <link rel="import" href="/bower_components/paper-item/paper-item.html" />
   <link rel="import" href="/bower_components/paper-listbox/paper-listbox.html" />
 {% endblock %}
 {% block body %}
-  <a href="{{ BASE_URL }}/user/add">
-    <paper-button raised class="anchor-button">Add Users</paper-button></a>
-  <a href="{{ BASE_URL }}/user/listTokens">
-    <paper-button raised class="anchor-button">List Tokens</paper-button></a>
-    <br />
-  {% if invite_code %}
-    <h4>Invite Code Below</h4>
-    <textarea rows="20" cols="80">{{ invite_code }}</textarea><br>
-  {% endif %}
-  <paper-listbox>
+  <div class="top-buttons">
+    <a href="{{ BASE_URL }}/user/add">
+      <paper-button raised class="anchor-button">Add Users</paper-button></a>
+    <a href="{{ BASE_URL }}/user/listTokens">
+      <paper-button raised class="anchor-button">List Tokens</paper-button></a>
+      <br />
+    {% if invite_code %}
+      <h4>Invite Code Below</h4>
+      <textarea rows="20" cols="80">{{ invite_code }}</textarea><br>
+    {% endif %}
+  </div>
+  <paper-card heading="Users"><paper-listbox>
   {% for key, email in user_payloads.iteritems() %}
     <paper-item>{{ email }}
       <a href="{{ BASE_URL }}/user/delete?key={{ key }}">
@@ -30,5 +33,5 @@
     </paper-item>
     <br />
   {% endfor %}
-  </paper-listbox>
+  </paper-listbox></paper-card>
 {% endblock %}

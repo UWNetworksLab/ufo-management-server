@@ -11,6 +11,10 @@ paper-card {
   background-color: inherit;
 }
 
+.top-buttons {
+  margin-bottom: 16px;
+}
+
 #main-section {
   margin-left: 16px;
   margin-top: 16px;
