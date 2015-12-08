@@ -6,19 +6,24 @@
     <p>{{ error }}</p>
   {% endif %}
   {% if directory_users%}
-    <form method="post" action="https://{{ host }}/user/add">
+    <form method="post" action="{{ BASE_URL }}/user/add">
       <br><br>
       Select Users to Add.
       <br><br>
-    <ul>
-    {% for directory_user in directory_users %}
-      <li>
-        <input type="checkbox" name="selected_user" value="{{ directory_user['primaryEmail'] }}">
-        {{ directory_user['primaryEmail'] }}<br>
-      </li>
-      <br />
-    {% endfor %}
-    </ul>
+      <table>
+        <tr>
+          <th>-</th>
+          <th>Name</th>
+          <th>Email</th>
+        </tr>
+      {% for directory_user in directory_users %}
+        <tr>
+          <td><input type="checkbox" name="selected_user" value="{{ directory_user }}"></td>
+          <td>{{ directory_user['name']['fullName'] }}</td>
+          <td>{{ directory_user['primaryEmail'] }}</td>
+        </tr>
+      {% endfor %}
+      </table>
       <input type="hidden" name="xsrf" value="{{ xsrf_token }}">
       <input type="submit" value="Add Selected Users">
     </form>
@@ -28,7 +33,7 @@
   <br><br>
 
 
-  <form method="get" action="https://{{ host }}/user/add">
+  <form method="get" action="{{ BASE_URL }}/user/add">
     <br><br>
     Input a group key (group email address or unique id) to fetch more users.
     <br><br>
@@ -36,7 +41,7 @@
     <br><br>
     <input type="submit" value="Fetch Users From Group">
   </form><br>
-  <form method="get" action="https://{{ host }}/user/add">
+  <form method="get" action="{{ BASE_URL }}/user/add">
     <br><br>
     Input user key (email address or unique id) to search for a specific user.
     <br><br>
@@ -44,7 +49,7 @@
     <br><br>
     <input type="submit" value="Search for Specific User">
   </form><br>
-  <form method="get" action="https://{{ host }}/user/add">
+  <form method="get" action="{{ BASE_URL }}/user/add">
     <input type="hidden" name="get_all" value="true">
     <input type="submit" value="Fetch All Users in Domain">
   </form><br>

@@ -2,6 +2,7 @@
 
 import admin
 from appengine_config import JINJA_ENVIRONMENT
+from ast import literal_eval
 from auth import OAUTH_DECORATOR
 import base64
 from datastore import DomainVerification
@@ -9,7 +10,6 @@ from datastore import ProxyServer
 from datastore import User
 from error_handlers import Handle500
 from googleapiclient import errors
-from google.appengine.api import app_identity
 from google_directory_service import GoogleDirectoryService
 import json
 import random
@@ -17,7 +17,6 @@ import webapp2
 import xsrf
 
 
-JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token()
 
 
 def _GenerateTokenPayload(users):
@@ -127,7 +126,6 @@ def _RenderUserListTemplate(invite_code=None):
   users = User.GetAll()
   user_payloads = _GenerateUserPayload(users)
   template_values = {
-      'host': app_identity.get_default_version_hostname(),
       'user_payloads': user_payloads
   }
   if invite_code is not None:
@@ -142,7 +140,6 @@ def _RenderTokenListTemplate():
   user_token_payloads = _GenerateTokenPayload(users)
 
   template_values = {
-      'host': app_identity.get_default_version_hostname(),
       'user_token_payloads': user_token_payloads
   }
   template = JINJA_ENVIRONMENT.get_template('templates/token.html')
@@ -152,7 +149,6 @@ def _RenderTokenListTemplate():
 def _RenderLandingTemplate():
   """Render the default landing page."""
   template_values = {
-      'host': app_identity.get_default_version_hostname(),
       'site_verification_content': DomainVerification.GetOrInsertDefault().content,
   }
   template = JINJA_ENVIRONMENT.get_template('templates/landing.html')
@@ -162,7 +158,6 @@ def _RenderLandingTemplate():
 def _RenderAddUsersTemplate(directory_users, error=None):
   """Render a user add page that lets users be added by group key."""
   template_values = {
-      'host': app_identity.get_default_version_hostname(),
       'directory_users': directory_users,
   }
   if error is not None:
@@ -267,14 +262,10 @@ class AddUsersHandler(webapp2.RequestHandler):
       elif group_key is not None and group_key is not '':
         directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
         directory_users = directory_service.GetUsersByGroupKey(group_key)
-        fixed_users = []
-        for user in directory_users:
-          user['primaryEmail'] = user['email']
-          fixed_users.append(user)
-        self.response.write(_RenderAddUsersTemplate(fixed_users))
+        self.response.write(_RenderAddUsersTemplate(directory_users))
       elif user_key is not None and user_key is not '':
         directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
-        directory_users = directory_service.GetUser(user_key)
+        directory_users = directory_service.GetUserAsList(user_key)
         self.response.write(_RenderAddUsersTemplate(directory_users))
       else:
         self.response.write(_RenderAddUsersTemplate([]))
@@ -286,15 +277,12 @@ class AddUsersHandler(webapp2.RequestHandler):
   @OAUTH_DECORATOR.oauth_required
   def post(self):
     """Add all of the selected users into the datastore."""
-    params = self.request.get_all('selected_user')
-    users = []
-    for param in params:
-      user = {}
-      user['primaryEmail'] = param
-      user['name'] = {}
-      user['name']['fullName'] = param
-      users.append(user)
-    User.InsertUsers(users)
+    users = self.request.get_all('selected_user')
+    decoded_users = []
+    for user in users:
+      decoded_user = literal_eval(user)
+      decoded_users.append(decoded_user)
+    User.InsertUsers(decoded_users)
     self.redirect('/user')
 
 
