@@ -114,8 +114,8 @@ class ProxyServerTest(unittest.TestCase):
     add_form = proxy_server._RenderProxyServerFormTemplate(None)
     self.assertTrue('/proxyserver/add' in add_form)
     self.assertFalse('/proxyserver/edit' in add_form)
-    self.assertTrue('name:' in add_form)
-    self.assertTrue('ip address:' in add_form)
+    self.assertTrue('Name' in add_form)
+    self.assertTrue('IP Address' in add_form)
 
   def testRenderEditProxyServerTemplate(self):
     fake_proxy_server = GetFakeProxyServer()
@@ -124,9 +124,9 @@ class ProxyServerTest(unittest.TestCase):
     self.assertTrue('/proxyserver/edit' in edit_form)
     # TODO(henryc): We need better asserts on the exact elements and their
     # values.  Will circle back once the UI is in shape.
-    self.assertTrue('name:' in edit_form)
+    self.assertTrue('Name' in edit_form)
     self.assertTrue(FAKE_NAME in edit_form)
-    self.assertTrue('ip address:' in edit_form)
+    self.assertTrue('IP Address' in edit_form)
     self.assertTrue(FAKE_IP_ADDRESS in edit_form)
 
   @patch('datastore.ProxyServer.GetAll')
@@ -136,7 +136,7 @@ class ProxyServerTest(unittest.TestCase):
     mock_get_all.return_value = fake_proxy_servers
     list_proxy_server_template = proxy_server._RenderListProxyServerTemplate()
 
-    self.assertTrue('add new proxy server' in list_proxy_server_template)
+    self.assertTrue('Add New Proxy Server' in list_proxy_server_template)
     self.assertTrue(FAKE_NAME in list_proxy_server_template)
     self.assertTrue(FAKE_IP_ADDRESS in list_proxy_server_template)
     self.assertTrue(FAKE_SSH_PRIVATE_KEY in list_proxy_server_template)

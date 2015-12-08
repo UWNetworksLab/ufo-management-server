@@ -1,0 +1,29 @@
+body {
+	background-color: #fafafa;
+}
+
+paper-card {
+  margin-bottom: 16px;
+}
+
+.anchor-button {
+  color: inherit;
+  background-color: inherit;
+}
+
+.top-buttons {
+  margin-bottom: 16px;
+}
+
+#main-section {
+  margin-left: 16px;
+  margin-top: 16px;
+}
+
+#setup-form {
+  max-width: 800px;
+}
+
+#proxy-card-holder {
+  max-width: 800px;
+}

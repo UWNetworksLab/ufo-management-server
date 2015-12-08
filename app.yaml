@@ -18,6 +18,14 @@ handlers:
 - url: /static
   static_dir: static
 
+- url: /js
+  static_dir: js
+  secure: always
+
+- url: /css
+  static_dir: css
+  secure: always
+
 - url: /logout.*
   script: logout.app
   login: required
