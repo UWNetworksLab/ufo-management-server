@@ -24,7 +24,6 @@ class LandingPageTest(unittest.TestCase):
 	self.assertEquals(instruction, landing_page.GetInstruction().text)
 	self.assertIsNotNone(landing_page.GetSidebar())
 
-
   def tearDown(self):
     self.driver.quit()
 

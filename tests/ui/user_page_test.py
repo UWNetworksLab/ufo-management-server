@@ -22,7 +22,6 @@ class UserPageTest(unittest.TestCase):
 	self.assertEquals(list_tokens, user_page.GetListTokensLink().text)
 	self.assertIsNotNone(user_page.GetSidebar())
 
-
   def tearDown(self):
     self.driver.quit()
 

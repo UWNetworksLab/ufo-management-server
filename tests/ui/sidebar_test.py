@@ -34,7 +34,6 @@ class SidebarTest(unittest.TestCase):
     logout_link = sidebar.GetLink(sidebar.LOGOUT_LINK)
     self.assertEquals('/logout', logout_link.get_attribute('data-href'))
 
-
   def tearDown(self):
     self.driver.quit()
 
