@@ -1,16 +1,23 @@
 {% extends "templates/base.html" %}
 {% block title %}Tokens{% endblock %}
+{% block head %}
+  <link rel="import" href="/bower_components/paper-button/paper-button.html" />
+  <link rel="import" href="/bower_components/paper-item/paper-item.html" />
+  <link rel="import" href="/bower_components/paper-listbox/paper-listbox.html" />
+{% endblock %}
 {% block body %}
-  <ul>
+  <paper-listbox>
   {% for key, (email, token_payload) in user_token_payloads.iteritems() %}
-    <li>
+    <paper-item>
       <b>{{ email }}</b>
-      <a href="{{ BASE_URL }}/user/getNewToken?key={{ key }}">(Get New Token)</a>
-      <br />
+      <a href="{{ BASE_URL }}/user/getNewToken?key={{ key }}">
+        <paper-button raised class="anchor-button">Get New Token
+        </paper-button></a>
+    </paper-item>
+    <paper-item>
       token_payload: {{ token_payload }} &nbsp;&nbsp;&nbsp;
-      <br />
-    </li>
+    </paper-item>
     <br />
   {% endfor %}
-  </ul>
+  </paper-listbox>
 {% endblock %}

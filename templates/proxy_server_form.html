@@ -1,29 +1,25 @@
 {% extends "templates/base.html" %}
 {% block title %}Proxy Server(s){% endblock %}
+{% block head %}
+  <link rel="import" href="/bower_components/paper-button/paper-button.html" />
+  <link rel="import" href="/bower_components/paper-input/paper-input.html" />
+{% endblock %}
 {% block body %}
   {% if proxy_server %}
-    <form method="post" action="{{ BASE_URL }}/proxyserver/edit">
-      ip address:<br>
-      <input type="text" name="ip_address" value="{{ proxy_server.ip_address }}"><br>
-      name:<br>
-      <input type="text" name="name" value="{{ proxy_server.name }}"><br>
-      ssh private key:<br>
-      <input type="text" name="ssh_private_key" value="{{ proxy_server.ssh_private_key }}"><br>
-      fingerprint:<br>
-      <input type="text" name="fingerprint" value="{{ proxy_server.fingerprint }}">
+    <form id="proxy-edit-add-form" method="post" action="{{ BASE_URL }}/proxyserver/edit">
+      <paper-input label="IP Address" type="text" name="ip_address" value="{{ proxy_server.ip_address }}" required></paper-input>
+      <paper-input label="Name" type="text" name="name" value="{{ proxy_server.name }}" required></paper-input>
+      <paper-input label="SSH Private Key" type="text" name="ssh_private_key" value="{{ proxy_server.ssh_private_key }}" required></paper-input>
+      <paper-input label="Fingerprint" type="text" name="fingerprint" value="{{ proxy_server.fingerprint }}" required></paper-input>
       <input type="hidden" name="id" value="{{ proxy_server.key.id() }}">
   {% else %}
-    <form method="post" action="{{ BASE_URL }}/proxyserver/add">
-      ip address:<br>
-      <input type="text" name="ip_address" value="{{ proxy_server.ip_address }}"><br>
-      name:<br>
-      <input type="text" name="name" value="{{ proxy_server.name }}"><br>
-      ssh private key:<br>
-      <input type="text" name="ssh_private_key" value="{{ proxy_server.ssh_private_key }}"><br>
-      fingerprint:<br>
-      <input type="text" name="fingerprint" value="{{ proxy_server.fingerprint }}">
+    <form id="proxy-edit-add-form" method="post" action="{{ BASE_URL }}/proxyserver/add">
+      <paper-input label="IP Address" type="text" name="ip_address" value="{{ proxy_server.ip_address }}" required></paper-input>
+      <paper-input label="Name" type="text" name="name" value="{{ proxy_server.name }}" required></paper-input>
+      <paper-input label="SSH Private Key" type="text" name="ssh_private_key" value="{{ proxy_server.ssh_private_key }}" required></paper-input>
+      <paper-input label="Fingerprint" type="text" name="fingerprint" value="{{ proxy_server.fingerprint }}" required></paper-input>
   {% endif %}
     <input type="hidden" name="xsrf" value="{{ xsrf_token }}">
-    <input type="submit" value="Submit">
+    <paper-button raised onclick="submitByFormId('proxy-edit-add-form')" class="form-submit-button" type="submit">Submit</paper-button>
   </form>
 {% endblock %}
