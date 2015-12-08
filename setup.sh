@@ -42,6 +42,10 @@ TEMP_BASH_PROFILE=".bash_profile";
 
 UFO_TGZ="UfO-release.tgz"
 
+CHROME_DRIVER_VERSION="2.20"
+CHROME_DRIVER_FILE="chromedriver_linux64.zip"
+CHROME_DRIVER_LOCATION="http://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/${CHROME_DRIVER_FILE}"
+
 NODE_MODULES_ROOT="$ROOT_DIR/node_modules"
 NODE_MODULES_UFO="$UFO_MS_LOCAL_DIR/node_modules"
 NODE_MODULES_UP="$UFO_MS_UP/node_modules"
@@ -85,12 +89,24 @@ function addAppEngineRuntimePackages ()
   runAndAssertCmd "pip install pyyaml"
 }
 
+function addChromeDriver ()
+{
+  runAndAssertCmd "wget $CHROME_DRIVER_LOCATION"
+  runAndAssertCmd "unzip $CHROME_DRIVER_FILE"
+  runAndAssertCmd "chmod +x chromedriver"
+  runAndAssertCmd "sudo mv -f chromedriver /usr/local/share/chromedriver"
+  runAndAssertCmd "sudo ln -s /usr/local/share/chromedriver /usr/local/bin/chromedriver"
+  runAndAssertCmd "sudo ln -s /usr/local/share/chromedriver /usr/bin/chromedriver"
+}
+
 function addTestingPackages ()
 {
   runAndAssertCmd "pip install WebTest"
   runAndAssertCmd "pip install pytest"
   runAndAssertCmd "pip install nose"
   runAndAssertCmd "pip install mock"
+  runAndAssertCmd "pip install selenium"
+  runAndAssertCmd addChromeDriver
 }
 
 function addAllExports ()
@@ -124,8 +140,8 @@ function setupDevelopmentEnvironment ()
     addAppEngineRuntimePackages
     addAllExports
     addTestingPackages
-    addNode
-    addBower
+#    addNode
+#    addBower
   else
     echo "Development environment already setup with appengine and packages."
   fi
