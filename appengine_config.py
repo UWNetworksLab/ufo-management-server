@@ -1,9 +1,10 @@
 """Custom configurations for Google App Engine."""
 
-import os
-import jinja2
-
+from google.appengine.api import app_identity
 from google.appengine.ext import vendor
+import jinja2
+import os
+import xsrf
 
 
 ROOT = os.path.dirname(__file__)
@@ -14,6 +15,10 @@ JINJA_ENVIRONMENT = jinja2.Environment(
                 'jinja2.ext.i18n'],
     autoescape=True)
 
+
+JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token()
+HOST = str(app_identity.get_default_version_hostname())
+JINJA_ENVIRONMENT.globals['BASE_URL'] = ('https://' + HOST)
 
 # Add any libraries installed in the "lib" folder.
 vendor.add('lib')

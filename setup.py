@@ -6,14 +6,12 @@ from datastore import User
 from datastore import OAuth
 from datastore import DomainVerification
 from error_handlers import Handle500
-from google.appengine.api import app_identity
 import json
 import webapp2
 import xsrf
 import admin
 
 
-JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token()
 
 
 def _RenderSetupOAuthClientTemplate():
@@ -21,7 +19,6 @@ def _RenderSetupOAuthClientTemplate():
   entity = OAuth.GetOrInsertDefault()
   domain_verification = DomainVerification.GetOrInsertDefault()
   template_values = {
-      'host': app_identity.get_default_version_hostname(),
       'client_id': entity.client_id,
       'client_secret': entity.client_secret,
       'dv_content': domain_verification.content,

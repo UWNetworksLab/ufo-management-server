@@ -1,7 +1,7 @@
 {% extends "templates/base.html" %}
 {% block title %}Proxy Server(s){% endblock %}
 {% block body %}
-  <a href="https://{{ host }}/proxyserver/add">add new proxy server</a><br><br>
+  <a href="{{ BASE_URL }}/proxyserver/add">add new proxy server</a><br><br>
   name, ip address, private key, fingerprint
   <ul>
   {% for proxy_server in proxy_servers %}
@@ -10,11 +10,11 @@
       {{ proxy_server.ip_address }},
       {{ proxy_server.ssh_private_key }},
       {{ proxy_server.fingerprint }}
-      <a href="https://{{ host }}/proxyserver/edit?id={{ proxy_server.key.id() }}">
+      <a href="{{ BASE_URL }}/proxyserver/edit?id={{ proxy_server.key.id() }}">
         edit
       </a>
       &bull;
-      <a href="https://{{ host }}/proxyserver/delete?id={{ proxy_server.key.id() }}">
+      <a href="{{ BASE_URL }}/proxyserver/delete?id={{ proxy_server.key.id() }}">
         delete
       </a>
     </li>

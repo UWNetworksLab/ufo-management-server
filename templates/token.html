@@ -5,9 +5,9 @@
   {% for key, (email, token_payload) in user_token_payloads.iteritems() %}
     <li>
       <b>{{ email }}</b>
-      <a href="http://{{ host }}/user/getNewToken?key={{ key }}">(Get New Token)</a>
+      <a href="{{ BASE_URL }}/user/getNewToken?key={{ key }}">(Get New Token)</a>
       <br />
-      token_payload: {{ token_payload }} &nbsp;&nbsp;&nbsp; 
+      token_payload: {{ token_payload }} &nbsp;&nbsp;&nbsp;
       <br />
     </li>
     <br />

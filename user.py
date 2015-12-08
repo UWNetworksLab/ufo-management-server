@@ -10,7 +10,6 @@ from datastore import ProxyServer
 from datastore import User
 from error_handlers import Handle500
 from googleapiclient import errors
-from google.appengine.api import app_identity
 from google_directory_service import GoogleDirectoryService
 import json
 import random
@@ -18,7 +17,6 @@ import webapp2
 import xsrf
 
 
-JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token()
 
 
 def _GenerateTokenPayload(users):
@@ -128,7 +126,6 @@ def _RenderUserListTemplate(invite_code=None):
   users = User.GetAll()
   user_payloads = _GenerateUserPayload(users)
   template_values = {
-      'host': app_identity.get_default_version_hostname(),
       'user_payloads': user_payloads
   }
   if invite_code is not None:
@@ -143,7 +140,6 @@ def _RenderTokenListTemplate():
   user_token_payloads = _GenerateTokenPayload(users)
 
   template_values = {
-      'host': app_identity.get_default_version_hostname(),
       'user_token_payloads': user_token_payloads
   }
   template = JINJA_ENVIRONMENT.get_template('templates/token.html')
@@ -153,7 +149,6 @@ def _RenderTokenListTemplate():
 def _RenderLandingTemplate():
   """Render the default landing page."""
   template_values = {
-      'host': app_identity.get_default_version_hostname(),
       'site_verification_content': DomainVerification.GetOrInsertDefault().content,
   }
   template = JINJA_ENVIRONMENT.get_template('templates/landing.html')
@@ -163,7 +158,6 @@ def _RenderLandingTemplate():
 def _RenderAddUsersTemplate(directory_users, error=None):
   """Render a user add page that lets users be added by group key."""
   template_values = {
-      'host': app_identity.get_default_version_hostname(),
       'directory_users': directory_users,
   }
   if error is not None:
