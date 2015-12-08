@@ -127,7 +127,7 @@ function addBower ()
 {
   runAndAssertCmd "npm install -g bower"
   # May need the following if node doesn't install correctly.
-  #runAndAssertCmd "ln -s /usr/bin/nodejs /usr/bin/node"
+  runAndAssertCmd "ln -s /usr/bin/nodejs /usr/bin/node"
   runInUfOAndAssertCmd "bower install"
 }
 
@@ -140,8 +140,8 @@ function setupDevelopmentEnvironment ()
     addAppEngineRuntimePackages
     addAllExports
     addTestingPackages
-#    addNode
-#    addBower
+    addNode
+    addBower
   else
     echo "Development environment already setup with appengine and packages."
   fi
