@@ -94,9 +94,6 @@ function addChromeDriver ()
   runAndAssertCmd "wget $CHROME_DRIVER_LOCATION"
   runAndAssertCmd "unzip $CHROME_DRIVER_FILE"
   runAndAssertCmd "chmod +x chromedriver"
-  runAndAssertCmd "sudo mv -f chromedriver /usr/local/share/chromedriver"
-  runAndAssertCmd "sudo ln -s /usr/local/share/chromedriver /usr/local/bin/chromedriver"
-  runAndAssertCmd "sudo ln -s /usr/local/share/chromedriver /usr/bin/chromedriver"
 }
 
 function addTestingPackages ()
