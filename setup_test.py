@@ -99,9 +99,9 @@ class SetupTest(unittest.TestCase):
 
     setup_client_template = setup._RenderSetupOAuthClientTemplate()
 
-    self.assertTrue('client_id:' in setup_client_template)
-    self.assertTrue('client_secret:' in setup_client_template)
-    self.assertTrue('Domain Verification Meta Tag Content:' in setup_client_template)
+    self.assertTrue('Client ID' in setup_client_template)
+    self.assertTrue('Client Secret' in setup_client_template)
+    self.assertTrue('Domain Verification Meta Tag Content' in setup_client_template)
     self.assertTrue('xsrf' in setup_client_template)
     self.assertTrue(FAKE_ID in setup_client_template)
     self.assertTrue(FAKE_SECRET in setup_client_template)

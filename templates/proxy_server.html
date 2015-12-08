@@ -1,24 +1,29 @@
 {% extends "templates/base.html" %}
 {% block title %}Proxy Server(s){% endblock %}
+{% block head %}
+  <link rel="import" href="/bower_components/paper-button/paper-button.html" />
+  <link rel="import" href="/bower_components/paper-card/paper-card.html" />
+{% endblock %}
 {% block body %}
-  <a href="{{ BASE_URL }}/proxyserver/add">add new proxy server</a><br><br>
-  name, ip address, private key, fingerprint
-  <ul>
+  <a href="{{ BASE_URL }}/proxyserver/add">
+    <paper-button raised class="anchor-button">Add New Proxy Server
+    </paper-button></a>
+  <p>Name, IP Address, Private Key, Fingerprint</p>
+  <div id="proxy-card-holder"/>
   {% for proxy_server in proxy_servers %}
-    <li>
-      {{ proxy_server.name }},
-      {{ proxy_server.ip_address }},
-      {{ proxy_server.ssh_private_key }},
-      {{ proxy_server.fingerprint }}
-      <a href="{{ BASE_URL }}/proxyserver/edit?id={{ proxy_server.key.id() }}">
-        edit
-      </a>
-      &bull;
-      <a href="{{ BASE_URL }}/proxyserver/delete?id={{ proxy_server.key.id() }}">
-        delete
-      </a>
-    </li>
-    <br>
+    <paper-card heading="{{ proxy_server.name }}">
+      <div class="card-content">
+        <p>{{ proxy_server.ip_address }},
+        {{ proxy_server.ssh_private_key }},
+        {{ proxy_server.fingerprint }}</p>
+      </div>
+      <div class="card-actions">
+        <a href="{{ BASE_URL }}/proxyserver/edit?id={{ proxy_server.key.id() }}">
+          <paper-button class="anchor-button">Edit</paper-button></a>
+        <a href="{{ BASE_URL }}/proxyserver/delete?id={{ proxy_server.key.id() }}">
+          <paper-button class="anchor-button">Delete</paper-button></a>
+      </div>
+    </paper-card>
   {% endfor %}
-  </ul>
+  </div>
 {% endblock %}

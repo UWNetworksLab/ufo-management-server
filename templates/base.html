@@ -5,6 +5,7 @@
     <link rel="import" href="/bower_components/polymer/polymer.html" />
     <link rel="import" href="/bower_components/paper-drawer-panel/paper-drawer-panel.html" />
     <link rel="import" href="/static/sidebar.html" />
+    <link rel="stylesheet" href="/css/custom.css" />
     {% block head %}
     {% endblock %}
 </head>
@@ -13,9 +14,10 @@
         <div drawer>
             <ufo-sidebar></ufo-sidebar>
         </div>
-        <section main class="fit">
+        <section main id="main-section" class="fit">
             {% block body %}{% endblock %}
         </section>
     </paper-drawer-panel>
+    <script src="{{ BASE_URL }}/js/helperFunctions.js"></script>
 </body>
 </html>
