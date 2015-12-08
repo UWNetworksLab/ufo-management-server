@@ -8,9 +8,9 @@
 {% endblock %}
 {% block body %}
   <div class="top-buttons">
-    <a href="{{ BASE_URL }}/user/add">
+    <a id='add_users' href="{{ BASE_URL }}/user/add">
       <paper-button raised class="anchor-button">Add Users</paper-button></a>
-    <a href="{{ BASE_URL }}/user/listTokens">
+    <a id='list_tokens' href="{{ BASE_URL }}/user/listTokens">
       <paper-button raised class="anchor-button">List Tokens</paper-button></a>
       <br />
     {% if invite_code %}
