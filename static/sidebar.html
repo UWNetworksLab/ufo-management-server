@@ -17,7 +17,7 @@
         </paper-toolbar>
         <paper-menu selected="{{currentPage(pages)}}">
             <template is="dom-repeat" items="{{pages}}">
-                <paper-item on-click="itemClicked" data-href$="{{item.href}}">{{item.text}}</paper-item>
+                <paper-item id={{item.text}} on-click="itemClicked" data-href$="{{item.href}}">{{item.text}}</paper-item>
             </template>
         </paper-menu>
     </template>
