@@ -36,7 +36,7 @@ def XSRFProtect(func):
     if not token:
       logging.error('xsrf token not included')
       self.abort(403)
-    if not ConstTimeCompare(token, xsrf_token()):
+    if not ConstTimeCompare(token, XSRFToken()):
       logging.error('xsrf token does not validate')
       self.abort(403)
     return func(self, *args, **kwargs)

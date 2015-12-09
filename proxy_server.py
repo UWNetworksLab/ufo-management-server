@@ -17,7 +17,6 @@ def _RenderProxyServerFormTemplate(proxy_server):
   """Render the form to add or edit a proxy server."""
   template_values = {
       'proxy_server': proxy_server,
-      'xsrf_token': xsrf.xsrf_token(),
   }
   template = JINJA_ENVIRONMENT.get_template('templates/proxy_server_form.html')
   return template.render(template_values)
