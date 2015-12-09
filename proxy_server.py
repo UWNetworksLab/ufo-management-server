@@ -6,7 +6,9 @@ import httplib2
 import webapp2
 
 import admin
+from auth import OAUTH_DECORATOR
 from appengine_config import JINJA_ENVIRONMENT
+import dasher_admin
 from datastore import ProxyServer
 from datastore import User
 import xsrf
@@ -58,6 +60,8 @@ class AddProxyServerHandler(webapp2.RequestHandler):
   """Handler for adding new proxy servers."""
 
   @admin.require_admin
+  @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def get(self):
     """Get the form for adding new proxy servers."""
 
@@ -65,6 +69,8 @@ class AddProxyServerHandler(webapp2.RequestHandler):
 
   @admin.require_admin
   @xsrf.xsrf_protect
+  @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def post(self):
     """Add a new proxy server with the post parameters passed in."""
     ProxyServer.Insert(
@@ -79,6 +85,8 @@ class EditProxyServerHandler(webapp2.RequestHandler):
   """Handler for editing an existing proxy server."""
 
   @admin.require_admin
+  @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def get(self):
     """Get a proxy server's current data and display its edit form."""
     proxy_server = ProxyServer.Get(int(self.request.get('id')))
@@ -86,6 +94,8 @@ class EditProxyServerHandler(webapp2.RequestHandler):
 
   @admin.require_admin
   @xsrf.xsrf_protect
+  @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def post(self):
     """Set an existing proxy server with the post parameters passed in."""
     ProxyServer.Update(
@@ -102,6 +112,8 @@ class DeleteProxyServerHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.require_admin
+  @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def get(self):
     """Delete the proxy server corresponding to the passed in id.
 
@@ -116,6 +128,8 @@ class ListProxyServersHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.require_admin
+  @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def get(self):
     """Get all current proxy servers and list them with their metadata."""
     self.response.write(_RenderListProxyServerTemplate())

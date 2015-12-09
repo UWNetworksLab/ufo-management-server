@@ -31,6 +31,10 @@ mock_admin = MagicMock()
 mock_admin.require_admin = noop_decorator
 sys.modules['admin'] = mock_admin
 
+mock_dasher_admin = MagicMock()
+mock_dasher_admin.DasherAdminAuthRequired = noop_decorator
+sys.modules['dasher_admin'] = mock_dasher_admin
+
 import user
 
 
