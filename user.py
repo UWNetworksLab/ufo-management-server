@@ -5,6 +5,7 @@ from appengine_config import JINJA_ENVIRONMENT
 from ast import literal_eval
 from auth import OAUTH_DECORATOR
 import base64
+import dasher_admin
 from datastore import DomainVerification
 from datastore import ProxyServer
 from datastore import User
@@ -186,6 +187,7 @@ class ListUsersHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def get(self):
     """Output a list of all current users along with some metadata."""
     self.response.write(_RenderUserListTemplate())
@@ -198,6 +200,7 @@ class DeleteUserHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def get(self):
     """Delete the user corresponding to the passed in key.
 
@@ -215,6 +218,7 @@ class ListTokensHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def get(self):
     """Output a list of all current users along with each's token."""
     self.response.write(_RenderTokenListTemplate())
@@ -227,6 +231,7 @@ class GetInviteCodeHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def get(self):
     """Output a list of all current users along with the requested token."""
     urlsafe_key = self.request.get('key')
@@ -243,6 +248,7 @@ class GetNewTokenHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def get(self):
     """Find the user matching the specified key and generate a new token."""
     urlsafe_key = self.request.get('key')
@@ -257,6 +263,7 @@ class AddUsersHandler(webapp2.RequestHandler):
 
   @admin.RequireAdmin
   @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def get(self):
     """Get the form for adding new users.
 
@@ -290,6 +297,7 @@ class AddUsersHandler(webapp2.RequestHandler):
   @admin.RequireAdmin
   @xsrf.XSRFProtect
   @OAUTH_DECORATOR.oauth_required
+  @dasher_admin.DasherAdminAuthRequired
   def post(self):
     """Add all of the selected users into the datastore."""
     users = self.request.get_all('selected_user')

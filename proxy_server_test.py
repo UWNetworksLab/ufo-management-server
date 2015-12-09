@@ -17,6 +17,14 @@ mock_admin = MagicMock()
 mock_admin.RequireAdmin = noop_decorator
 sys.modules['admin'] = mock_admin
 
+mock_auth = MagicMock()
+mock_auth.OAUTH_DECORATOR.oauth_required = noop_decorator
+sys.modules['auth'] = mock_auth
+
+mock_dasher_admin = MagicMock()
+mock_dasher_admin.DasherAdminAuthRequired = noop_decorator
+sys.modules['dasher_admin'] = mock_dasher_admin
+
 mock_xsrf = MagicMock()
 mock_xsrf.XSRFProtect = noop_decorator
 sys.modules['xsrf'] = mock_xsrf
