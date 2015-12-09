@@ -16,7 +16,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     autoescape=True)
 
 
-JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.xsrf_token()
+JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.XSRFToken()
 HOST = str(app_identity.get_default_version_hostname())
 JINJA_ENVIRONMENT.globals['BASE_URL'] = ('https://' + HOST)
 

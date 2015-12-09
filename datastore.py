@@ -13,6 +13,7 @@ from google.appengine.ext import ndb
 
 
 class BaseModel(ndb.Model):
+
   """Base model that provides generic methods for inheriting classes."""
 
   @classmethod
@@ -26,8 +27,8 @@ class BaseModel(ndb.Model):
     Returns:
       An integer of all the entities in the datastore.
     """
-    q = cls.query()
-    return q.count()
+    query = cls.query()
+    return query.count()
 
   @classmethod
   def GetAll(cls):
@@ -40,8 +41,8 @@ class BaseModel(ndb.Model):
     Returns:
       A list of datastore entities.
     """
-    q = cls.query()
-    return q.fetch()
+    query = cls.query()
+    return query.fetch()
 
   @classmethod
   def Get(cls, entity_id):
@@ -100,6 +101,7 @@ class BaseModel(ndb.Model):
 
 
 class User(BaseModel):
+
   """Datastore service to handle dasher users."""
 
   email = ndb.StringProperty()
@@ -184,6 +186,7 @@ class User(BaseModel):
 
 
 class ProxyServer(BaseModel):
+
   """Store data related to the proxy servers."""
 
   ip_address = ndb.StringProperty()
@@ -201,7 +204,6 @@ class ProxyServer(BaseModel):
       ssh_private_key: What to set the proxy server's ssh_private_key field to.
       fingerprint: What to set the proxy server's fingerprint field to.
     """
-
     entity = ProxyServer(name=name,
                          ip_address=ip_address,
                          ssh_private_key=ssh_private_key,
@@ -220,7 +222,6 @@ class ProxyServer(BaseModel):
       ssh_private_key: What to set the proxy server's ssh_private_key field to.
       fingerprint: What to set the proxy server's fingerprint field to.
     """
-
     entity = ProxyServer.Get(entity_id)
     entity.name = name
     entity.ip_address = ip_address
@@ -230,12 +231,14 @@ class ProxyServer(BaseModel):
 
 
 class OAuth(BaseModel):
+
   """Store the client secret so that it's not checked into source code.
 
   Secret is accessible at:
   https://console.developers.google.com/project
   Set the secret using the Datastore Viewer at https://appengine.google.com
   """
+
   # The comment below disables landscape.io checking on that line so that it
   # does not think we have an actual secret stored which we do not. The
   # object it is used to get has a parameter which is the actual secret. This
@@ -260,7 +263,6 @@ class OAuth(BaseModel):
     Returns:
       The datastore entity for OAuth.
     """
-
     entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
     if not entity:
       OAuth.InsertDefault()
@@ -270,7 +272,6 @@ class OAuth(BaseModel):
   @staticmethod
   def InsertDefault():
     """Insert entity with default client id and secret into the datastore."""
-
     OAuth.Insert(new_client_id=OAuth.DEFAULT_ID,
                  new_client_secret=OAuth.DEFAULT_SECRET)
 
@@ -298,7 +299,6 @@ class OAuth(BaseModel):
       new_client_id: The client id value to set on the OAuth entity.
       new_client_secret: The client secret value to set on the OAuth entity.
     """
-
     entity = OAuth.Get(OAuth.CLIENT_SECRET_ID)
     entity.client_id = new_client_id
     entity.client_secret = new_client_secret
@@ -307,16 +307,17 @@ class OAuth(BaseModel):
   @staticmethod
   def Flush():
     """Flush the memcache for OAuth."""
-
     # Make sure to update the memcache
     memcache.flush_all()
 
 class DomainVerification(BaseModel):
+
   """Store the domain verification content.
 
   This is for accessing push notifications so that any admin's actual domain
   verification content is not checked into source code.
   """
+
   CONTENT_ID = 'my_domain_verification_content'
   DEFAULT_CONTENT = 'Change me to the real domain verification content.'
 
@@ -332,7 +333,6 @@ class DomainVerification(BaseModel):
     Returns:
       The datastore entity for DomainVerification.
     """
-
     entity = DomainVerification.Get(DomainVerification.CONTENT_ID)
     if not entity:
       DomainVerification.InsertDefault()
@@ -342,7 +342,6 @@ class DomainVerification(BaseModel):
   @staticmethod
   def InsertDefault():
     """Insert the DV entity with default content into the datastore."""
-
     DomainVerification.Insert(DomainVerification.DEFAULT_CONTENT)
 
   @staticmethod
@@ -355,7 +354,6 @@ class DomainVerification(BaseModel):
     Args:
       new_content: The content value to set on the DomainVerification entity.
     """
-
     entity = DomainVerification(id=DomainVerification.CONTENT_ID,
                                 content=new_content)
     entity.put()
@@ -367,7 +365,6 @@ class DomainVerification(BaseModel):
     Args:
       new_content: The content value to set on the DomainVerification entity.
     """
-
     entity = DomainVerification.Get(DomainVerification.CONTENT_ID)
     entity.content = new_content
     entity.put()

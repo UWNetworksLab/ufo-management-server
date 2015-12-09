@@ -10,9 +10,11 @@ NUM_RETRIES = 3
 # TODO(eholder): Write tests for these functions.
 
 class GoogleDirectoryService(object):
+
   """Interact with Google Directory API."""
 
   def __init__(self, oauth_decorator):
+    """Create a service object for admin directory services using oauth."""
     self.service = build(serviceName='admin',
                          version='directory_v1',
                          http=oauth_decorator.http())

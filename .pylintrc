@@ -8,3 +8,9 @@
 # String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
 # tab). We use two spaces however.
 indent-string='  '
+
+# Capwords setting for methods and allow get and post for request overloading.
+method-rgx=([A-Z_][a-zA-Z0-9]{2,30}|get|post)$
+
+# Capwords setting with exception for decorate for functions.
+function-rgx=([A-Z_][a-zA-Z0-9_]{2,30}|decorate)$

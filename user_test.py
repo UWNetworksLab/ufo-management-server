@@ -24,11 +24,11 @@ mock_auth.OAUTH_DECORATOR.oauth_required = noop_decorator
 sys.modules['auth'] = mock_auth
 
 mock_xsrf = MagicMock()
-mock_xsrf.xsrf_protect = noop_decorator
+mock_xsrf.XSRFProtect = noop_decorator
 sys.modules['xsrf'] = mock_xsrf
 
 mock_admin = MagicMock()
-mock_admin.require_admin = noop_decorator
+mock_admin.RequireAdmin = noop_decorator
 sys.modules['admin'] = mock_admin
 
 import user
@@ -59,7 +59,7 @@ FAKE_USER_ARRAY.append(FAKE_ADD_USER)
 class UserTest(unittest.TestCase):
 
   def setUp(self):
-    self.testapp = webtest.TestApp(user.app)
+    self.testapp = webtest.TestApp(user.APP)
 
   @patch('user._RenderLandingTemplate')
   def testListUsersHandler(self, mock_landing_template):
