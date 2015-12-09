@@ -14,11 +14,11 @@ def noop_decorator(func):
   return func
 
 mock_admin = MagicMock()
-mock_admin.require_admin = noop_decorator
+mock_admin.RequireAdmin = noop_decorator
 sys.modules['admin'] = mock_admin
 
 mock_xsrf = MagicMock()
-mock_xsrf.xsrf_protect = noop_decorator
+mock_xsrf.XSRFProtect = noop_decorator
 sys.modules['xsrf'] = mock_xsrf
 
 
@@ -34,7 +34,7 @@ FAKE_FINGERPRINT = '11:22:33:44'
 class ProxyServerTest(unittest.TestCase):
 
   def setUp(self):
-    self.testapp = webtest.TestApp(proxy_server.app)
+    self.testapp = webtest.TestApp(proxy_server.APP)
 
   @patch('proxy_server._RenderListProxyServerTemplate')
   def testListProxyServersHandler(self, mock_render_list_template):

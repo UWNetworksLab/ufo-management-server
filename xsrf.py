@@ -16,14 +16,14 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 
 
-def xsrf_token():
+def XSRFToken():
   """Generate a new xsrf secret and output it in urlsafe base64 encoding."""
   digester = hmac.new(str(XsrfSecret.get()))
   digester.update(str(users.get_current_user().user_id()))
   return base64.urlsafe_b64encode(digester.digest())
 
 
-def xsrf_protect(func):
+def XSRFProtect(func):
   """Decorator to require valid XSRF token."""
   def decorate(self, *args, **kwargs):
     """Actual decorate function that requires a valid XSRF token.
@@ -36,7 +36,7 @@ def xsrf_protect(func):
     if not token:
       logging.error('xsrf token not included')
       self.abort(403)
-    if not const_time_compare(token, xsrf_token()):
+    if not ConstTimeCompare(token, xsrf_token()):
       logging.error('xsrf token does not validate')
       self.abort(403)
     return func(self, *args, **kwargs)
@@ -44,26 +44,28 @@ def xsrf_protect(func):
   return decorate
 
 
-def const_time_compare(a, b):
-  """Compares the the given strings in constant time."""
-  if len(a) != len(b):
+def ConstTimeCompare(string_a, string_b):
+  """Compare the the given strings in constant time."""
+  if len(string_a) != len(string_b):
     return False
 
   equals = 0
-  for x, y in zip(a, b):
-    equals |= ord(x) ^ ord(y)
+  for char_x, char_y in zip(string_a, string_b):
+    equals |= ord(char_x) ^ ord(char_y)
 
   return equals == 0
 
 
 class XsrfSecret(ndb.Model):
+
   """Model for datastore to store the XSRF secret."""
+
   # pylint: disable=too-few-public-methods
   secret = ndb.StringProperty(required=True)
 
   @staticmethod
   def get():
-    """Retrieves the XSRF secret.
+    """Retrieve the XSRF secret.
 
     Tries to retrieve the XSRF secret from memcache, and if that fails, falls
     back to getting it out of datastore. Note that the secret should not be

@@ -6,7 +6,6 @@ from datastore import User
 from datastore import OAuth
 from datastore import DomainVerification
 from error_handlers import Handle500
-import json
 import webapp2
 import xsrf
 import admin
@@ -28,15 +27,18 @@ def _RenderSetupOAuthClientTemplate():
 
 
 class SetupOAuthClientHandler(webapp2.RequestHandler):
+
   """Setup a client in the datastore."""
 
-  @admin.require_admin
+  @admin.RequireAdmin
   def get(self):
+    """Output the oauth and domain verification template."""
     self.response.write(_RenderSetupOAuthClientTemplate())
 
-  @admin.require_admin
-  @xsrf.xsrf_protect
+  @admin.RequireAdmin
+  @xsrf.XSRFProtect
   def post(self):
+    """Store client id, client secret, and domain verification content."""
     client_id = self.request.get('client_id')
     client_secret = self.request.get('client_secret')
     OAuth.Update(client_id, client_secret)
@@ -49,10 +51,10 @@ class SetupOAuthClientHandler(webapp2.RequestHandler):
       self.redirect('/user/add')
 
 
-app = webapp2.WSGIApplication([
+APP = webapp2.WSGIApplication([
     ('/setup/oauthclient', SetupOAuthClientHandler),
     (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.
-app.error_handlers[500] = Handle500
+APP.error_handlers[500] = Handle500

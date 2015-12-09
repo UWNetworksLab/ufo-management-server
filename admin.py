@@ -5,9 +5,8 @@ import logging
 from google.appengine.api import users
 
 
-def require_admin(func):
+def RequireAdmin(func):
   """Decorator to require the user to be an admin."""
-
   def decorate(self, *args, **kwargs):
     """Actual decorate function that requires admin.
 
@@ -15,7 +14,6 @@ def require_admin(func):
       args: Parameters passed on to the specified function if successful.
       kwargs: Parameters passed on to the specified function if successful.
     """
-
     user = users.get_current_user()
     if not user:
       logging.error('user is not logged in')

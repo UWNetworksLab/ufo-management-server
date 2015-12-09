@@ -21,17 +21,18 @@ import xsrf
 
 def _GenerateTokenPayload(users):
   """Generate the token payload data for all users and their public keys.
-    I could just pass through all the user's properties here, but that
-    would expose the private key we have in the datastore along with
-    various other user data, so I'm explicitly limiting what we show to
-    an email and public key pair along with the datastore key.
 
-    Args:
-      users: A list of users with associated properties from the datastore.
+  I could just pass through all the user's properties here, but that
+  would expose the private key we have in the datastore along with
+  various other user data, so I'm explicitly limiting what we show to
+  an email and public key pair along with the datastore key.
 
-    Returns:
-      user_token_payloads: A dictionary with user key id as key, and a token
-          and email tuple as a value.
+  Args:
+    users: A list of users with associated properties from the datastore.
+
+  Returns:
+    user_token_payloads: A dictionary with user key id as key, and a token
+        and email tuple as a value.
   """
   user_token_payloads = {}
   for user in users:
@@ -43,17 +44,18 @@ def _GenerateTokenPayload(users):
 
 def _GenerateUserPayload(users):
   """Generate the user payload data for all users.
-    I could just pass through all the user's properties here, but that
-    would expose the private key we have in the datastore along with
-    various other user data, so I'm explicitly limiting what we show to
-    an email and key for modifying values.
 
-    Args:
-      users: A list of users with associated properties from the datastore.
+  I could just pass through all the user's properties here, but that
+  would expose the private key we have in the datastore along with
+  various other user data, so I'm explicitly limiting what we show to
+  an email and key for modifying values.
 
-    Returns:
-      user_token_payloads: A dictionary with user key id as key and email
-          as a value.
+  Args:
+    users: A list of users with associated properties from the datastore.
+
+  Returns:
+    user_token_payloads: A dictionary with user key id as key and email
+        as a value.
   """
   user_token_payloads = {}
   for user in users:
@@ -63,7 +65,7 @@ def _GenerateUserPayload(users):
 
 
 def _MakeInviteCode(user):
-  """Create an invite code for the given user.
+  r"""Create an invite code for the given user.
 
   The invite code is a format created by the uproxy team.
   Below is an example of an unencoded invite code for a cloud instance:
@@ -107,7 +109,7 @@ def _MakeInviteCode(user):
 
 
 def _GetInviteCodeIp():
-  """Gets the ip address for placing in the invite code.
+  """Get the ip address for placing in the invite code.
 
   Eventually this method will actually get the load balancer's ip as we will
   want in the final version. For now, it is used as a simple stub to just pick
@@ -167,7 +169,9 @@ def _RenderAddUsersTemplate(directory_users, error=None):
 
 
 class LandingPageHandler(webapp2.RequestHandler):
+
   """Display the landing page which doesn't require oauth."""
+
   # pylint: disable=too-few-public-methods
 
   def get(self):
@@ -176,7 +180,9 @@ class LandingPageHandler(webapp2.RequestHandler):
 
 
 class ListUsersHandler(webapp2.RequestHandler):
+
   """List the current users."""
+
   # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
@@ -186,7 +192,9 @@ class ListUsersHandler(webapp2.RequestHandler):
 
 
 class DeleteUserHandler(webapp2.RequestHandler):
+
   """Delete a given user."""
+
   # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
@@ -201,7 +209,9 @@ class DeleteUserHandler(webapp2.RequestHandler):
 
 
 class ListTokensHandler(webapp2.RequestHandler):
+
   """List the tokens and associated users."""
+
   # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
@@ -211,7 +221,9 @@ class ListTokensHandler(webapp2.RequestHandler):
 
 
 class GetInviteCodeHandler(webapp2.RequestHandler):
+
   """Get an invite code for a given user."""
+
   # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
@@ -225,7 +237,9 @@ class GetInviteCodeHandler(webapp2.RequestHandler):
 
 
 class GetNewTokenHandler(webapp2.RequestHandler):
+
   """Create a new token for a given user."""
+
   # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
@@ -238,9 +252,10 @@ class GetNewTokenHandler(webapp2.RequestHandler):
 
 
 class AddUsersHandler(webapp2.RequestHandler):
+
   """Add users into the datastore."""
 
-  @admin.require_admin
+  @admin.RequireAdmin
   @OAUTH_DECORATOR.oauth_required
   def get(self):
     """Get the form for adding new users.
@@ -272,8 +287,8 @@ class AddUsersHandler(webapp2.RequestHandler):
     except errors.HttpError as error:
       self.response.write(_RenderAddUsersTemplate([], error))
 
-  @admin.require_admin
-  @xsrf.xsrf_protect
+  @admin.RequireAdmin
+  @xsrf.XSRFProtect
   @OAUTH_DECORATOR.oauth_required
   def post(self):
     """Add all of the selected users into the datastore."""
@@ -286,7 +301,7 @@ class AddUsersHandler(webapp2.RequestHandler):
     self.redirect('/user')
 
 
-app = webapp2.WSGIApplication([
+APP = webapp2.WSGIApplication([
     ('/', LandingPageHandler),
     ('/user', ListUsersHandler),
     ('/user/delete', DeleteUserHandler),
@@ -298,4 +313,4 @@ app = webapp2.WSGIApplication([
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.
-app.error_handlers[500] = Handle500
+APP.error_handlers[500] = Handle500
