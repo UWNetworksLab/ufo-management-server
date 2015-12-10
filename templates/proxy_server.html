@@ -10,7 +10,7 @@
     <paper-button raised class="anchor-button">Add New Proxy Server
     </paper-button></a>
   <p>Name, IP Address, Private Key, Fingerprint</p>
-  <div id="proxy-card-holder"/>
+  <div id="proxy-card-holder">
   {% for proxy_server in proxy_servers %}
     <paper-card heading="{{ proxy_server.name }}">
       <div class="card-content">

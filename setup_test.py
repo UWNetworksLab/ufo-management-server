@@ -44,7 +44,7 @@ class SetupTest(unittest.TestCase):
 
   @patch('setup._RenderSetupOAuthClientTemplate')
   def testSetupOAuthClientGetHandler(self, mock_render_oauth_template):
-    self.testapp.get('/setup/oauthclient')
+    self.testapp.get('/setup')
     mock_render_oauth_template.assert_called_once_with()
 
   @patch('user.User.GetCount')
@@ -56,7 +56,7 @@ class SetupTest(unittest.TestCase):
                                                 mock_dv_update,
                                                 mock_get_count):
     mock_get_count.return_value = 1
-    post_url = ('/setup/oauthclient?client_id={0}&client_secret={1}' +
+    post_url = ('/setup?client_id={0}&client_secret={1}' +
                 '&dv_content={2}')
     resp = self.testapp.post(post_url.format(unicode(FAKE_ID,'utf-8'),
                                              unicode(FAKE_SECRET,'utf-8'),
@@ -77,7 +77,7 @@ class SetupTest(unittest.TestCase):
                                             mock_dv_update,
                                             mock_get_count):
     mock_get_count.return_value = 0
-    post_url = ('/setup/oauthclient?client_id={0}&client_secret={1}' +
+    post_url = ('/setup?client_id={0}&client_secret={1}' +
                 '&dv_content={2}')
     resp = self.testapp.post(post_url.format(unicode(FAKE_ID,'utf-8'),
                                              unicode(FAKE_SECRET,'utf-8'),

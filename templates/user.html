@@ -10,31 +10,16 @@
   <div class="top-buttons">
     <a id='add_users' href="{{ BASE_URL }}/user/add">
       <paper-button raised class="anchor-button">Add Users</paper-button></a>
-    <a id='list_tokens' href="{{ BASE_URL }}/user/listTokens">
-      <paper-button raised class="anchor-button">List Tokens</paper-button></a>
       <br />
-    {% if invite_code %}
-      <h4>Invite Code Below</h4>
-      <textarea rows="20" cols="80">{{ invite_code }}</textarea><br>
-    {% endif %}
   </div>
-  <paper-card heading="Users"><paper-listbox>
-  {% for key, email in user_payloads.iteritems() %}
-    <paper-item>{{ email }}
-      <a href="{{ BASE_URL }}/user/delete?key={{ key }}">
-        <paper-button raised class="anchor-button">Delete User
-      </paper-button></a>
-      <a href="{{ BASE_URL }}/user/getInviteCode?key={{ key }}">
-        <paper-button raised class="anchor-button">Get Invite Code
-      </paper-button></a>
-      <a href="{{ BASE_URL }}/user/getNewToken?key={{ key }}">
-        <paper-button raised class="anchor-button">Get New Token
-      </paper-button></a>
-      <a href="{{ BASE_URL }}/user/toggleRevoked?key={{ key }}">
-        <paper-button raised class="anchor-button">Revoke/Unrevoke Access
-      </paper-button></a>
-    </paper-item>
-    <br />
-  {% endfor %}
-  </paper-listbox></paper-card>
+  <paper-card heading="Users">
+    <div class="card-content">
+      <p>Click a user below to view more details.</p>
+      <paper-listbox>
+      {% for key, email in user_payloads.iteritems() %}
+        <a href="{{ BASE_URL }}/user/details?key={{ key }}">
+          <paper-item>{{ email }}</paper-item></a>
+      {% endfor %}
+      </paper-listbox></div>
+  </paper-card>
 {% endblock %}
