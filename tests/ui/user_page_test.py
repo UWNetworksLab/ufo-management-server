@@ -15,12 +15,10 @@ class UserPageTest(unittest.TestCase):
 
   def testUserPage(self):
     add_users = (u'Add Users').upper()
-    list_tokens = (u'List Tokens').upper()
 
     self.driver.get('http://localhost:9999/user')
     user_page = UserPage(self.driver)
     self.assertEquals(add_users, user_page.GetAddUserLink().text)
-    self.assertEquals(list_tokens, user_page.GetListTokensLink().text)
     self.assertIsNotNone(user_page.GetSidebar())
 
   def tearDown(self):

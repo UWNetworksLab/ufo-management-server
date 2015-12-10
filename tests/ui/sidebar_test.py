@@ -23,14 +23,11 @@ class SidebarTest(unittest.TestCase):
     users_link = sidebar.GetLink(sidebar.USERS_LINK)
     self.assertEquals('/user', users_link.get_attribute('data-href'))
 
-    tokens_link = sidebar.GetLink(sidebar.TOKENS_LINK)
-    self.assertEquals('/user/listTokens', tokens_link.get_attribute('data-href'))
-
     proxy_servers_link = sidebar.GetLink(sidebar.PROXY_SERVERS_LINK)
     self.assertEquals('/proxyserver/list', proxy_servers_link.get_attribute('data-href'))
-  
+
     setup_link = sidebar.GetLink(sidebar.SETUP_LINK)
-    self.assertEquals('/setup/oauthclient', setup_link.get_attribute('data-href'))
+    self.assertEquals('/setup', setup_link.get_attribute('data-href'))
 
     logout_link = sidebar.GetLink(sidebar.LOGOUT_LINK)
     self.assertEquals('/logout', logout_link.get_attribute('data-href'))

@@ -9,7 +9,6 @@ class Sidebar(BaseDriver):
 
   HOME_LINK = (By.ID, 'Home')
   USERS_LINK = (By.ID, 'Users')
-  TOKENS_LINK = (By.ID, 'Tokens')
   PROXY_SERVERS_LINK = (By.ID, 'Proxy Servers')
   SETUP_LINK = (By.ID, 'Setup')
   LOGOUT_LINK = (By.ID, 'Logout')

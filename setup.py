@@ -52,7 +52,7 @@ class SetupOAuthClientHandler(webapp2.RequestHandler):
 
 
 APP = webapp2.WSGIApplication([
-    ('/setup/oauthclient', SetupOAuthClientHandler),
+    ('/setup', SetupOAuthClientHandler),
     (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
 
