@@ -56,5 +56,5 @@ class LoginPage(BaseDriver):
     # OAuth Page
     if self._IsElementPresent(self.OAUTH_SCOPES):
       oauth_approve_button = WebDriverWait(self.driver, 10).until(
-        EC.element_to_be_clickable((self.OAUTH_APPROVE_BUTTON)))
+          EC.element_to_be_clickable((self.OAUTH_APPROVE_BUTTON)))
       oauth_approve_button.click()
