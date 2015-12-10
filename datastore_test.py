@@ -39,9 +39,13 @@ BAD_FINGERPRINT = 'pinky'
 
 # OAuth test globals
 FAKE_CLIENT_ID = 'id1234'
-FAKE_CLIENT_SECRET = 'secret abc'
 BAD_CLIENT_ID = 'id5678'
-BAD_CLIENT_SECRET = 'secret 123'
+# The comment below disables landscape.io checking on that line so that it
+# does not think we have an actual secret stored which we do not. The
+# object it is used to get has a parameter which is the actual secret. This
+# however is not.
+FAKE_CLIENT_SECRET = 'secret abc'  # noqa
+BAD_CLIENT_SECRET = 'secret 123'  # noqa
 
 # Domain Verification test globals
 FAKE_CONTENT = 'foo'
@@ -68,7 +72,7 @@ class DatastoreTest(unittest.TestCase):
     self.assertTrue(BAD_PUB_PRI_KEY is not FAKE_PRIVATE_KEY)
     # I have to define the keys here once the module is loaded and
     # stubbed so that the call to ndb.Key is the stubbed version.
-    global FAKE_KEY, FAKE_KEY_URLSAFE, FAKE_USER
+    global FAKE_KEY, FAKE_KEY_URLSAFE, FAKE_USER  # noqa
     FAKE_KEY = ndb.Key(datastore.User, FAKE_EMAIL)
     FAKE_KEY_URLSAFE = FAKE_KEY.urlsafe()
     FAKE_USER = datastore.User(key=FAKE_KEY, email=FAKE_EMAIL,
@@ -76,7 +80,7 @@ class DatastoreTest(unittest.TestCase):
                                public_key=FAKE_PUBLIC_KEY,
                                private_key=FAKE_PRIVATE_KEY,
                                is_key_revoked=False)
-    global BAD_KEY, BAD_KEY_URLSAFE, USER_BAD_KEY
+    global BAD_KEY, BAD_KEY_URLSAFE, USER_BAD_KEY  # noqa
     BAD_KEY = ndb.Key(datastore.User, BAD_EMAIL)
     BAD_KEY_URLSAFE = BAD_KEY.urlsafe()
     USER_BAD_KEY = datastore.User(key=BAD_KEY, email=BAD_EMAIL,

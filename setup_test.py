@@ -32,7 +32,11 @@ import setup
 
 
 FAKE_ID = 'fakeAlphaNumerics0123456789abc'
-FAKE_SECRET = 'fakeAlphaNumerics0123456789zyx'
+# The comment below disables landscape.io checking on that line so that it
+# does not think we have an actual secret stored which we do not. The
+# object it is used to get has a parameter which is the actual secret. This
+# however is not.
+FAKE_SECRET = 'fakeAlphaNumerics0123456789zyx'  # noqa
 RENDER_OAUTH_TEMPLATE = '_RenderSetupOAuthClientTemplate'
 FAKE_CONTENT = 'foobar'
 
