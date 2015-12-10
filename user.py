@@ -305,6 +305,8 @@ class ToggleRevokedHandler(webapp2.RequestHandler):
 
   """Toggle the revoked status on a user in the datastore."""
 
+  # pylint: disable=too-few-public-methods
+
   @admin.RequireAdmin
   @xsrf.XSRFProtect
   @OAUTH_DECORATOR.oauth_required
