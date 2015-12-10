@@ -23,10 +23,10 @@ def _ParseArgs():
 def MakeSuite(testcase_class):
   """Add the test cases into suites."""
   testloader = unittest.TestLoader()
-  testnames = testloader.getTestCaseNames(testcase_class)
+  test_cases = testloader.getTestCaseNames(testcase_class)
   suite = unittest.TestSuite()
-  for name in testnames:
-    suite.addTest(testcase_class(name, args=_ParseArgs()))
+  for test_case in test_cases:
+    suite.addTest(testcase_class(test_case, args=_ParseArgs()))
   return suite
 
 suite = unittest.TestSuite()
