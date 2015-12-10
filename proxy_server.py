@@ -47,7 +47,7 @@ def _MakeKeyString():
   space = ' '
   endline = '\n'
   for user in users:
-    if not user.revoked:
+    if not user.is_key_revoked:
       user_string = (ssh_starting_portion + space + user.public_key + space +
                      user.email + endline)
       key_string += user_string

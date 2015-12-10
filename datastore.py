@@ -108,7 +108,7 @@ class User(BaseModel):
   name = ndb.StringProperty()
   private_key = ndb.TextProperty()
   public_key = ndb.TextProperty()
-  revoked = ndb.BooleanProperty()
+  is_key_revoked = ndb.BooleanProperty()
 
   @staticmethod
   def _CreateUser(directory_user, key_pair):
@@ -128,7 +128,7 @@ class User(BaseModel):
                        name=directory_user['name']['fullName'],
                        public_key=key_pair['public_key'],
                        private_key=key_pair['private_key'],
-                       revoked=False)
+                       is_key_revoked=False)
     return user_entity
 
   @staticmethod
@@ -163,14 +163,14 @@ class User(BaseModel):
     user.put()
 
   @staticmethod
-  def ToggleRevoked(key):
-    """Change the value of revoked for an existing user to !revoked.
+  def ToggleKeyRevoked(entity_key):
+    """Change the value of key revoked for an existing user to !revoked.
 
     Args:
-      key: A user's key in order to find the user's datastore entity.
+      entity_key: A user's key in order to find the user's datastore entity.
     """
-    user = User.GetByKey(key)
-    user.revoked = not user.revoked
+    user = User.GetByKey(entity_key)
+    user.is_key_revoked = not user.is_key_revoked
     user.put()
 
   @staticmethod

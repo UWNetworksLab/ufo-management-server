@@ -224,10 +224,10 @@ class UserTest(unittest.TestCase):
     self.assertEqual(response.status_int, 302)
     self.assertTrue('/user' in response.location)
 
-  @patch('user.User.ToggleRevoked')
-  def testGetNewTokenHandler(self, mock_toggle_revoked):
+  @patch('user.User.ToggleKeyRevoked')
+  def testToggleKeyRevokedHandler(self, mock_toggle_key_revoked):
     response = self.testapp.post('/user/toggleRevoked?key=%s' % FAKE_DS_KEY)
-    mock_toggle_revoked.assert_called_once_with(FAKE_DS_KEY)
+    mock_toggle_key_revoked.assert_called_once_with(FAKE_DS_KEY)
     self.assertEqual(response.status_int, 302)
     self.assertTrue('/user' in response.location)
 

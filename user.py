@@ -301,9 +301,9 @@ class AddUsersHandler(webapp2.RequestHandler):
     self.redirect('/user')
 
 
-class ToggleRevokedHandler(webapp2.RequestHandler):
+class ToggleKeyRevokedHandler(webapp2.RequestHandler):
 
-  """Toggle the revoked status on a user in the datastore."""
+  """Toggle the revoked status on a user's keys in the datastore."""
 
   # pylint: disable=too-few-public-methods
 
@@ -311,9 +311,9 @@ class ToggleRevokedHandler(webapp2.RequestHandler):
   @xsrf.XSRFProtect
   @OAUTH_DECORATOR.oauth_required
   def post(self):
-    """Lookup the user and toggle the revoked status."""
+    """Lookup the user and toggle the revoked status of keys."""
     urlsafe_key = self.request.get('key')
-    User.ToggleRevoked(urlsafe_key)
+    User.ToggleKeyRevoked(urlsafe_key)
     self.redirect('/user')
 
 
@@ -325,7 +325,7 @@ APP = webapp2.WSGIApplication([
     ('/user/getInviteCode', GetInviteCodeHandler),
     ('/user/getNewToken', GetNewTokenHandler),
     ('/user/add', AddUsersHandler),
-    ('/user/toggleRevoked', ToggleRevokedHandler),
+    ('/user/toggleRevoked', ToggleKeyRevokedHandler),
     (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
 
