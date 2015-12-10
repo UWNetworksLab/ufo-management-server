@@ -74,14 +74,16 @@ class DatastoreTest(unittest.TestCase):
     FAKE_USER = datastore.User(key=FAKE_KEY, email=FAKE_EMAIL,
                                name=FAKE_NAME,
                                public_key=FAKE_PUBLIC_KEY,
-                               private_key=FAKE_PRIVATE_KEY)
+                               private_key=FAKE_PRIVATE_KEY,
+                               revoked=False)
     global BAD_KEY, BAD_KEY_URLSAFE, USER_BAD_KEY
     BAD_KEY = ndb.Key(datastore.User, BAD_EMAIL)
     BAD_KEY_URLSAFE = BAD_KEY.urlsafe()
     USER_BAD_KEY = datastore.User(key=BAD_KEY, email=BAD_EMAIL,
                                   name=FAKE_NAME,
                                   public_key=BAD_PUB_PRI_KEY,
-                                  private_key=BAD_PUB_PRI_KEY)
+                                  private_key=BAD_PUB_PRI_KEY,
+                                  revoked=False)
 
   def tearDown(self):
     self.testbed.deactivate()
@@ -187,6 +189,7 @@ class UserDatastoreTest(DatastoreTest):
     self.assertEqual(user_entity.name, FAKE_NAME)
     self.assertEqual(user_entity.public_key, FAKE_PUBLIC_KEY)
     self.assertEqual(user_entity.private_key, FAKE_PRIVATE_KEY)
+    self.assertEqual(user_entity.revoked, False)
 
   @patch('base64.urlsafe_b64encode')
   @patch.object(datastore.RSA._RSAobj, 'publickey')
@@ -224,6 +227,21 @@ class UserDatastoreTest(DatastoreTest):
     user_after_test = datastore.User.GetByKey(BAD_KEY_URLSAFE)
     self.assertEqual(user_after_test.public_key, FAKE_PUBLIC_KEY)
     self.assertEqual(user_after_test.private_key, FAKE_PRIVATE_KEY)
+
+  def testToggleRevoked(self):
+    FAKE_USER.put()
+    user_before_test = datastore.User.GetByKey(FAKE_KEY_URLSAFE)
+    self.assertEqual(user_before_test.revoked, False)
+
+    datastore.User.ToggleRevoked(FAKE_KEY_URLSAFE)
+
+    user_after_first_toggle = datastore.User.GetByKey(FAKE_KEY_URLSAFE)
+    self.assertEqual(user_after_first_toggle.revoked, True)
+
+    datastore.User.ToggleRevoked(FAKE_KEY_URLSAFE)
+
+    user_after_second_toggle = datastore.User.GetByKey(FAKE_KEY_URLSAFE)
+    self.assertEqual(user_after_second_toggle.revoked, False)
 
   @patch('datastore.User._CreateUser')
   def testInsertUser(self, mock_create):

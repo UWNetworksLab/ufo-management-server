@@ -301,6 +301,20 @@ class AddUsersHandler(webapp2.RequestHandler):
     self.redirect('/user')
 
 
+class ToggleRevokedHandler(webapp2.RequestHandler):
+
+  """Toggle the revoked status on a user in the datastore."""
+
+  @admin.RequireAdmin
+  @xsrf.XSRFProtect
+  @OAUTH_DECORATOR.oauth_required
+  def post(self):
+    """Lookup the user and toggle the revoked status."""
+    urlsafe_key = self.request.get('key')
+    User.ToggleRevoked(urlsafe_key)
+    self.redirect('/user')
+
+
 APP = webapp2.WSGIApplication([
     ('/', LandingPageHandler),
     ('/user', ListUsersHandler),
@@ -309,6 +323,7 @@ APP = webapp2.WSGIApplication([
     ('/user/getInviteCode', GetInviteCodeHandler),
     ('/user/getNewToken', GetNewTokenHandler),
     ('/user/add', AddUsersHandler),
+    ('/user/toggleRevoked', ToggleRevokedHandler),
     (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
 
