@@ -184,8 +184,8 @@ class ListUsersHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin(admin.OAUTH_USER_SCOPE_DECORATOR)
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Output a list of all current users along with some metadata."""
     self.response.write(_RenderUserListTemplate())
@@ -197,8 +197,8 @@ class DeleteUserHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin(admin.OAUTH_USER_SCOPE_DECORATOR)
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Delete the user corresponding to the passed in key.
 
@@ -215,8 +215,8 @@ class ListTokensHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin(admin.OAUTH_USER_SCOPE_DECORATOR)
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Output a list of all current users along with each's token."""
     self.response.write(_RenderTokenListTemplate())
@@ -228,8 +228,8 @@ class GetInviteCodeHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin(admin.OAUTH_USER_SCOPE_DECORATOR)
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Output a list of all current users along with the requested token."""
     urlsafe_key = self.request.get('key')
@@ -245,8 +245,8 @@ class GetNewTokenHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin(admin.OAUTH_USER_SCOPE_DECORATOR)
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Find the user matching the specified key and generate a new token."""
     urlsafe_key = self.request.get('key')
@@ -259,8 +259,8 @@ class AddUsersHandler(webapp2.RequestHandler):
 
   """Add users into the datastore."""
 
-  @admin.OAUTH_ALL_SCOPES_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin(admin.OAUTH_ALL_SCOPES_DECORATOR)
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Get the form for adding new users.
 
@@ -294,8 +294,8 @@ class AddUsersHandler(webapp2.RequestHandler):
     except errors.HttpError as error:
       self.response.write(_RenderAddUsersTemplate([], error))
 
-  @admin.OAUTH_ALL_SCOPES_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin(admin.OAUTH_ALL_SCOPES_DECORATOR)
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   @xsrf.XSRFProtect
   def post(self):
     """Add all of the selected users into the datastore."""
@@ -316,10 +316,8 @@ APP = webapp2.WSGIApplication([
     ('/user/getInviteCode', GetInviteCodeHandler),
     ('/user/getNewToken', GetNewTokenHandler),
     ('/user/add', AddUsersHandler),
-    (admin.OAUTH_ALL_SCOPES_DECORATOR.callback_path,
-     admin.OAUTH_ALL_SCOPES_DECORATOR.callback_handler()),
-    (admin.OAUTH_USER_SCOPE_DECORATOR.callback_path,
-     admin.OAUTH_USER_SCOPE_DECORATOR.callback_handler()),
+    (admin.OAUTH_DECORATOR.callback_path,
+     admin.OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.

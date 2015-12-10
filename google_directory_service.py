@@ -108,3 +108,14 @@ class GoogleDirectoryService(object):
 
     return users
 
+  def IsAdminUser(self, user_key):
+    """Check if a given user is an admin according to the directory API.
+
+    Args:
+      user_key: A string identifying an individual user.
+
+    Returns:
+      True or false for whether or not the user is or is not an admin.
+    """
+    result = self.GetUser(user_key)
+    return result['isAdmin']

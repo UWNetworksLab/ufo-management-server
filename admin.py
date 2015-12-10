@@ -16,6 +16,27 @@ GROUP = 'https://www.googleapis.com/auth/admin.directory.group.readonly'
 MEMBER = 'https://www.googleapis.com/auth/admin.directory.group.member.readonly'
 SCOPES = [USER, GROUP, MEMBER]
 
+OAUTH_DECORATOR = OAuth2Decorator(
+    client_id=OAuth.GetOrInsertDefault().client_id,
+    client_secret=OAuth.GetOrInsertDefault().client_secret,
+    scope=SCOPES)
+
+def AbortIfUserIsNotLoggedIn(self, user):
+  """Check if the user is logged in and abort if not.
+
+  Args:
+    user: The user to check for being logged in.
+  """
+  if not user or user is None:
+    logging.error('User is not logged in.')
+    self.abort(403)
+
+def AbortIfUserIsNotApplicationAdmin(self):
+  """Check if the user is an application admin and abort if not."""
+  if not users.is_current_user_admin():
+    logging.error('User is not an application admin.')
+    self.abort(403)
+
 
 def RequireAppAdmin(func):
   """Decorator to require the user to be an admin."""
@@ -27,65 +48,42 @@ def RequireAppAdmin(func):
       kwargs: Parameters passed on to the specified function if successful.
     """
     user = users.get_current_user()
-    if not user:
-      logging.error('user is not logged in')
-      self.abort(403)
-    if not users.is_current_user_admin():
-      logging.error('user is not an admin')
-      self.abort(403)
+    AbortIfUserIsNotLoggedIn(self, user)
+    AbortIfUserIsNotApplicationAdmin(self)
     return func(self, *args, **kwargs)
 
   return decorate
 
 
-def RequireAppAndDomainAdmin(oauth_decorator):
+def RequireAppAndDomainAdmin(func):
   """Decorator to require the user to be an admin."""
-  def Wrap(func):
-    """Decorator to require the user to be an admin."""
-    def decorate(self, *args, **kwargs):
-      """Actual decorate function that requires admin.
+  def decorate(self, *args, **kwargs):
+    """Actual decorate function that requires admin.
 
-      Args:
-        args: Parameters passed on to the specified function if successful.
-        kwargs: Parameters passed on to the specified function if successful.
-      """
-      user = users.get_current_user()
-      if not user or user is None:
-        logging.error('User is not logged in.')
-        self.abort(403)
+    Args:
+      args: Parameters passed on to the specified function if successful.
+      kwargs: Parameters passed on to the specified function if successful.
+    """
+    user = users.get_current_user()
+    AbortIfUserIsNotLoggedIn(self, user)
+    AbortIfUserIsNotApplicationAdmin(self)
 
-      identifier = user.email()
-      if identifier is None or identifier is '':
-        logging.error('No identifier found for the user.')
-        self.abort(403)
+    identifier = user.email()
+    if identifier is None or identifier is '':
+      logging.error('No identifier found for the user.')
+      self.abort(403)
 
-      directory_user = None
-      try:
-        directory_service = GoogleDirectoryService(oauth_decorator)
-        directory_user = directory_service.GetUser(identifier)
-      except errors.HttpError:
-        logging.error('Exception when asking dasher for this user.')
-        self.abort(403)
+    user_is_admin = False
+    try:
+      directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
+      user_is_admin = directory_service.IsAdminUser(identifier)
+    except errors.HttpError:
+      logging.error('Exception when asking dasher for this user.')
+      self.abort(403)
 
-      if not directory_user or directory_user is None:
-        logging.error('User was not found in dasher.')
-        self.abort(403)
-      if not directory_user['isAdmin']:
-        logging.error('User is not a dasher admin.')
-        self.abort(403)
-      return func(self, *args, **kwargs)
+    if not user_is_admin:
+      logging.error('User is not a dasher admin.')
+      self.abort(403)
+    return func(self, *args, **kwargs)
 
-    return decorate
-  return Wrap
-
-
-OAUTH_ALL_SCOPES_DECORATOR = OAuth2Decorator(
-    client_id=OAuth.GetOrInsertDefault().client_id,
-    client_secret=OAuth.GetOrInsertDefault().client_secret,
-    scope=SCOPES)
-
-OAUTH_USER_SCOPE_DECORATOR = OAuth2Decorator(
-    client_id=OAuth.GetOrInsertDefault().client_id,
-    client_secret=OAuth.GetOrInsertDefault().client_secret,
-    scope=USER)
-
+  return decorate
