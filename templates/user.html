@@ -30,6 +30,9 @@
       <a href="{{ BASE_URL }}/user/getNewToken?key={{ key }}">
         <paper-button raised class="anchor-button">Get New Token
       </paper-button></a>
+      <a href="{{ BASE_URL }}/user/toggleRevoked?key={{ key }}">
+        <paper-button raised class="anchor-button">Revoke/Unrevoke Access
+      </paper-button></a>
     </paper-item>
     <br />
   {% endfor %}
