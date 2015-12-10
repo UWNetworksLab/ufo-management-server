@@ -1,5 +1,4 @@
 import argparse
-import sys
 import unittest
 
 from landing_page_test import LandingPageTest
