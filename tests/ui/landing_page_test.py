@@ -1,6 +1,5 @@
 import unittest
 
-from base_driver import BaseDriver
 from base_test import BaseTest
 from login_page import LoginPage
 from landing_page import LandingPage
