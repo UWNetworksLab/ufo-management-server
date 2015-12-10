@@ -19,21 +19,20 @@ import webtest
 def noop_decorator(func):
   return func
 
-mock_auth = MagicMock()
-mock_auth.OAUTH_DECORATOR.oauth_required = noop_decorator
-sys.modules['auth'] = mock_auth
+def noop_decorator_with_arguments(arg):
+  def noop_decorator(func):
+    return func
+  return noop_decorator
+
+mock_admin = MagicMock()
+mock_admin.OAUTH_ALL_SCOPES_DECORATOR.oauth_required = noop_decorator
+mock_admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required = noop_decorator
+mock_admin.RequireAppAndDomainAdmin = noop_decorator_with_arguments
+sys.modules['admin'] = mock_admin
 
 mock_xsrf = MagicMock()
 mock_xsrf.XSRFProtect = noop_decorator
 sys.modules['xsrf'] = mock_xsrf
-
-mock_admin = MagicMock()
-mock_admin.RequireAdmin = noop_decorator
-sys.modules['admin'] = mock_admin
-
-mock_dasher_admin = MagicMock()
-mock_dasher_admin.DasherAdminAuthRequired = noop_decorator
-sys.modules['dasher_admin'] = mock_dasher_admin
 
 import user
 
@@ -144,7 +143,7 @@ class UserTest(unittest.TestCase):
 
     mock_get_users.assert_not_called()
     mock_get_user.assert_not_called()
-    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(mock_admin.OAUTH_ALL_SCOPES_DECORATOR)
     mock_get_by_key.assert_called_once_with(group_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -164,7 +163,7 @@ class UserTest(unittest.TestCase):
 
     mock_get_users.assert_not_called()
     mock_get_by_key.assert_not_called()
-    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(mock_admin.OAUTH_ALL_SCOPES_DECORATOR)
     mock_get_user.assert_called_once_with(user_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -182,7 +181,7 @@ class UserTest(unittest.TestCase):
 
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
-    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(mock_admin.OAUTH_ALL_SCOPES_DECORATOR)
     mock_get_users.assert_called_once_with()
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -202,7 +201,7 @@ class UserTest(unittest.TestCase):
     mock_get_users.return_value = FAKE_USER_ARRAY
     response = self.testapp.get('/user/add?get_all=true')
 
-    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(mock_admin.OAUTH_ALL_SCOPES_DECORATOR)
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
     mock_get_users.assert_not_called()

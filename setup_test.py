@@ -15,17 +15,13 @@ import webtest
 def noop_decorator(func):
   return func
 
-mock_auth = MagicMock()
-mock_auth.OAUTH_DECORATOR.oauth_required = noop_decorator
-sys.modules['auth'] = mock_auth
+mock_admin = MagicMock()
+mock_admin.RequireAppAdmin = noop_decorator
+sys.modules['admin'] = mock_admin
 
 mock_xsrf = MagicMock()
 mock_xsrf.XSRFProtect = noop_decorator
 sys.modules['xsrf'] = mock_xsrf
-
-mock_admin = MagicMock()
-mock_admin.RequireAdmin = noop_decorator
-sys.modules['admin'] = mock_admin
 
 
 import setup

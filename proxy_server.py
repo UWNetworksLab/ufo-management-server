@@ -1,16 +1,12 @@
 """The module for handling proxy servers."""
 
-import logging
-
-import httplib2
-import webapp2
-
 import admin
-from auth import OAUTH_DECORATOR
 from appengine_config import JINJA_ENVIRONMENT
-import dasher_admin
 from datastore import ProxyServer
 from datastore import User
+import httplib2
+import logging
+import webapp2
 import xsrf
 
 
@@ -60,17 +56,15 @@ class AddProxyServerHandler(webapp2.RequestHandler):
 
   """Handler for adding new proxy servers."""
 
-  @admin.RequireAdmin
-  @OAUTH_DECORATOR.oauth_required
-  @dasher_admin.DasherAdminAuthRequired
+  @admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin(admin.OAUTH_USER_SCOPE_DECORATOR)
   def get(self):
     """Get the form for adding new proxy servers."""
     self.response.write(_RenderProxyServerFormTemplate(None))
 
-  @admin.RequireAdmin
+  @admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin(admin.OAUTH_USER_SCOPE_DECORATOR)
   @xsrf.XSRFProtect
-  @OAUTH_DECORATOR.oauth_required
-  @dasher_admin.DasherAdminAuthRequired
   def post(self):
     """Add a new proxy server with the post parameters passed in."""
     ProxyServer.Insert(
@@ -85,18 +79,16 @@ class EditProxyServerHandler(webapp2.RequestHandler):
 
   """Handler for editing an existing proxy server."""
 
-  @admin.RequireAdmin
-  @OAUTH_DECORATOR.oauth_required
-  @dasher_admin.DasherAdminAuthRequired
+  @admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin(admin.OAUTH_USER_SCOPE_DECORATOR)
   def get(self):
     """Get a proxy server's current data and display its edit form."""
     proxy_server = ProxyServer.Get(int(self.request.get('id')))
     self.response.write(_RenderProxyServerFormTemplate(proxy_server))
 
-  @admin.RequireAdmin
+  @admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin(admin.OAUTH_USER_SCOPE_DECORATOR)
   @xsrf.XSRFProtect
-  @OAUTH_DECORATOR.oauth_required
-  @dasher_admin.DasherAdminAuthRequired
   def post(self):
     """Set an existing proxy server with the post parameters passed in."""
     ProxyServer.Update(
@@ -114,9 +106,8 @@ class DeleteProxyServerHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @admin.RequireAdmin
-  @OAUTH_DECORATOR.oauth_required
-  @dasher_admin.DasherAdminAuthRequired
+  @admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin(admin.OAUTH_USER_SCOPE_DECORATOR)
   def get(self):
     """Delete the proxy server corresponding to the passed in id.
 
@@ -132,9 +123,8 @@ class ListProxyServersHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @admin.RequireAdmin
-  @OAUTH_DECORATOR.oauth_required
-  @dasher_admin.DasherAdminAuthRequired
+  @admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin(admin.OAUTH_USER_SCOPE_DECORATOR)
   def get(self):
     """Get all current proxy servers and list them with their metadata."""
     self.response.write(_RenderListProxyServerTemplate())
@@ -179,4 +169,8 @@ APP = webapp2.WSGIApplication([
     ('/proxyserver/list', ListProxyServersHandler),
 
     ('/cron/proxyserver/distributekey', DistributeKeyHandler),
+    (admin.OAUTH_ALL_SCOPES_DECORATOR.callback_path,
+      admin.OAUTH_ALL_SCOPES_DECORATOR.callback_handler()),
+    (admin.OAUTH_USER_SCOPE_DECORATOR.callback_path,
+      admin.OAUTH_USER_SCOPE_DECORATOR.callback_handler()),
 ], debug=True)

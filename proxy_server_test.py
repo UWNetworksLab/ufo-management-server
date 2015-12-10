@@ -13,17 +13,15 @@ from datastore import ProxyServer
 def noop_decorator(func):
   return func
 
+def noop_decorator_with_arguments(arg):
+  def noop_decorator(func):
+    return func
+  return noop_decorator
+
 mock_admin = MagicMock()
-mock_admin.RequireAdmin = noop_decorator
+mock_admin.OAUTH_USER_SCOPE_DECORATOR.oauth_required = noop_decorator
+mock_admin.RequireAppAndDomainAdmin = noop_decorator_with_arguments
 sys.modules['admin'] = mock_admin
-
-mock_auth = MagicMock()
-mock_auth.OAUTH_DECORATOR.oauth_required = noop_decorator
-sys.modules['auth'] = mock_auth
-
-mock_dasher_admin = MagicMock()
-mock_dasher_admin.DasherAdminAuthRequired = noop_decorator
-sys.modules['dasher_admin'] = mock_dasher_admin
 
 mock_xsrf = MagicMock()
 mock_xsrf.XSRFProtect = noop_decorator

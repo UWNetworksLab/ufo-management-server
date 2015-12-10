@@ -27,29 +27,29 @@ handlers:
   secure: always
 
 - url: /logout.*
-  script: logout.app
+  script: logout.APP
   login: required
   secure: always
 
 - url: /proxyserver.*
-  script: proxy_server.app
+  script: proxy_server.APP
   login: required
   secure: always
 
 - url: /cron/proxyserver/distributekey
-  script: proxy_server.app
+  script: proxy_server.APP
   login: admin
   secure: always
 
 - url: /setup.*
-  script: setup.app
+  script: setup.APP
   login: required
   secure: always
 
 - url: /user.*
-  script: user.app
+  script: user.APP
   login: required
   secure: always
 
 - url: /.*
-  script: user.app
+  script: user.APP

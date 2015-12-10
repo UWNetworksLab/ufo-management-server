@@ -1,14 +1,13 @@
 """The setup module for first-time initialization of the app."""
 
+import admin
 from appengine_config import JINJA_ENVIRONMENT
-from auth import OAUTH_DECORATOR
 from datastore import User
 from datastore import OAuth
 from datastore import DomainVerification
 from error_handlers import Handle500
 import webapp2
 import xsrf
-import admin
 
 
 
@@ -30,12 +29,12 @@ class SetupOAuthClientHandler(webapp2.RequestHandler):
 
   """Setup a client in the datastore."""
 
-  @admin.RequireAdmin
+  @admin.RequireAppAdmin
   def get(self):
     """Output the oauth and domain verification template."""
     self.response.write(_RenderSetupOAuthClientTemplate())
 
-  @admin.RequireAdmin
+  @admin.RequireAppAdmin
   @xsrf.XSRFProtect
   def post(self):
     """Store client id, client secret, and domain verification content."""
@@ -53,7 +52,6 @@ class SetupOAuthClientHandler(webapp2.RequestHandler):
 
 APP = webapp2.WSGIApplication([
     ('/setup/oauthclient', SetupOAuthClientHandler),
-    (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.
