@@ -276,17 +276,17 @@ class AddUsersHandler(webapp2.RequestHandler):
     try:
       if get_all:
         directory_service = GoogleDirectoryService(
-          admin.OAUTH_ALL_SCOPES_DECORATOR)
+            admin.OAUTH_ALL_SCOPES_DECORATOR)
         directory_users = directory_service.GetUsers()
         self.response.write(_RenderAddUsersTemplate(directory_users))
       elif group_key is not None and group_key is not '':
         directory_service = GoogleDirectoryService(
-          admin.OAUTH_ALL_SCOPES_DECORATOR)
+            admin.OAUTH_ALL_SCOPES_DECORATOR)
         directory_users = directory_service.GetUsersByGroupKey(group_key)
         self.response.write(_RenderAddUsersTemplate(directory_users))
       elif user_key is not None and user_key is not '':
         directory_service = GoogleDirectoryService(
-          admin.OAUTH_ALL_SCOPES_DECORATOR)
+            admin.OAUTH_ALL_SCOPES_DECORATOR)
         directory_users = directory_service.GetUserAsList(user_key)
         self.response.write(_RenderAddUsersTemplate(directory_users))
       else:
@@ -317,9 +317,9 @@ APP = webapp2.WSGIApplication([
     ('/user/getNewToken', GetNewTokenHandler),
     ('/user/add', AddUsersHandler),
     (admin.OAUTH_ALL_SCOPES_DECORATOR.callback_path,
-      admin.OAUTH_ALL_SCOPES_DECORATOR.callback_handler()),
+     admin.OAUTH_ALL_SCOPES_DECORATOR.callback_handler()),
     (admin.OAUTH_USER_SCOPE_DECORATOR.callback_path,
-      admin.OAUTH_USER_SCOPE_DECORATOR.callback_handler()),
+     admin.OAUTH_USER_SCOPE_DECORATOR.callback_handler()),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.

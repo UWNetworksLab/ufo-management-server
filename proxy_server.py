@@ -170,7 +170,7 @@ APP = webapp2.WSGIApplication([
 
     ('/cron/proxyserver/distributekey', DistributeKeyHandler),
     (admin.OAUTH_ALL_SCOPES_DECORATOR.callback_path,
-      admin.OAUTH_ALL_SCOPES_DECORATOR.callback_handler()),
+     admin.OAUTH_ALL_SCOPES_DECORATOR.callback_handler()),
     (admin.OAUTH_USER_SCOPE_DECORATOR.callback_path,
-      admin.OAUTH_USER_SCOPE_DECORATOR.callback_handler()),
+     admin.OAUTH_USER_SCOPE_DECORATOR.callback_handler()),
 ], debug=True)

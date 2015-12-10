@@ -63,7 +63,7 @@ def RequireAppAndDomainAdmin(oauth_decorator):
       try:
         directory_service = GoogleDirectoryService(oauth_decorator)
         directory_user = directory_service.GetUser(identifier)
-      except errors.HttpError as error:
+      except errors.HttpError:
         logging.error('Exception when asking dasher for this user.')
         self.abort(403)
 
