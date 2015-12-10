@@ -247,7 +247,9 @@ function deploy ()
   fi
 
   if [ ! -z  "$AE_FILE" ]; then
-    runAndAssertCmd "$AE_FILE -A uproxy-management-server update $UFO_DIR"
+    # TODO(eholder): Update this to take a parameter so that it will update
+    # whatever we say rather than one specific instance.
+    runAndAssertCmd "$AE_FILE -A ufo-management-server-staging update $UFO_DIR"
   fi
 }
 
