@@ -48,7 +48,7 @@ class LoginPage(BaseDriver):
     sign_in_button.click()
 
     # App approval page.
-    # This needs to be reapproved every 30 days.
+    # This page will reappear every 30 days.
     if self.REMEMBER_APPROVAL_MESSAGE in self.driver.page_source:
       app_approve_button = self.driver.find_element(*self.APP_APPROVE_BUTTON)
       app_approve_button.click()
