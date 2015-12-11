@@ -269,8 +269,9 @@ class UserDatastoreTest(DatastoreTest):
   @patch('datastore.User._CreateUser')
   def testInsertUsers(self, mock_create, mock_generate):
     """Test the insert users function."""
-    def side_effect(arg1):
+    def side_effect(arg1, arg2):
       """Mock create function to return FAKE_USER and USER_BAD_KEY."""
+      # pylint: disable=unused-argument
       if arg1 is FAKE_DIRECTORY_USER:
         return FAKE_USER
       else:
