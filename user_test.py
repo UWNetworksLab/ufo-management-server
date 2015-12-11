@@ -97,11 +97,11 @@ class UserTest(unittest.TestCase):
   @patch('user._RenderUserDetailsTemplate')
   @patch('user.User.GetByKey')
   @patch('user.User.UpdateKeyPair')
-  def testGetNewTokenHandler(self, mock_update, mock_get_by_key,
-                             mock_render_details):
+  def testGetNewKeyPairHandler(self, mock_update, mock_get_by_key,
+                               mock_render_details):
     mock_get_by_key.return_value = FAKE_USER
 
-    self.testapp.get('/user/getNewToken?key=%s' % FAKE_DS_KEY)
+    self.testapp.get('/user/getNewKeyPair?key=%s' % FAKE_DS_KEY)
 
     mock_update.assert_called_once_with(FAKE_DS_KEY)
     mock_get_by_key.assert_called_once_with(FAKE_DS_KEY)
