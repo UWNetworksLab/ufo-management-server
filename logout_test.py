@@ -1,5 +1,5 @@
+"""Test the logout module."""
 from mock import patch
-
 
 import unittest
 import webtest

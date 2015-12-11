@@ -119,6 +119,7 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerNoParam(self, mock_ds, mock_get_users,
                                     mock_get_by_key, mock_get_user,
                                     mock_render):
+    # pylint: disable=too-many-arguments
     self.testapp.get('/user/add')
 
     mock_ds.assert_not_called()
@@ -135,6 +136,7 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithGroup(self, mock_ds, mock_get_users,
                                       mock_get_by_key, mock_get_user,
                                       mock_render):
+    # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     # Email address could refer to group or user
     group_key = 'foo@bar.mybusiness.com'
@@ -155,6 +157,7 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithUser(self, mock_ds, mock_get_users,
                                      mock_get_by_key, mock_get_user,
                                      mock_render):
+    # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     # Email address could refer to group or user
     user_key = 'foo@bar.mybusiness.com'
@@ -175,6 +178,7 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithAll(self, mock_ds, mock_get_users,
                                     mock_get_by_key, mock_get_user,
                                     mock_render):
+    # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     mock_get_users.return_value = FAKE_USER_ARRAY
     self.testapp.get('/user/add?get_all=true')
@@ -193,6 +197,7 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithError(self, mock_ds, mock_get_users,
                                       mock_get_by_key, mock_get_user,
                                       mock_render):
+    # pylint: disable=too-many-arguments
     fake_status = '404'
     fake_response = MagicMock(status=fake_status)
     fake_content = b'some error content'

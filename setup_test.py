@@ -2,8 +2,6 @@ from mock import MagicMock
 from mock import patch
 import sys
 
-import datastore
-
 import unittest
 import webtest
 
