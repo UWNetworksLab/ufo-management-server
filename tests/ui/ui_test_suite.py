@@ -24,10 +24,10 @@ def MakeSuite(testcase_class):
   """Add the test cases into suites."""
   testloader = unittest.TestLoader()
   test_cases = testloader.getTestCaseNames(testcase_class)
-  suite = unittest.TestSuite()
+  test_suite = unittest.TestSuite()
   for test_case in test_cases:
-    suite.addTest(testcase_class(test_case, args=_ParseArgs()))
-  return suite
+    test_suite.addTest(testcase_class(test_case, args=_ParseArgs()))
+  return test_suite
 
 suite = unittest.TestSuite()
 suite.addTest(MakeSuite(LandingPageTest))

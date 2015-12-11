@@ -25,7 +25,7 @@ class LoginPage(BaseDriver):
   REMEMBER_APPROVAL_MESSAGE = 'Remember this approval for the next 30 days'
 
   def _IsElementPresent(self, locator):
-    """Determines if element is present."""
+    """Determine if element is present."""
     try:
       self.driver.find_element(*locator)
     except NoSuchElementException, e:

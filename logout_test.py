@@ -13,6 +13,8 @@ import logout
 
 class LogoutTest(unittest.TestCase):
 
+  """Test logout module functionality."""
+
   def setUp(self):
     self.testapp = webtest.TestApp(logout.APP)
 

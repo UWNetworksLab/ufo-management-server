@@ -10,6 +10,8 @@ from selenium import webdriver
 
 class UserPageTest(BaseTest):
 
+  """Test user page functionality."""
+
   def setUp(self):
     """Setup for test methods."""
     self.driver = webdriver.Chrome(CHROME_DRIVER_LOCATION)

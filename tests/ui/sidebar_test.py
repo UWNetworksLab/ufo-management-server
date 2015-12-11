@@ -11,6 +11,8 @@ from selenium import webdriver
 
 class SidebarTest(BaseTest):
 
+  """Test sidebar partial page functionality."""
+
   def setUp(self):
     """Setup for test methods."""
     self.driver = webdriver.Chrome(CHROME_DRIVER_LOCATION)

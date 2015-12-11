@@ -17,6 +17,7 @@ import webtest
 # Need to mock the decorator at function definition time, i.e. when the module
 # is loaded. http://stackoverflow.com/a/7667621/2830207
 def noop_decorator(func):
+  """Mock decorator that passes through any function for testing."""
   return func
 
 mock_auth = MagicMock()

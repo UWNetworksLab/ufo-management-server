@@ -11,6 +11,7 @@ from datastore import ProxyServer
 # Need to mock the decorator at function definition time, i.e. when the module
 # is loaded. http://stackoverflow.com/a/7667621/2830207
 def noop_decorator(func):
+  """Mock decorator that passes through any function for testing."""
   return func
 
 mock_admin = MagicMock()
@@ -175,6 +176,7 @@ class ProxyServerTest(unittest.TestCase):
 
 
 def GetFakeProxyServer():
+  """Return an instance of a proxy server with mocked values."""
   return ProxyServer(id=FAKE_ID,
                      name=FAKE_NAME,
                      ip_address=FAKE_IP_ADDRESS,
