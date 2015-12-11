@@ -93,6 +93,7 @@ function addChromeDriver ()
 {
   runAndAssertCmd "wget $CHROME_DRIVER_LOCATION"
   runAndAssertCmd "unzip $CHROME_DRIVER_FILE"
+  runAndAssertCmd "rm $CHROME_DRIVER_FILE"
   runAndAssertCmd "chmod +x chromedriver"
   runAndAssertCmd "mv chromedriver lib"
 }
