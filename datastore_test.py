@@ -312,10 +312,10 @@ class ProxyServerDatastoreTest(DatastoreTest):
     self.assertEqual(datastore.ProxyServer.GetCount(), 1)
     proxys_after_insert = datastore.ProxyServer.GetAll()
     for proxy in proxys_after_insert:
-        self.assertEqual(proxy.name, FAKE_PROXY_SERVER_NAME)
-        self.assertEqual(proxy.ip_address, FAKE_IP)
-        self.assertEqual(proxy.ssh_private_key, FAKE_SSH_PRI_KEY)
-        self.assertEqual(proxy.fingerprint, FAKE_FINGERPRINT)
+      self.assertEqual(proxy.name, FAKE_PROXY_SERVER_NAME)
+      self.assertEqual(proxy.ip_address, FAKE_IP)
+      self.assertEqual(proxy.ssh_private_key, FAKE_SSH_PRI_KEY)
+      self.assertEqual(proxy.fingerprint, FAKE_FINGERPRINT)
 
   def testUpdate(self):
     bad_proxy = datastore.ProxyServer(name=BAD_PROXY_SERVER_NAME,
@@ -374,9 +374,9 @@ class OAuthDatastoreTest(DatastoreTest):
     self.assertEqual(datastore.OAuth.GetCount(), 1)
     oauth_after_insert = datastore.OAuth.GetAll()
     for client in oauth_after_insert:
-        self.assertEqual(client.key.id(), datastore.OAuth.CLIENT_SECRET_ID)
-        self.assertEqual(client.client_id, datastore.OAuth.DEFAULT_ID)
-        self.assertEqual(client.client_secret, datastore.OAuth.DEFAULT_SECRET)
+      self.assertEqual(client.key.id(), datastore.OAuth.CLIENT_SECRET_ID)
+      self.assertEqual(client.client_id, datastore.OAuth.DEFAULT_ID)
+      self.assertEqual(client.client_secret, datastore.OAuth.DEFAULT_SECRET)
 
   def testInsert(self):
     self.assertEqual(datastore.OAuth.GetCount(), 0)
@@ -386,9 +386,9 @@ class OAuthDatastoreTest(DatastoreTest):
     self.assertEqual(datastore.OAuth.GetCount(), 1)
     oauth_after_insert = datastore.OAuth.GetAll()
     for client in oauth_after_insert:
-        self.assertEqual(client.key.id(), datastore.OAuth.CLIENT_SECRET_ID)
-        self.assertEqual(client.client_id, FAKE_CLIENT_ID)
-        self.assertEqual(client.client_secret, FAKE_CLIENT_SECRET)
+      self.assertEqual(client.key.id(), datastore.OAuth.CLIENT_SECRET_ID)
+      self.assertEqual(client.client_id, FAKE_CLIENT_ID)
+      self.assertEqual(client.client_secret, FAKE_CLIENT_SECRET)
 
   def testUpdate(self):
     datastore.OAuth.Insert(BAD_CLIENT_ID, BAD_CLIENT_SECRET)

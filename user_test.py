@@ -383,4 +383,4 @@ class UserTest(unittest.TestCase):
     self.assertTrue(invite_code_ip in fake_ip_list)
 
 if __name__ == '__main__':
-    unittest.main()
+  unittest.main()
