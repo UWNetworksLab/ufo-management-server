@@ -7,6 +7,7 @@ from datastore import User
 from datastore import ProxyServer
 from googleapiclient import errors
 from google.appengine.ext import ndb
+import google_directory_service
 import hashlib
 import json
 
@@ -132,7 +133,7 @@ class UserTest(unittest.TestCase):
   @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
-  @patch('google_directory_service.GoogleDirectoryService.__init__')
+  @patch.object(google_directory_service.GoogleDirectoryService, '__init__')
   def testAddUsersGetHandlerWithGroup(self, mock_ds, mock_get_users,
                                       mock_get_by_key, mock_get_user,
                                       mock_render):
