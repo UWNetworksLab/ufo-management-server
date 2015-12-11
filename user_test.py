@@ -321,7 +321,7 @@ class UserTest(unittest.TestCase):
     self.assertEquals('Invite Code Below' in user_details_template, False)
 
   @patch.object(user.User, 'key')
-  def testRenderUserDetailsTemplateWithInviteCode(self, mock_url_key):
+  def testRenderUserDetailsWithCode(self, mock_url_key):
     fake_invite_code = 'foo bar baz in base64 blob'
     mock_url_key.urlsafe.return_value = FAKE_DS_KEY
 
