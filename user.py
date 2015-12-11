@@ -199,15 +199,15 @@ class GetInviteCodeHandler(webapp2.RequestHandler):
     self.response.write(_RenderUserDetailsTemplate(user, invite_code))
 
 
-class GetNewTokenHandler(webapp2.RequestHandler):
+class GetNewKeyPairHandler(webapp2.RequestHandler):
 
-  """Create a new token for a given user."""
+  """Create a new key pair for a given user."""
 
   # pylint: disable=too-few-public-methods
 
   @OAUTH_DECORATOR.oauth_required
   def get(self):
-    """Find the user matching the specified key and generate a new token."""
+    """Find the user matching the specified key and generate a new key pair."""
     urlsafe_key = self.request.get('key')
     User.UpdateKeyPair(urlsafe_key)
     user = User.GetByKey(urlsafe_key)
@@ -300,7 +300,7 @@ APP = webapp2.WSGIApplication([
     ('/user', ListUsersHandler),
     ('/user/delete', DeleteUserHandler),
     ('/user/getInviteCode', GetInviteCodeHandler),
-    ('/user/getNewToken', GetNewTokenHandler),
+    ('/user/getNewKeyPair', GetNewKeyPairHandler),
     ('/user/add', AddUsersHandler),
     ('/user/toggleRevoked', ToggleKeyRevokedHandler),
     ('/user/details', GetUserDetailsHandler),
