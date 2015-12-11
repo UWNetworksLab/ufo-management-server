@@ -1,12 +1,7 @@
-from mock import MagicMock
 from mock import patch
-import sys
 
-from datastore import User
-from datastore import OAuth
 
 import unittest
-import webapp2
 import webtest
 import logout
 

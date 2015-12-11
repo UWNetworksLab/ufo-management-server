@@ -4,6 +4,7 @@ from sidebar import Sidebar
 from selenium.webdriver.common.by import By
 
 class UserPage(BaseDriver):
+
   """User page action methods and locators."""
 
   ADD_USERS_LINK = (By.ID, 'add_users')

@@ -4,6 +4,7 @@ from sidebar import Sidebar
 from selenium.webdriver.common.by import By
 
 class LandingPage(BaseDriver):
+
   """Home page action methods and locators."""
 
   TITLE = (By.TAG_NAME, 'h2')

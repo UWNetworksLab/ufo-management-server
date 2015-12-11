@@ -2,12 +2,9 @@ from mock import MagicMock
 from mock import patch
 import sys
 
-from datastore import User
-from datastore import OAuth
+import datastore
 
-import json
 import unittest
-import webapp2
 import webtest
 
 # Need to mock the decorator at function definition time, i.e. when the module
@@ -65,9 +62,9 @@ class SetupTest(unittest.TestCase):
     mock_get_count.return_value = 1
     post_url = ('/setup?client_id={0}&client_secret={1}' +
                 '&dv_content={2}')
-    resp = self.testapp.post(post_url.format(unicode(FAKE_ID,'utf-8'),
-                                             unicode(FAKE_SECRET,'utf-8'),
-                                             unicode(FAKE_CONTENT,'utf-8')))
+    resp = self.testapp.post(post_url.format(unicode(FAKE_ID, 'utf-8'),
+                                             unicode(FAKE_SECRET, 'utf-8'),
+                                             unicode(FAKE_CONTENT, 'utf-8')))
     mock_oauth_update.assert_called_once_with(FAKE_ID, FAKE_SECRET)
     mock_flush.assert_called_once_with()
     mock_dv_update.assert_called_once_with(FAKE_CONTENT)
@@ -86,9 +83,9 @@ class SetupTest(unittest.TestCase):
     mock_get_count.return_value = 0
     post_url = ('/setup?client_id={0}&client_secret={1}' +
                 '&dv_content={2}')
-    resp = self.testapp.post(post_url.format(unicode(FAKE_ID,'utf-8'),
-                                             unicode(FAKE_SECRET,'utf-8'),
-                                             unicode(FAKE_CONTENT,'utf-8')))
+    resp = self.testapp.post(post_url.format(unicode(FAKE_ID, 'utf-8'),
+                                             unicode(FAKE_SECRET, 'utf-8'),
+                                             unicode(FAKE_CONTENT, 'utf-8')))
     mock_oauth_update.assert_called_once_with(FAKE_ID, FAKE_SECRET)
     mock_flush.assert_called_once_with()
     mock_dv_update.assert_called_once_with(FAKE_CONTENT)

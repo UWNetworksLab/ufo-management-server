@@ -4,7 +4,6 @@ import sys
 
 import base64
 from datastore import User
-from datastore import ProxyServer
 from googleapiclient import errors
 from google.appengine.ext import ndb
 import google_directory_service
@@ -12,7 +11,6 @@ import hashlib
 import json
 
 import unittest
-import webapp2
 import webtest
 
 # Need to mock the decorator at function definition time, i.e. when the module
@@ -121,7 +119,7 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerNoParam(self, mock_ds, mock_get_users,
                                     mock_get_by_key, mock_get_user,
                                     mock_render):
-    response = self.testapp.get('/user/add')
+    self.testapp.get('/user/add')
 
     mock_ds.assert_not_called()
     mock_get_users.assert_not_called()
@@ -141,7 +139,7 @@ class UserTest(unittest.TestCase):
     # Email address could refer to group or user
     group_key = 'foo@bar.mybusiness.com'
     mock_get_by_key.return_value = FAKE_USER_ARRAY
-    response = self.testapp.get('/user/add?group_key=' + group_key)
+    self.testapp.get('/user/add?group_key=' + group_key)
 
     mock_get_users.assert_not_called()
     mock_get_user.assert_not_called()
@@ -161,7 +159,7 @@ class UserTest(unittest.TestCase):
     # Email address could refer to group or user
     user_key = 'foo@bar.mybusiness.com'
     mock_get_user.return_value = FAKE_USER_ARRAY
-    response = self.testapp.get('/user/add?user_key=' + user_key)
+    self.testapp.get('/user/add?user_key=' + user_key)
 
     mock_get_users.assert_not_called()
     mock_get_by_key.assert_not_called()
@@ -179,7 +177,7 @@ class UserTest(unittest.TestCase):
                                     mock_render):
     mock_ds.return_value = None
     mock_get_users.return_value = FAKE_USER_ARRAY
-    response = self.testapp.get('/user/add?get_all=true')
+    self.testapp.get('/user/add?get_all=true')
 
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
@@ -201,7 +199,7 @@ class UserTest(unittest.TestCase):
     fake_error = errors.HttpError(fake_response, fake_content)
     mock_ds.side_effect = fake_error
     mock_get_users.return_value = FAKE_USER_ARRAY
-    response = self.testapp.get('/user/add?get_all=true')
+    self.testapp.get('/user/add?get_all=true')
 
     mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
     mock_get_by_key.assert_not_called()

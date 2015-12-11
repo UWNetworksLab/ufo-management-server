@@ -2,7 +2,6 @@ from base_driver import BaseDriver
 
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -10,6 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 class LoginPage(BaseDriver):
+
   """The Google login page (not the fake dev server login)."""
 
   # pylint: disable=too-few-public-methods
@@ -28,7 +28,7 @@ class LoginPage(BaseDriver):
     """Determine if element is present."""
     try:
       self.driver.find_element(*locator)
-    except NoSuchElementException, e:
+    except NoSuchElementException:
       return False
     return True
 

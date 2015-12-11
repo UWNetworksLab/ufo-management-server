@@ -3,6 +3,7 @@ from base_driver import BaseDriver
 from selenium.webdriver.common.by import By
 
 class Sidebar(BaseDriver):
+
   """Sidebar action methods and locators."""
 
   # pylint: disable=too-few-public-methods

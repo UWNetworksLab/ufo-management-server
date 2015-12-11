@@ -4,7 +4,6 @@ from base_test import BaseTest
 from login_page import LoginPage
 from sidebar import Sidebar
 from test_config import CHROME_DRIVER_LOCATION
-from user_page import UserPage
 
 from selenium import webdriver
 
