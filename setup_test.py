@@ -43,6 +43,8 @@ FAKE_CONTENT = 'foobar'
 
 class SetupTest(unittest.TestCase):
 
+  """Test setup module functionality."""
+
   def setUp(self):
     self.testapp = webtest.TestApp(setup.APP)
 

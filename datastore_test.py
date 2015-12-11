@@ -54,6 +54,8 @@ BAD_CONTENT = 'bar'
 
 class DatastoreTest(unittest.TestCase):
 
+  """Test basic datastore module functionality."""
+
   def setUp(self):
     # First, create an instance of the Testbed class.
     self.testbed = testbed.Testbed()
@@ -174,6 +176,8 @@ class DatastoreTest(unittest.TestCase):
 
 class UserDatastoreTest(DatastoreTest):
 
+  """Test user datastore class functionality."""
+
   @patch.object(ndb, 'Key')
   @patch('hashlib.sha256.hexdigest')
   @patch.object(datastore.hashlib, 'sha256')
@@ -264,12 +268,13 @@ class UserDatastoreTest(DatastoreTest):
   @patch('datastore.User._GenerateKeyPair')
   @patch('datastore.User._CreateUser')
   def testInsertUsers(self, mock_create, mock_generate):
-    # Mock create function to return FAKE_USER and USER_BAD_KEY
-    def side_effect(arg1, arg2):
-        if arg1 is FAKE_DIRECTORY_USER:
-            return FAKE_USER
-        else:
-            return USER_BAD_KEY
+    """Test the insert users function."""
+    def side_effect(arg1):
+      """Mock create function to return FAKE_USER and USER_BAD_KEY."""
+      if arg1 is FAKE_DIRECTORY_USER:
+        return FAKE_USER
+      else:
+        return USER_BAD_KEY
     mock_create.side_effect = side_effect
     mock_generate.return_value = FAKE_KEY_PAIR
     # Create a list of directory users
@@ -294,6 +299,8 @@ class UserDatastoreTest(DatastoreTest):
 
 
 class ProxyServerDatastoreTest(DatastoreTest):
+
+  """Test proxy server datastore class functionality."""
 
   def testInsert(self):
     self.assertEqual(datastore.ProxyServer.GetCount(), 0)
@@ -336,6 +343,8 @@ class ProxyServerDatastoreTest(DatastoreTest):
 
 
 class OAuthDatastoreTest(DatastoreTest):
+
+  """Test oauth datastore class functionality."""
 
   def testGetOrInsertDefault(self):
     self.assertEqual(datastore.OAuth.GetCount(), 0)
@@ -397,11 +406,14 @@ class OAuthDatastoreTest(DatastoreTest):
 
   @patch('datastore.memcache.flush_all')
   def testFlush(self, mock_flush_all):
+    # pylint: disable=no-self-use
     datastore.OAuth.Flush()
 
     mock_flush_all.assert_called_once_with()
 
 class DomainVerificationDatastoreTest(DatastoreTest):
+
+  """Test domain verification datastore class functionality."""
 
   def testGetOrInsertDefault(self):
     self.assertEqual(DomainVerification.GetCount(), 0)

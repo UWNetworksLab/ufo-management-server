@@ -5,6 +5,8 @@ from selenium.webdriver.common.by import By
 class Sidebar(BaseDriver):
   """Sidebar action methods and locators."""
 
+  # pylint: disable=too-few-public-methods
+
   SIDEBAR = (By.TAG_NAME, 'ufo-sidebar')
 
   HOME_LINK = (By.ID, 'Home')

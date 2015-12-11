@@ -58,11 +58,15 @@ FAKE_USER_ARRAY.append(FAKE_ADD_USER)
 
 class UserTest(unittest.TestCase):
 
+  """Test user module functionality."""
+
+  # pylint: disable=too-many-public-methods
+
   def setUp(self):
     self.testapp = webtest.TestApp(user.APP)
 
   @patch('user._RenderLandingTemplate')
-  def testListUsersHandler(self, mock_landing_template):
+  def testLandingPageHandler(self, mock_landing_template):
     self.testapp.get('/')
     mock_landing_template.assert_called_once_with()
 

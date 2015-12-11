@@ -12,6 +12,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 class LoginPage(BaseDriver):
   """The Google login page (not the fake dev server login)."""
 
+  # pylint: disable=too-few-public-methods
+
   EMAIL_INPUT = (By.ID, 'Email')
   NEXT_BUTTON = (By.ID, 'next')
   PASSWORD_INPUT = (By.ID, 'Passwd')
