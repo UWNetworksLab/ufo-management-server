@@ -63,11 +63,18 @@ function runAndAssertCmd ()
 
 function runInUfOAndAssertCmd ()
 {
-    echo "Running: $1"
+  echo "Running: $1"
+  # We use set -e to make sure this will fail if the command returns an error
+  # code.
+  if [ -d  "$UFO_MS_LOCAL_OTHER_LIB" ]; then
+    echo "In: $UFO_MS_LOCAL_OTHER_LIB"
     echo
-    # We use set -e to make sure this will fail if the command returns an error
-    # code.
+    set -e && cd $UFO_MS_LOCAL_OTHER_LIB && eval $1
+  else
+    echo "In: $UFO_MS_LOCAL_DIR"
+    echo
     set -e && cd $UFO_MS_LOCAL_DIR && eval $1
+  fi
 }
 
 function setupAppEngine ()
@@ -120,25 +127,35 @@ function addNode ()
 {
   runAndAssertCmd "apt-get install nodejs"
   runAndAssertCmd "apt-get install npm"
+  NODE_SYM_FILE="/usr/bin/node"
+  if [ ! -e  "$NODE_SYM_FILE" ] && [ "$(id -u)" == "0" ]; then
+    runAndAssertCmd "ln -s /usr/bin/nodejs $NODE_SYM_FILE"
+  fi
 }
 
 function addBower ()
 {
   runAndAssertCmd "npm install -g bower"
-  # May need the following if node doesn't install correctly.
-  # runAndAssertCmd "ln -s /usr/bin/nodejs /usr/bin/node"
-  runInUfOAndAssertCmd "bower install"
+  BOWER_LOCATION="/usr/local/bin/bower"
+  BOWER_OPTIONS="--allow-root --config.interactive=false"
+  if [ -e  "$BOWER_LOCATION" ]; then
+    runInUfOAndAssertCmd "$BOWER_LOCATION install $BOWER_OPTIONS"
+  else
+    runInUfOAndAssertCmd "bower install $BOWER_OPTIONS"
+  fi
 }
 
 function setupDevelopmentEnvironment ()
 {
   fixDirectoryEnvironment
   if [ ! -d  "$AE_PYTHON_LOCAL_DIR" ] && [ ! -d  "$AE_PYTHON_UP" ]; then
+    runAndAssertCmd "apt-get install wget"
     setupAppEngine
     addVendorPackage
     addAppEngineRuntimePackages
     addAllExports
     addTestingPackages
+    runAndAssertCmd "chown -R ${SUDO_USER:-$USER} *"
     addNode
     addBower
   else
@@ -248,9 +265,7 @@ function deploy ()
   fi
 
   if [ ! -z  "$AE_FILE" ]; then
-    # TODO(eholder): Update this to take a parameter so that it will update
-    # whatever we say rather than one specific instance.
-    runAndAssertCmd "$AE_FILE -A ufo-management-server-staging update $UFO_DIR"
+    runAndAssertCmd "$AE_FILE -A $DEPLOYMENT_SERVER update $UFO_DIR"
   fi
 }
 
@@ -277,6 +292,16 @@ function printHelp ()
   echo "  setup        - Prepares the machine for development and testing."
   echo "  clean        - Remove existing dependency setup."
   echo
+  echo
+  echo "It is recommended to run setup as root to ensure correct installation."
+  echo "Example: sudo ./setup.sh setup"
+  echo
+  echo "The deploy command takes an optional second argument as follows:"
+  echo "deploy appspot-project-id-goes-here"
+  echo "Example: ./setup.sh deploy ufo-management-server-staging"
+  echo "Which uploads your code over top of the instance at this address:"
+  echo "https://ufo-management-server-staging.appspot.com/"
+  echo "The default value is ufo-management-server-staging."
   echo
   echo "If you're having trouble with dependencies and installing, try this:"
   echo "sudo ./setup.sh clean"
@@ -331,6 +356,7 @@ if [ "$1" == 'install' ]; then
 elif [ "$1" == 'release' ]; then
   release
 elif [ "$1" == 'deploy' ]; then
+  DEPLOYMENT_SERVER=${2:-ufo-management-server-staging}
   deploy
 elif [ "$1" == 'travis' ]; then
   testOntravis

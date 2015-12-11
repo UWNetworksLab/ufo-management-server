@@ -52,19 +52,22 @@ modify (`/usr/local`) to being editable by your user (`sudo chown -R $USER /usr/
  1. Navigate into UfO's root directory with `cd ufo-management-server`
 
  1. Setup build tools and third-party dependencies, run `./setup.sh setup`
+   * In environments where install permissions may be an issue, it is recommended to run this command as root so that it works cleanly the first time, such as `sudo ./setup.sh setup`
 
 #### Setup with Setup.sh
 
  If you already have the setup.sh script but do not have the rest of the code base, this flow is much simpler.
 
  1. Run `./setup.sh install`
+   * In environments where install permissions may be an issue, it is recommended to run this command as root so that it works cleanly the first time, such as `sudo ./setup.sh install`
 
 #### Note About Dependency Changes
 
 Note that if any local dependencies have changed (i.e. changes to bower dependencies, updates to pip packages, releases of appengine), you will have to add the new dependency manually or reset completely with the script. To reset with the script, perform the following:
 
- 1. Run `sudo ./setup.sh clean`
+ 1. Run `./setup.sh clean`
  1. Run `./setup.sh setup`
+   * In environments where install and delete permissions may be an issue, it is recommended to run both of these commands as root so that it works cleanly the first time, such as `sudo ./setup.sh clean` and `sudo ./setup.sh setup`
 
 ### Setting Up OAuth
 
