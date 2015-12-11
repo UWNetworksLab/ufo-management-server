@@ -1,3 +1,4 @@
+"""Landing page module for testing."""
 from base_driver import BaseDriver
 from sidebar import Sidebar
 

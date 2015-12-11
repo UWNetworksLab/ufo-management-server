@@ -1,3 +1,4 @@
+"""Login page module to log a user in for testing."""
 from base_driver import BaseDriver
 
 from selenium.common.exceptions import NoSuchElementException

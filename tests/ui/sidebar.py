@@ -1,3 +1,4 @@
+"""Sidebar module to get links for testing."""
 from base_driver import BaseDriver
 
 from selenium.webdriver.common.by import By

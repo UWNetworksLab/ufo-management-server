@@ -1,3 +1,5 @@
+"""Test base module functionality."""
+
 import unittest
 
 class BaseTest(unittest.TestCase):

@@ -1,3 +1,4 @@
+"""Test datastore module functionality."""
 import unittest
 
 from mock import patch
@@ -54,7 +55,7 @@ BAD_CONTENT = 'bar'
 
 class DatastoreTest(unittest.TestCase):
 
-  """Test basic datastore module functionality."""
+  """Test basic datastore class functionality."""
 
   def setUp(self):
     # First, create an instance of the Testbed class.
@@ -269,14 +270,14 @@ class UserDatastoreTest(DatastoreTest):
   @patch('datastore.User._CreateUser')
   def testInsertUsers(self, mock_create, mock_generate):
     """Test the insert users function."""
-    def side_effect(arg1, arg2):
+    def SideEffect(arg1, arg2):
       """Mock create function to return FAKE_USER and USER_BAD_KEY."""
       # pylint: disable=unused-argument
       if arg1 is FAKE_DIRECTORY_USER:
         return FAKE_USER
       else:
         return USER_BAD_KEY
-    mock_create.side_effect = side_effect
+    mock_create.side_effect = SideEffect
     mock_generate.return_value = FAKE_KEY_PAIR
     # Create a list of directory users
     directory_users = []

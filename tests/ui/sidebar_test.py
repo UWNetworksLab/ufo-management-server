@@ -1,3 +1,4 @@
+"""Test sidebar module functionality."""
 import unittest
 
 from base_test import BaseTest

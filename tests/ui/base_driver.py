@@ -1,3 +1,5 @@
+"""Base driver module to inherit from."""
+
 class BaseDriver(object):
 
   """Base driver that will be called from all pages and elements."""

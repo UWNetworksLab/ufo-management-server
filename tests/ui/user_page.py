@@ -1,3 +1,4 @@
+"""User page module functionality for getting elements for testing."""
 from base_driver import BaseDriver
 from sidebar import Sidebar
 

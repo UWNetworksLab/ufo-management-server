@@ -1,3 +1,4 @@
+"""Test user module functionality."""
 from mock import MagicMock
 from mock import patch
 import sys
@@ -15,21 +16,21 @@ import webtest
 
 # Need to mock the decorator at function definition time, i.e. when the module
 # is loaded. http://stackoverflow.com/a/7667621/2830207
-def noop_decorator(func):
+def NoOpDecorator(func):
   """Mock decorator that passes through any function for testing."""
   return func
 
-mock_auth = MagicMock()
-mock_auth.OAUTH_DECORATOR.oauth_required = noop_decorator
-sys.modules['auth'] = mock_auth
+MOCK_AUTH = MagicMock()
+MOCK_AUTH.OAUTH_DECORATOR.oauth_required = NoOpDecorator
+sys.modules['auth'] = MOCK_AUTH
 
-mock_xsrf = MagicMock()
-mock_xsrf.XSRFProtect = noop_decorator
-sys.modules['xsrf'] = mock_xsrf
+MOCK_XSRF = MagicMock()
+MOCK_XSRF.XSRFProtect = NoOpDecorator
+sys.modules['xsrf'] = MOCK_XSRF
 
-mock_admin = MagicMock()
-mock_admin.RequireAdmin = noop_decorator
-sys.modules['admin'] = mock_admin
+MOCK_ADMIN = MagicMock()
+MOCK_ADMIN.RequireAdmin = NoOpDecorator
+sys.modules['admin'] = MOCK_ADMIN
 
 import user
 
@@ -58,7 +59,7 @@ FAKE_USER_ARRAY.append(FAKE_ADD_USER)
 
 class UserTest(unittest.TestCase):
 
-  """Test user module functionality."""
+  """Test user class functionality."""
 
   # pylint: disable=too-many-public-methods
 
@@ -145,7 +146,7 @@ class UserTest(unittest.TestCase):
 
     mock_get_users.assert_not_called()
     mock_get_user.assert_not_called()
-    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_AUTH.OAUTH_DECORATOR)
     mock_get_by_key.assert_called_once_with(group_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -166,7 +167,7 @@ class UserTest(unittest.TestCase):
 
     mock_get_users.assert_not_called()
     mock_get_by_key.assert_not_called()
-    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_AUTH.OAUTH_DECORATOR)
     mock_get_user.assert_called_once_with(user_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -185,7 +186,7 @@ class UserTest(unittest.TestCase):
 
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
-    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_AUTH.OAUTH_DECORATOR)
     mock_get_users.assert_called_once_with()
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -206,7 +207,7 @@ class UserTest(unittest.TestCase):
     mock_get_users.return_value = FAKE_USER_ARRAY
     self.testapp.get('/user/add?get_all=true')
 
-    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_AUTH.OAUTH_DECORATOR)
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
     mock_get_users.assert_not_called()
@@ -286,20 +287,20 @@ class UserTest(unittest.TestCase):
     mock_domain_verif.assert_called_once_with()
     self.assertTrue(fake_content in landing_template)
 
-  def testRenderAddUsersTemplateWithNoUsers(self):
+  def testRenderAddUsersWithNoUsers(self):
     add_users_template = user._RenderAddUsersTemplate([])
     no_user_string = 'No users found. Try another query below.'
     self.assertTrue(no_user_string in add_users_template)
     self.assertTrue('xsrf' not in add_users_template)
     self.assertTrue('An error occurred while' not in add_users_template)
 
-  def testRenderAddUsersTemplateWithSomeUsers(self):
+  def testRenderAddUsersWithUsers(self):
     add_users_template = user._RenderAddUsersTemplate(FAKE_USER_ARRAY)
     self.assertTrue('Add Selected Users' in add_users_template)
     self.assertTrue('xsrf' in add_users_template)
     self.assertTrue('An error occurred while' not in add_users_template)
 
-  def testRenderAddUsersTemplateWithError(self):
+  def testRenderAddUsersWithError(self):
     fake_error = 'foo bar happened causing baz'
     add_users_template = user._RenderAddUsersTemplate([], fake_error)
     self.assertTrue('An error occurred while' in add_users_template)

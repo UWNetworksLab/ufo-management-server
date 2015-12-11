@@ -1,3 +1,4 @@
+"""Test proxy server module functionality."""
 import sys
 import unittest
 
@@ -10,17 +11,17 @@ from datastore import ProxyServer
 
 # Need to mock the decorator at function definition time, i.e. when the module
 # is loaded. http://stackoverflow.com/a/7667621/2830207
-def noop_decorator(func):
+def NoOpDecorator(func):
   """Mock decorator that passes through any function for testing."""
   return func
 
-mock_admin = MagicMock()
-mock_admin.RequireAdmin = noop_decorator
-sys.modules['admin'] = mock_admin
+MOCK_ADMIN = MagicMock()
+MOCK_ADMIN.RequireAdmin = NoOpDecorator
+sys.modules['admin'] = MOCK_ADMIN
 
-mock_xsrf = MagicMock()
-mock_xsrf.XSRFProtect = noop_decorator
-sys.modules['xsrf'] = mock_xsrf
+MOCK_XSRF = MagicMock()
+MOCK_XSRF.XSRFProtect = NoOpDecorator
+sys.modules['xsrf'] = MOCK_XSRF
 
 
 import proxy_server
@@ -34,7 +35,7 @@ FAKE_FINGERPRINT = '11:22:33:44'
 
 class ProxyServerTest(unittest.TestCase):
 
-  """Test proxy server module functionality."""
+  """Test proxy server class functionality."""
 
   def setUp(self):
     self.testapp = webtest.TestApp(proxy_server.APP)
