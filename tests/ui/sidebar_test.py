@@ -1,6 +1,7 @@
 import unittest
 
-from login_page import DevServerLoginPage
+from base_test import BaseTest
+from login_page import LoginPage
 from sidebar import Sidebar
 from test_config import CHROME_DRIVER_LOCATION
 from user_page import UserPage
@@ -8,13 +9,15 @@ from user_page import UserPage
 from selenium import webdriver
 
 
-class SidebarTest(unittest.TestCase):
+class SidebarTest(BaseTest):
 
   def setUp(self):
+    """Setup for test methods."""
     self.driver = webdriver.Chrome(CHROME_DRIVER_LOCATION)
-    DevServerLoginPage(self.driver).Login()
+    LoginPage(self.driver).Login(self.args)
 
   def testLinks(self):
+    """Make sure all the links are pointed to the correct paths."""
     sidebar = Sidebar(self.driver)
     home_link = sidebar.GetLink(sidebar.HOME_LINK)
     # TODO: Make the path to be importable.
@@ -33,6 +36,7 @@ class SidebarTest(unittest.TestCase):
     self.assertEquals('/logout', logout_link.get_attribute('data-href'))
 
   def tearDown(self):
+    """Teardown for test methods."""
     self.driver.quit()
 
 
