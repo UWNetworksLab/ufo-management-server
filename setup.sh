@@ -79,7 +79,6 @@ function runInUfOAndAssertCmd ()
 
 function setupAppEngine ()
 {
-  runAndAssertCmd "apt-get install wget"
   runAndAssertCmd "wget $AE_PYTHON_REMOTE_FILE"
   runAndAssertCmd "unzip $AE_PYTHON_ZIP_NAME"
   runAndAssertCmd "rm -fr $AE_PYTHON_ZIP_NAME"
@@ -149,6 +148,7 @@ function setupDevelopmentEnvironment ()
 {
   fixDirectoryEnvironment
   if [ ! -d  "$AE_PYTHON_LOCAL_DIR" ] && [ ! -d  "$AE_PYTHON_UP" ]; then
+    runAndAssertCmd "apt-get install wget"
     setupAppEngine
     addVendorPackage
     addAppEngineRuntimePackages
