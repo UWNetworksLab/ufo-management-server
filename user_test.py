@@ -1,35 +1,36 @@
+"""Test user module functionality."""
 from mock import MagicMock
 from mock import patch
 import sys
 
 import base64
 from datastore import User
-from datastore import ProxyServer
 from googleapiclient import errors
 from google.appengine.ext import ndb
+import google_directory_service
 import hashlib
 import json
 
 import unittest
-import webapp2
 import webtest
 
 # Need to mock the decorator at function definition time, i.e. when the module
 # is loaded. http://stackoverflow.com/a/7667621/2830207
-def noop_decorator(func):
+def NoOpDecorator(func):
+  """Mock decorator that passes through any function for testing."""
   return func
 
-mock_auth = MagicMock()
-mock_auth.OAUTH_DECORATOR.oauth_required = noop_decorator
-sys.modules['auth'] = mock_auth
+MOCK_AUTH = MagicMock()
+MOCK_AUTH.OAUTH_DECORATOR.oauth_required = NoOpDecorator
+sys.modules['auth'] = MOCK_AUTH
 
-mock_xsrf = MagicMock()
-mock_xsrf.XSRFProtect = noop_decorator
-sys.modules['xsrf'] = mock_xsrf
+MOCK_XSRF = MagicMock()
+MOCK_XSRF.XSRFProtect = NoOpDecorator
+sys.modules['xsrf'] = MOCK_XSRF
 
-mock_admin = MagicMock()
-mock_admin.RequireAdmin = noop_decorator
-sys.modules['admin'] = mock_admin
+MOCK_ADMIN = MagicMock()
+MOCK_ADMIN.RequireAdmin = NoOpDecorator
+sys.modules['admin'] = MOCK_ADMIN
 
 import user
 
@@ -58,11 +59,15 @@ FAKE_USER_ARRAY.append(FAKE_ADD_USER)
 
 class UserTest(unittest.TestCase):
 
+  """Test user class functionality."""
+
+  # pylint: disable=too-many-public-methods
+
   def setUp(self):
     self.testapp = webtest.TestApp(user.APP)
 
   @patch('user._RenderLandingTemplate')
-  def testListUsersHandler(self, mock_landing_template):
+  def testLandingPageHandler(self, mock_landing_template):
     self.testapp.get('/')
     mock_landing_template.assert_called_once_with()
 
@@ -115,7 +120,8 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerNoParam(self, mock_ds, mock_get_users,
                                     mock_get_by_key, mock_get_user,
                                     mock_render):
-    response = self.testapp.get('/user/add')
+    # pylint: disable=too-many-arguments
+    self.testapp.get('/user/add')
 
     mock_ds.assert_not_called()
     mock_get_users.assert_not_called()
@@ -127,19 +133,20 @@ class UserTest(unittest.TestCase):
   @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
-  @patch('google_directory_service.GoogleDirectoryService.__init__')
+  @patch.object(google_directory_service.GoogleDirectoryService, '__init__')
   def testAddUsersGetHandlerWithGroup(self, mock_ds, mock_get_users,
                                       mock_get_by_key, mock_get_user,
                                       mock_render):
+    # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     # Email address could refer to group or user
     group_key = 'foo@bar.mybusiness.com'
     mock_get_by_key.return_value = FAKE_USER_ARRAY
-    response = self.testapp.get('/user/add?group_key=' + group_key)
+    self.testapp.get('/user/add?group_key=' + group_key)
 
     mock_get_users.assert_not_called()
     mock_get_user.assert_not_called()
-    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_AUTH.OAUTH_DECORATOR)
     mock_get_by_key.assert_called_once_with(group_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -151,15 +158,16 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithUser(self, mock_ds, mock_get_users,
                                      mock_get_by_key, mock_get_user,
                                      mock_render):
+    # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     # Email address could refer to group or user
     user_key = 'foo@bar.mybusiness.com'
     mock_get_user.return_value = FAKE_USER_ARRAY
-    response = self.testapp.get('/user/add?user_key=' + user_key)
+    self.testapp.get('/user/add?user_key=' + user_key)
 
     mock_get_users.assert_not_called()
     mock_get_by_key.assert_not_called()
-    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_AUTH.OAUTH_DECORATOR)
     mock_get_user.assert_called_once_with(user_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -171,13 +179,14 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithAll(self, mock_ds, mock_get_users,
                                     mock_get_by_key, mock_get_user,
                                     mock_render):
+    # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     mock_get_users.return_value = FAKE_USER_ARRAY
-    response = self.testapp.get('/user/add?get_all=true')
+    self.testapp.get('/user/add?get_all=true')
 
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
-    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_AUTH.OAUTH_DECORATOR)
     mock_get_users.assert_called_once_with()
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -189,15 +198,16 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithError(self, mock_ds, mock_get_users,
                                       mock_get_by_key, mock_get_user,
                                       mock_render):
+    # pylint: disable=too-many-arguments
     fake_status = '404'
     fake_response = MagicMock(status=fake_status)
     fake_content = b'some error content'
     fake_error = errors.HttpError(fake_response, fake_content)
     mock_ds.side_effect = fake_error
     mock_get_users.return_value = FAKE_USER_ARRAY
-    response = self.testapp.get('/user/add?get_all=true')
+    self.testapp.get('/user/add?get_all=true')
 
-    mock_ds.assert_called_once_with(mock_auth.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_AUTH.OAUTH_DECORATOR)
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
     mock_get_users.assert_not_called()
@@ -277,27 +287,27 @@ class UserTest(unittest.TestCase):
     mock_domain_verif.assert_called_once_with()
     self.assertTrue(fake_content in landing_template)
 
-  def testRenderAddUsersTemplateWithNoUsers(self):
+  def testRenderAddUsersWithNoUsers(self):
     add_users_template = user._RenderAddUsersTemplate([])
     no_user_string = 'No users found. Try another query below.'
     self.assertTrue(no_user_string in add_users_template)
     self.assertTrue('xsrf' not in add_users_template)
     self.assertTrue('An error occurred while' not in add_users_template)
 
-  def testRenderAddUsersTemplateWithSomeUsers(self):
+  def testRenderAddUsersWithUsers(self):
     add_users_template = user._RenderAddUsersTemplate(FAKE_USER_ARRAY)
     self.assertTrue('Add Selected Users' in add_users_template)
     self.assertTrue('xsrf' in add_users_template)
     self.assertTrue('An error occurred while' not in add_users_template)
 
-  def testRenderAddUsersTemplateWithError(self):
+  def testRenderAddUsersWithError(self):
     fake_error = 'foo bar happened causing baz'
     add_users_template = user._RenderAddUsersTemplate([], fake_error)
     self.assertTrue('An error occurred while' in add_users_template)
     self.assertTrue(fake_error in add_users_template)
 
   @patch.object(user.User, 'key')
-  def testRenderUserDetailsTemplate(self, mock_url_key):
+  def testRenderUserDetailTemplate(self, mock_url_key):
     mock_url_key.urlsafe.return_value = FAKE_DS_KEY
 
     user_details_template = user._RenderUserDetailsTemplate(FAKE_USER)
@@ -311,7 +321,7 @@ class UserTest(unittest.TestCase):
     self.assertEquals('Invite Code Below' in user_details_template, False)
 
   @patch.object(user.User, 'key')
-  def testRenderUserDetailsTemplateWithInviteCode(self, mock_url_key):
+  def testRenderUserDetailInviteCode(self, mock_url_key):
     fake_invite_code = 'foo bar baz in base64 blob'
     mock_url_key.urlsafe.return_value = FAKE_DS_KEY
 
@@ -374,4 +384,4 @@ class UserTest(unittest.TestCase):
     self.assertTrue(invite_code_ip in fake_ip_list)
 
 if __name__ == '__main__':
-    unittest.main()
+  unittest.main()

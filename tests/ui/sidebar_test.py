@@ -1,15 +1,17 @@
+"""Test sidebar module functionality."""
 import unittest
 
 from base_test import BaseTest
 from login_page import LoginPage
 from sidebar import Sidebar
 from test_config import CHROME_DRIVER_LOCATION
-from user_page import UserPage
 
 from selenium import webdriver
 
 
 class SidebarTest(BaseTest):
+
+  """Test sidebar partial page functionality."""
 
   def setUp(self):
     """Setup for test methods."""

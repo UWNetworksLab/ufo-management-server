@@ -1,3 +1,4 @@
+"""Test datastore module functionality."""
 import unittest
 
 from mock import patch
@@ -53,6 +54,8 @@ BAD_CONTENT = 'bar'
 
 
 class DatastoreTest(unittest.TestCase):
+
+  """Test basic datastore class functionality."""
 
   def setUp(self):
     # First, create an instance of the Testbed class.
@@ -174,6 +177,8 @@ class DatastoreTest(unittest.TestCase):
 
 class UserDatastoreTest(DatastoreTest):
 
+  """Test user datastore class functionality."""
+
   @patch.object(ndb, 'Key')
   @patch('hashlib.sha256.hexdigest')
   @patch.object(datastore.hashlib, 'sha256')
@@ -264,13 +269,15 @@ class UserDatastoreTest(DatastoreTest):
   @patch('datastore.User._GenerateKeyPair')
   @patch('datastore.User._CreateUser')
   def testInsertUsers(self, mock_create, mock_generate):
-    # Mock create function to return FAKE_USER and USER_BAD_KEY
-    def side_effect(arg1, arg2):
-        if arg1 is FAKE_DIRECTORY_USER:
-            return FAKE_USER
-        else:
-            return USER_BAD_KEY
-    mock_create.side_effect = side_effect
+    """Test the insert users function."""
+    def SideEffect(arg1, arg2):
+      """Mock create function to return FAKE_USER and USER_BAD_KEY."""
+      # pylint: disable=unused-argument
+      if arg1 is FAKE_DIRECTORY_USER:
+        return FAKE_USER
+      else:
+        return USER_BAD_KEY
+    mock_create.side_effect = SideEffect
     mock_generate.return_value = FAKE_KEY_PAIR
     # Create a list of directory users
     directory_users = []
@@ -295,6 +302,8 @@ class UserDatastoreTest(DatastoreTest):
 
 class ProxyServerDatastoreTest(DatastoreTest):
 
+  """Test proxy server datastore class functionality."""
+
   def testInsert(self):
     self.assertEqual(datastore.ProxyServer.GetCount(), 0)
 
@@ -304,10 +313,10 @@ class ProxyServerDatastoreTest(DatastoreTest):
     self.assertEqual(datastore.ProxyServer.GetCount(), 1)
     proxys_after_insert = datastore.ProxyServer.GetAll()
     for proxy in proxys_after_insert:
-        self.assertEqual(proxy.name, FAKE_PROXY_SERVER_NAME)
-        self.assertEqual(proxy.ip_address, FAKE_IP)
-        self.assertEqual(proxy.ssh_private_key, FAKE_SSH_PRI_KEY)
-        self.assertEqual(proxy.fingerprint, FAKE_FINGERPRINT)
+      self.assertEqual(proxy.name, FAKE_PROXY_SERVER_NAME)
+      self.assertEqual(proxy.ip_address, FAKE_IP)
+      self.assertEqual(proxy.ssh_private_key, FAKE_SSH_PRI_KEY)
+      self.assertEqual(proxy.fingerprint, FAKE_FINGERPRINT)
 
   def testUpdate(self):
     bad_proxy = datastore.ProxyServer(name=BAD_PROXY_SERVER_NAME,
@@ -337,6 +346,8 @@ class ProxyServerDatastoreTest(DatastoreTest):
 
 class OAuthDatastoreTest(DatastoreTest):
 
+  """Test oauth datastore class functionality."""
+
   def testGetOrInsertDefault(self):
     self.assertEqual(datastore.OAuth.GetCount(), 0)
 
@@ -364,9 +375,9 @@ class OAuthDatastoreTest(DatastoreTest):
     self.assertEqual(datastore.OAuth.GetCount(), 1)
     oauth_after_insert = datastore.OAuth.GetAll()
     for client in oauth_after_insert:
-        self.assertEqual(client.key.id(), datastore.OAuth.CLIENT_SECRET_ID)
-        self.assertEqual(client.client_id, datastore.OAuth.DEFAULT_ID)
-        self.assertEqual(client.client_secret, datastore.OAuth.DEFAULT_SECRET)
+      self.assertEqual(client.key.id(), datastore.OAuth.CLIENT_SECRET_ID)
+      self.assertEqual(client.client_id, datastore.OAuth.DEFAULT_ID)
+      self.assertEqual(client.client_secret, datastore.OAuth.DEFAULT_SECRET)
 
   def testInsert(self):
     self.assertEqual(datastore.OAuth.GetCount(), 0)
@@ -376,9 +387,9 @@ class OAuthDatastoreTest(DatastoreTest):
     self.assertEqual(datastore.OAuth.GetCount(), 1)
     oauth_after_insert = datastore.OAuth.GetAll()
     for client in oauth_after_insert:
-        self.assertEqual(client.key.id(), datastore.OAuth.CLIENT_SECRET_ID)
-        self.assertEqual(client.client_id, FAKE_CLIENT_ID)
-        self.assertEqual(client.client_secret, FAKE_CLIENT_SECRET)
+      self.assertEqual(client.key.id(), datastore.OAuth.CLIENT_SECRET_ID)
+      self.assertEqual(client.client_id, FAKE_CLIENT_ID)
+      self.assertEqual(client.client_secret, FAKE_CLIENT_SECRET)
 
   def testUpdate(self):
     datastore.OAuth.Insert(BAD_CLIENT_ID, BAD_CLIENT_SECRET)
@@ -397,11 +408,14 @@ class OAuthDatastoreTest(DatastoreTest):
 
   @patch('datastore.memcache.flush_all')
   def testFlush(self, mock_flush_all):
+    # pylint: disable=no-self-use
     datastore.OAuth.Flush()
 
     mock_flush_all.assert_called_once_with()
 
 class DomainVerificationDatastoreTest(DatastoreTest):
+
+  """Test domain verification datastore class functionality."""
 
   def testGetOrInsertDefault(self):
     self.assertEqual(DomainVerification.GetCount(), 0)

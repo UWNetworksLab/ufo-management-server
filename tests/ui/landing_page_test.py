@@ -1,3 +1,4 @@
+"""Test langing page module functionality."""
 import unittest
 
 from base_test import BaseTest
@@ -9,6 +10,8 @@ from selenium import webdriver
 
 
 class LandingPageTest(BaseTest):
+
+  """Test landing page functionality."""
 
   def setUp(self):
     """Setup for test methods."""

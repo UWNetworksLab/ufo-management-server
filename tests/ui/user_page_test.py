@@ -1,3 +1,4 @@
+"""Test user page module functionality."""
 import unittest
 
 from base_test import BaseTest
@@ -9,6 +10,8 @@ from selenium import webdriver
 
 
 class UserPageTest(BaseTest):
+
+  """Test user page functionality."""
 
   def setUp(self):
     """Setup for test methods."""
