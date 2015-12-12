@@ -51,7 +51,7 @@ class SetupOAuthClientHandler(webapp2.RequestHandler):
 
 
 APP = webapp2.WSGIApplication([
-    ('/setup/oauthclient', SetupOAuthClientHandler),
+    ('/setup', SetupOAuthClientHandler),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.

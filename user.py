@@ -18,29 +18,6 @@ import xsrf
 
 
 
-def _GenerateTokenPayload(users):
-  """Generate the token payload data for all users and their public keys.
-
-  I could just pass through all the user's properties here, but that
-  would expose the private key we have in the datastore along with
-  various other user data, so I'm explicitly limiting what we show to
-  an email and public key pair along with the datastore key.
-
-  Args:
-    users: A list of users with associated properties from the datastore.
-
-  Returns:
-    user_token_payloads: A dictionary with user key id as key, and a token
-        and email tuple as a value.
-  """
-  user_token_payloads = {}
-  for user in users:
-    tup1 = (user.email, user.public_key)
-    user_token_payloads[user.key.urlsafe()] = tup1
-
-  return user_token_payloads
-
-
 def _GenerateUserPayload(users):
   """Generate the user payload data for all users.
 
@@ -122,28 +99,14 @@ def _GetInviteCodeIp():
   return proxy_servers[index].ip_address
 
 
-def _RenderUserListTemplate(invite_code=None):
+def _RenderUserListTemplate():
   """Render a list of users."""
   users = User.GetAll()
   user_payloads = _GenerateUserPayload(users)
   template_values = {
       'user_payloads': user_payloads
   }
-  if invite_code is not None:
-    template_values['invite_code'] = invite_code
   template = JINJA_ENVIRONMENT.get_template('templates/user.html')
-  return template.render(template_values)
-
-
-def _RenderTokenListTemplate():
-  """Render a list of users and their tokens."""
-  users = User.GetAll()
-  user_token_payloads = _GenerateTokenPayload(users)
-
-  template_values = {
-      'user_token_payloads': user_token_payloads
-  }
-  template = JINJA_ENVIRONMENT.get_template('templates/token.html')
   return template.render(template_values)
 
 
@@ -164,6 +127,18 @@ def _RenderAddUsersTemplate(directory_users, error=None):
   if error is not None:
     template_values['error'] = error
   template = JINJA_ENVIRONMENT.get_template('templates/add_user.html')
+  return template.render(template_values)
+
+
+def _RenderUserDetailsTemplate(user, invite_code=None):
+  """Render a user add page that lets users be added by group key."""
+  template_values = {
+      'user': user,
+      'key': user.key.urlsafe(),
+  }
+  if invite_code is not None:
+    template_values['invite_code'] = invite_code
+  template = JINJA_ENVIRONMENT.get_template('templates/user_details.html')
   return template.render(template_values)
 
 
@@ -209,19 +184,6 @@ class DeleteUserHandler(webapp2.RequestHandler):
     self.response.write(_RenderUserListTemplate())
 
 
-class ListTokensHandler(webapp2.RequestHandler):
-
-  """List the tokens and associated users."""
-
-  # pylint: disable=too-few-public-methods
-
-  @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
-  def get(self):
-    """Output a list of all current users along with each's token."""
-    self.response.write(_RenderTokenListTemplate())
-
-
 class GetInviteCodeHandler(webapp2.RequestHandler):
 
   """Get an invite code for a given user."""
@@ -236,23 +198,23 @@ class GetInviteCodeHandler(webapp2.RequestHandler):
     user = User.GetByKey(urlsafe_key)
     invite_code = _MakeInviteCode(user)
 
-    self.response.write(_RenderUserListTemplate(invite_code))
+    self.response.write(_RenderUserDetailsTemplate(user, invite_code))
 
 
-class GetNewTokenHandler(webapp2.RequestHandler):
+class GetNewKeyPairHandler(webapp2.RequestHandler):
 
-  """Create a new token for a given user."""
+  """Create a new key pair for a given user."""
 
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
   @admin.RequireAppAndDomainAdmin
   def get(self):
-    """Find the user matching the specified key and generate a new token."""
+    """Find the user matching the specified key and generate a new key pair."""
     urlsafe_key = self.request.get('key')
     User.UpdateKeyPair(urlsafe_key)
-
-    self.response.write(_RenderTokenListTemplate())
+    user = User.GetByKey(urlsafe_key)
+    self.response.write(_RenderUserDetailsTemplate(user))
 
 
 class AddUsersHandler(webapp2.RequestHandler):
@@ -276,17 +238,17 @@ class AddUsersHandler(webapp2.RequestHandler):
     try:
       if get_all:
         directory_service = GoogleDirectoryService(
-            admin.OAUTH_ALL_SCOPES_DECORATOR)
+            admin.OAUTH_DECORATOR)
         directory_users = directory_service.GetUsers()
         self.response.write(_RenderAddUsersTemplate(directory_users))
       elif group_key is not None and group_key is not '':
         directory_service = GoogleDirectoryService(
-            admin.OAUTH_ALL_SCOPES_DECORATOR)
+            admin.OAUTH_DECORATOR)
         directory_users = directory_service.GetUsersByGroupKey(group_key)
         self.response.write(_RenderAddUsersTemplate(directory_users))
       elif user_key is not None and user_key is not '':
         directory_service = GoogleDirectoryService(
-            admin.OAUTH_ALL_SCOPES_DECORATOR)
+            admin.OAUTH_DECORATOR)
         directory_users = directory_service.GetUserAsList(user_key)
         self.response.write(_RenderAddUsersTemplate(directory_users))
       else:
@@ -316,23 +278,38 @@ class ToggleKeyRevokedHandler(webapp2.RequestHandler):
 
   @admin.OAUTH_DECORATOR.oauth_required
   @admin.RequireAppAndDomainAdmin
-  @xsrf.XSRFProtect
-  def post(self):
+  def get(self):
     """Lookup the user and toggle the revoked status of keys."""
     urlsafe_key = self.request.get('key')
     User.ToggleKeyRevoked(urlsafe_key)
-    self.redirect('/user')
+    user = User.GetByKey(urlsafe_key)
+    self.response.write(_RenderUserDetailsTemplate(user))
+
+
+class GetUserDetailsHandler(webapp2.RequestHandler):
+
+  """Display a single user with all associated details and actions."""
+
+  # pylint: disable=too-few-public-methods
+
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
+  def get(self):
+    """Output details based on the user key passed in."""
+    urlsafe_key = self.request.get('key')
+    user = User.GetByKey(urlsafe_key)
+    self.response.write(_RenderUserDetailsTemplate(user))
 
 
 APP = webapp2.WSGIApplication([
     ('/', LandingPageHandler),
     ('/user', ListUsersHandler),
     ('/user/delete', DeleteUserHandler),
-    ('/user/listTokens', ListTokensHandler),
     ('/user/getInviteCode', GetInviteCodeHandler),
-    ('/user/getNewToken', GetNewTokenHandler),
+    ('/user/getNewKeyPair', GetNewKeyPairHandler),
     ('/user/add', AddUsersHandler),
     ('/user/toggleRevoked', ToggleKeyRevokedHandler),
+    ('/user/details', GetUserDetailsHandler),
     (admin.OAUTH_DECORATOR.callback_path,
      admin.OAUTH_DECORATOR.callback_handler()),
 ], debug=True)

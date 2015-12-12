@@ -1,3 +1,4 @@
+"""Test proxy server module functionality."""
 import sys
 import unittest
 
@@ -10,17 +11,18 @@ from datastore import ProxyServer
 
 # Need to mock the decorator at function definition time, i.e. when the module
 # is loaded. http://stackoverflow.com/a/7667621/2830207
-def noop_decorator(func):
+def NoOpDecorator(func):
+  """Mock decorator that passes through any function for testing."""
   return func
 
-mock_admin = MagicMock()
-mock_admin.OAUTH_DECORATOR.oauth_required = noop_decorator
-mock_admin.RequireAppAndDomainAdmin = noop_decorator
-sys.modules['admin'] = mock_admin
+MOCK_ADMIN = MagicMock()
+MOCK_ADMIN.OAUTH_DECORATOR.oauth_required = NoOpDecorator
+MOCK_ADMIN.RequireAppAndDomainAdmin = NoOpDecorator
+sys.modules['admin'] = MOCK_ADMIN
 
-mock_xsrf = MagicMock()
-mock_xsrf.XSRFProtect = noop_decorator
-sys.modules['xsrf'] = mock_xsrf
+MOCK_XSRF = MagicMock()
+MOCK_XSRF.XSRFProtect = NoOpDecorator
+sys.modules['xsrf'] = MOCK_XSRF
 
 
 import proxy_server
@@ -33,6 +35,8 @@ FAKE_FINGERPRINT = '11:22:33:44'
 
 
 class ProxyServerTest(unittest.TestCase):
+
+  """Test proxy server class functionality."""
 
   def setUp(self):
     self.testapp = webtest.TestApp(proxy_server.APP)
@@ -145,22 +149,23 @@ class ProxyServerTest(unittest.TestCase):
 
   @patch('datastore.User.GetAll')
   def testMakeKeyString(self, mock_get_all):
-    fake_email_1 = 'foo@bar.com'
-    fake_public_key_1 = '123abc'
-    fake_user_1 = MagicMock(email=fake_email_1, public_key=fake_public_key_1,
+    fake_emails = ['foo@bar.com', 'bar@baz.com', 'baz@foo.com']
+    fake_public_keys = ['123abc', 'def456', '789ghi']
+    fake_user_1 = MagicMock(email=fake_emails[0],
+                            public_key=fake_public_keys[0],
                             is_key_revoked=False)
-    fake_result_1 = 'ssh-rsa ' + fake_public_key_1 + ' ' + fake_email_1 + '\n'
-    fake_email_2 = 'bar@baz.com'
-    fake_public_key_2 = 'def456'
-    fake_user_2 = MagicMock(email=fake_email_2, public_key=fake_public_key_2,
+    fake_result_1 = ('ssh-rsa ' + fake_public_keys[0] + ' ' +
+                     fake_emails[0] + '\n')
+    fake_user_2 = MagicMock(email=fake_emails[1],
+                            public_key=fake_public_keys[1],
                             is_key_revoked=False)
-    fake_result_2 = 'ssh-rsa ' + fake_public_key_2 + ' ' + fake_email_2 + '\n'
-    fake_email_3 = 'baz@foo.com'
-    fake_public_key_3 = '789ghi'
-    user_with_revoked_key = MagicMock(email=fake_email_3,
-                                      public_key=fake_public_key_3,
+    fake_result_2 = ('ssh-rsa ' + fake_public_keys[1] + ' ' +
+                     fake_emails[1] + '\n')
+    user_with_revoked_key = MagicMock(email=fake_emails[2],
+                                      public_key=fake_public_keys[2],
                                       is_key_revoked=True)
-    fake_result_3 = 'ssh-rsa ' + fake_public_key_3 + ' ' + fake_email_3 + '\n'
+    fake_result_3 = ('ssh-rsa ' + fake_public_keys[2] + ' ' +
+                     fake_emails[2] + '\n')
     fake_users = [fake_user_1, fake_user_2, user_with_revoked_key]
     mock_get_all.return_value = fake_users
 
@@ -173,6 +178,7 @@ class ProxyServerTest(unittest.TestCase):
 
 
 def GetFakeProxyServer():
+  """Return an instance of a proxy server with mocked values."""
   return ProxyServer(id=FAKE_ID,
                      name=FAKE_NAME,
                      ip_address=FAKE_IP_ADDRESS,

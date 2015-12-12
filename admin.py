@@ -73,15 +73,15 @@ def RequireAppAndDomainAdmin(func):
       logging.error('No identifier found for the user.')
       self.abort(403)
 
-    user_is_admin = False
+    is_admin_user = False
     try:
       directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
-      user_is_admin = directory_service.IsAdminUser(identifier)
+      is_admin_user = directory_service.IsAdminUser(identifier)
     except errors.HttpError:
       logging.error('Exception when asking dasher for this user.')
       self.abort(403)
 
-    if not user_is_admin:
+    if not is_admin_user:
       logging.error('User is not a dasher admin.')
       self.abort(403)
     return func(self, *args, **kwargs)

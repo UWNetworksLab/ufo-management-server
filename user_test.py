@@ -1,32 +1,33 @@
+"""Test user module functionality."""
 from mock import MagicMock
 from mock import patch
 import sys
 
 import base64
 from datastore import User
-from datastore import ProxyServer
 from googleapiclient import errors
 from google.appengine.ext import ndb
+import google_directory_service
 import hashlib
 import json
 
 import unittest
-import webapp2
 import webtest
 
 # Need to mock the decorator at function definition time, i.e. when the module
 # is loaded. http://stackoverflow.com/a/7667621/2830207
-def noop_decorator(func):
+def NoOpDecorator(func):
+  """Mock decorator that passes through any function for testing."""
   return func
 
-mock_admin = MagicMock()
-mock_admin.OAUTH_DECORATOR.oauth_required = noop_decorator
-mock_admin.RequireAppAndDomainAdmin = noop_decorator
-sys.modules['admin'] = mock_admin
+MOCK_ADMIN = MagicMock()
+MOCK_ADMIN.OAUTH_DECORATOR.oauth_required = NoOpDecorator
+MOCK_ADMIN.RequireAppAndDomainAdmin = NoOpDecorator
+sys.modules['admin'] = MOCK_ADMIN
 
-mock_xsrf = MagicMock()
-mock_xsrf.XSRFProtect = noop_decorator
-sys.modules['xsrf'] = mock_xsrf
+MOCK_XSRF = MagicMock()
+MOCK_XSRF.XSRFProtect = NoOpDecorator
+sys.modules['xsrf'] = MOCK_XSRF
 
 import user
 
@@ -39,7 +40,7 @@ FAKE_DS_KEY = 'urlEncodedKeyFromTheDatastore'
 FAKE_USER_KEY = ndb.Key(User, hashlib.sha256(FAKE_EMAIL).hexdigest())
 FAKE_USER = User(key=FAKE_USER_KEY, email=FAKE_EMAIL,
                  name=FAKE_NAME, public_key=FAKE_PUBLIC_KEY,
-                 private_key=FAKE_PRIVATE_KEY)
+                 private_key=FAKE_PRIVATE_KEY, is_key_revoked=False)
 FAKE_USER_ARRAY = []
 FAKE_EMAIL_1 = u'foo@business.com'
 FAKE_EMAIL_2 = u'bar@business.com'
@@ -55,11 +56,15 @@ FAKE_USER_ARRAY.append(FAKE_ADD_USER)
 
 class UserTest(unittest.TestCase):
 
+  """Test user class functionality."""
+
+  # pylint: disable=too-many-public-methods
+
   def setUp(self):
     self.testapp = webtest.TestApp(user.APP)
 
   @patch('user._RenderLandingTemplate')
-  def testListUsersHandler(self, mock_landing_template):
+  def testLandingPageHandler(self, mock_landing_template):
     self.testapp.get('/')
     mock_landing_template.assert_called_once_with()
 
@@ -76,34 +81,33 @@ class UserTest(unittest.TestCase):
     mock_delete_user.assert_called_once_with(FAKE_DS_KEY)
     mock_user_template.assert_called_once_with()
 
-  @patch('user._RenderTokenListTemplate')
-  def testListTokensHandler(self, mock_token_template):
-    self.testapp.get('/user/listTokens')
-    mock_token_template.assert_called_once_with()
-
   @patch('user.User.GetByKey')
   @patch('user._MakeInviteCode')
-  @patch('user._RenderUserListTemplate')
+  @patch('user._RenderUserDetailsTemplate')
   def testGetInviteCodeHandler(self, mock_user_template, mock_make_invite_code,
                                mock_get_user):
-    fake_url_key = 'foobarbaz'
-    mock_get_user.return_value = fake_url_key
+    mock_get_user.return_value = FAKE_USER
     fake_invite_code = 'base64EncodedBlob'
     mock_make_invite_code.return_value = fake_invite_code
 
     self.testapp.get('/user/getInviteCode?key=%s' % FAKE_DS_KEY)
 
     mock_get_user.assert_called_once_with(FAKE_DS_KEY)
-    mock_make_invite_code.assert_called_once_with(fake_url_key)
-    mock_user_template.assert_called_once_with(fake_invite_code)
+    mock_make_invite_code.assert_called_once_with(FAKE_USER)
+    mock_user_template.assert_called_once_with(FAKE_USER, fake_invite_code)
 
+  @patch('user._RenderUserDetailsTemplate')
+  @patch('user.User.GetByKey')
   @patch('user.User.UpdateKeyPair')
-  @patch('user._RenderTokenListTemplate')
-  def testGetNewTokenHandler(self, mock_token_template,
-                             mock_update):
-    self.testapp.get('/user/getNewToken?key=%s' % FAKE_DS_KEY)
+  def testGetNewKeyPairHandler(self, mock_update, mock_get_by_key,
+                               mock_render_details):
+    mock_get_by_key.return_value = FAKE_USER
+
+    self.testapp.get('/user/getNewKeyPair?key=%s' % FAKE_DS_KEY)
+
     mock_update.assert_called_once_with(FAKE_DS_KEY)
-    mock_token_template.assert_called_once_with()
+    mock_get_by_key.assert_called_once_with(FAKE_DS_KEY)
+    mock_render_details.assert_called_once_with(FAKE_USER)
 
   @patch('user._RenderAddUsersTemplate')
   @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
@@ -113,7 +117,8 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerNoParam(self, mock_ds, mock_get_users,
                                     mock_get_by_key, mock_get_user,
                                     mock_render):
-    response = self.testapp.get('/user/add')
+    # pylint: disable=too-many-arguments
+    self.testapp.get('/user/add')
 
     mock_ds.assert_not_called()
     mock_get_users.assert_not_called()
@@ -125,19 +130,20 @@ class UserTest(unittest.TestCase):
   @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
-  @patch('google_directory_service.GoogleDirectoryService.__init__')
+  @patch.object(google_directory_service.GoogleDirectoryService, '__init__')
   def testAddUsersGetHandlerWithGroup(self, mock_ds, mock_get_users,
                                       mock_get_by_key, mock_get_user,
                                       mock_render):
+    # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     # Email address could refer to group or user
     group_key = 'foo@bar.mybusiness.com'
     mock_get_by_key.return_value = FAKE_USER_ARRAY
-    response = self.testapp.get('/user/add?group_key=' + group_key)
+    self.testapp.get('/user/add?group_key=' + group_key)
 
     mock_get_users.assert_not_called()
     mock_get_user.assert_not_called()
-    mock_ds.assert_called_once_with(mock_admin.OAUTH_ALL_SCOPES_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_by_key.assert_called_once_with(group_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -149,15 +155,16 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithUser(self, mock_ds, mock_get_users,
                                      mock_get_by_key, mock_get_user,
                                      mock_render):
+    # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     # Email address could refer to group or user
     user_key = 'foo@bar.mybusiness.com'
     mock_get_user.return_value = FAKE_USER_ARRAY
-    response = self.testapp.get('/user/add?user_key=' + user_key)
+    self.testapp.get('/user/add?user_key=' + user_key)
 
     mock_get_users.assert_not_called()
     mock_get_by_key.assert_not_called()
-    mock_ds.assert_called_once_with(mock_admin.OAUTH_ALL_SCOPES_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_user.assert_called_once_with(user_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -169,13 +176,14 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithAll(self, mock_ds, mock_get_users,
                                     mock_get_by_key, mock_get_user,
                                     mock_render):
+    # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     mock_get_users.return_value = FAKE_USER_ARRAY
-    response = self.testapp.get('/user/add?get_all=true')
+    self.testapp.get('/user/add?get_all=true')
 
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
-    mock_ds.assert_called_once_with(mock_admin.OAUTH_ALL_SCOPES_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_users.assert_called_once_with()
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -187,15 +195,16 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithError(self, mock_ds, mock_get_users,
                                       mock_get_by_key, mock_get_user,
                                       mock_render):
+    # pylint: disable=too-many-arguments
     fake_status = '404'
     fake_response = MagicMock(status=fake_status)
     fake_content = b'some error content'
     fake_error = errors.HttpError(fake_response, fake_content)
     mock_ds.side_effect = fake_error
     mock_get_users.return_value = FAKE_USER_ARRAY
-    response = self.testapp.get('/user/add?get_all=true')
+    self.testapp.get('/user/add?get_all=true')
 
-    mock_ds.assert_called_once_with(mock_admin.OAUTH_ALL_SCOPES_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
     mock_get_users.assert_not_called()
@@ -221,12 +230,28 @@ class UserTest(unittest.TestCase):
     self.assertEqual(response.status_int, 302)
     self.assertTrue('/user' in response.location)
 
+  @patch('user._RenderUserDetailsTemplate')
+  @patch('user.User.GetByKey')
   @patch('user.User.ToggleKeyRevoked')
-  def testToggleKeyRevokedHandler(self, mock_toggle_key_revoked):
-    response = self.testapp.post('/user/toggleRevoked?key=%s' % FAKE_DS_KEY)
+  def testToggleKeyRevokedHandler(self, mock_toggle_key_revoked,
+                                  mock_get_by_key, mock_render_details):
+    mock_get_by_key.return_value = FAKE_USER
+
+    self.testapp.get('/user/toggleRevoked?key=%s' % FAKE_DS_KEY)
+
     mock_toggle_key_revoked.assert_called_once_with(FAKE_DS_KEY)
-    self.assertEqual(response.status_int, 302)
-    self.assertTrue('/user' in response.location)
+    mock_get_by_key.assert_called_once_with(FAKE_DS_KEY)
+    mock_render_details.assert_called_once_with(FAKE_USER)
+
+  @patch('user._RenderUserDetailsTemplate')
+  @patch('user.User.GetByKey')
+  def testGetUserDetailsHandler(self, mock_get_by_key, mock_render_details):
+    mock_get_by_key.return_value = FAKE_USER
+
+    self.testapp.get('/user/details?key=%s' % FAKE_DS_KEY)
+
+    mock_get_by_key.assert_called_once_with(FAKE_DS_KEY)
+    mock_render_details.assert_called_once_with(FAKE_USER)
 
   @patch('user._GenerateUserPayload')
   @patch('user.User.GetAll')
@@ -241,54 +266,12 @@ class UserTest(unittest.TestCase):
 
     mock_get_all.assert_called_once_with()
     mock_generate.assert_called_once_with(fake_users)
-    self.assertTrue('List Tokens' in user_list_template)
-    self.assertTrue(FAKE_USER.email in user_list_template)
-    self.assertTrue(
-        ('user/delete?key=' + FAKE_DS_KEY) in user_list_template)
-    self.assertTrue(
-        ('user/getNewToken?key=' + FAKE_DS_KEY) in user_list_template)
-    self.assertTrue('Invite Code Below' not in user_list_template)
-
-  @patch('user._GenerateUserPayload')
-  @patch('user.User.GetAll')
-  def testRenderUserListTemplateWithInviteCode(self, mock_get_all,
-                                               mock_generate):
-    fake_users = [FAKE_USER]
-    mock_get_all.return_value = fake_users
-    fake_dictionary = {}
-    fake_dictionary[FAKE_DS_KEY] = FAKE_USER.email
-    mock_generate.return_value = fake_dictionary
-
-    user_list_template = user._RenderUserListTemplate('fake_invite_code')
-
-    mock_get_all.assert_called_once_with()
-    mock_generate.assert_called_once_with(fake_users)
-    self.assertTrue('List Tokens' in user_list_template)
-    self.assertTrue(FAKE_USER.email in user_list_template)
-    self.assertTrue(
-        ('user/delete?key=' + FAKE_DS_KEY) in user_list_template)
-    self.assertTrue(
-        ('user/getNewToken?key=' + FAKE_DS_KEY) in user_list_template)
-    self.assertTrue('Invite Code Below' in user_list_template)
-
-  @patch('user._GenerateTokenPayload')
-  @patch('user.User.GetAll')
-  def testRenderTokenListTemplate(self, mock_get_all, mock_generate):
-    fake_users = [FAKE_USER]
-    mock_get_all.return_value = fake_users
-    fake_dictionary = {}
-    fake_tuple = (FAKE_USER.email, FAKE_USER.public_key)
-    fake_dictionary[FAKE_DS_KEY] = fake_tuple
-    mock_generate.return_value = fake_dictionary
-
-    token_list_template = user._RenderTokenListTemplate()
-
-    mock_get_all.assert_called_once_with()
-    mock_generate.assert_called_once_with(fake_users)
-    self.assertTrue('token_payload:' in token_list_template)
-    self.assertTrue(FAKE_USER.email in token_list_template)
-    self.assertTrue(
-        ('user/getNewToken?key=' + FAKE_DS_KEY) in token_list_template)
+    self.assertEquals('Add Users' in user_list_template, True)
+    click_user_string = 'Click a user below to view more details.'
+    self.assertEquals(click_user_string in user_list_template, True)
+    self.assertEquals(FAKE_USER.email in user_list_template, True)
+    details_link = ('user/details?key=' + FAKE_DS_KEY)
+    self.assertEquals(details_link in user_list_template, True)
 
   @patch('datastore.DomainVerification.GetOrInsertDefault')
   def testRenderLandingTemplate(self, mock_domain_verif):
@@ -301,37 +284,55 @@ class UserTest(unittest.TestCase):
     mock_domain_verif.assert_called_once_with()
     self.assertTrue(fake_content in landing_template)
 
-  def testRenderAddUsersTemplateWithNoUsers(self):
+  def testRenderAddUsersWithNoUsers(self):
     add_users_template = user._RenderAddUsersTemplate([])
     no_user_string = 'No users found. Try another query below.'
     self.assertTrue(no_user_string in add_users_template)
     self.assertTrue('xsrf' not in add_users_template)
     self.assertTrue('An error occurred while' not in add_users_template)
 
-  def testRenderAddUsersTemplateWithSomeUsers(self):
+  def testRenderAddUsersWithUsers(self):
     add_users_template = user._RenderAddUsersTemplate(FAKE_USER_ARRAY)
     self.assertTrue('Add Selected Users' in add_users_template)
     self.assertTrue('xsrf' in add_users_template)
     self.assertTrue('An error occurred while' not in add_users_template)
 
-  def testRenderAddUsersTemplateWithError(self):
+  def testRenderAddUsersWithError(self):
     fake_error = 'foo bar happened causing baz'
     add_users_template = user._RenderAddUsersTemplate([], fake_error)
     self.assertTrue('An error occurred while' in add_users_template)
     self.assertTrue(fake_error in add_users_template)
 
   @patch.object(user.User, 'key')
-  def testGenerateTokenPayload(self, mock_url_key):
+  def testRenderUserDetailTemplate(self, mock_url_key):
     mock_url_key.urlsafe.return_value = FAKE_DS_KEY
-    fake_users = [FAKE_USER]
 
-    user_token_payloads = user._GenerateTokenPayload(fake_users)
+    user_details_template = user._RenderUserDetailsTemplate(FAKE_USER)
 
-    tup1 = (FAKE_USER.email, FAKE_USER.public_key)
-    self.assertEqual(user_token_payloads[FAKE_DS_KEY], tup1)
+    self.assertEqual(FAKE_NAME in user_details_template, True)
+    self.assertEqual(FAKE_EMAIL in user_details_template, True)
+    self.assertEqual(FAKE_PUBLIC_KEY in user_details_template, True)
+    self.assertEqual(FAKE_PRIVATE_KEY in user_details_template, True)
+    self.assertEqual(FAKE_DS_KEY in user_details_template, True)
+    self.assertEqual('Enabled' in user_details_template, True)
+    self.assertEquals('Invite Code Below' in user_details_template, False)
 
-    self.assertTrue(FAKE_USER.private_key not in user_token_payloads)
-    self.assertTrue(FAKE_USER.private_key not in user_token_payloads[FAKE_DS_KEY])
+  @patch.object(user.User, 'key')
+  def testRenderUserDetailInviteCode(self, mock_url_key):
+    fake_invite_code = 'foo bar baz in base64 blob'
+    mock_url_key.urlsafe.return_value = FAKE_DS_KEY
+
+    user_details_template = user._RenderUserDetailsTemplate(FAKE_USER,
+                                                            fake_invite_code)
+
+    self.assertEqual(FAKE_NAME in user_details_template, True)
+    self.assertEqual(FAKE_EMAIL in user_details_template, True)
+    self.assertEqual(FAKE_PUBLIC_KEY in user_details_template, True)
+    self.assertEqual(FAKE_PRIVATE_KEY in user_details_template, True)
+    self.assertEqual(FAKE_DS_KEY in user_details_template, True)
+    self.assertEqual('Enabled' in user_details_template, True)
+    self.assertEquals('Invite Code Below' in user_details_template, True)
+    self.assertEquals(fake_invite_code in user_details_template, True)
 
   @patch.object(user.User, 'key')
   def testGenerateUserPayload(self, mock_url_key):
@@ -380,4 +381,4 @@ class UserTest(unittest.TestCase):
     self.assertTrue(invite_code_ip in fake_ip_list)
 
 if __name__ == '__main__':
-    unittest.main()
+  unittest.main()

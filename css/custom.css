@@ -27,3 +27,7 @@ paper-card {
 #proxy-card-holder {
   max-width: 800px;
 }
+
+#user-card-holder {
+  max-width: 600px;
+}

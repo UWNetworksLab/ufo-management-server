@@ -4,9 +4,8 @@ Polymer({
     this.pages = [
     {"href": "/", "text": "Home"},
     {"href": "/user", "text": "Users"},
-    {"href": "/user/listTokens", "text": "Tokens"},
     {"href": "/proxyserver/list", "text": "Proxy Servers"},
-    {"href": "/setup/oauthclient", "text": "Setup"},
+    {"href": "/setup", "text": "Setup"},
     {"href": "/logout", "text": "Logout"}
     ];
   },

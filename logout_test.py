@@ -1,17 +1,14 @@
-from mock import MagicMock
+"""Test the logout module."""
 from mock import patch
-import sys
-
-from datastore import User
-from datastore import OAuth
 
 import unittest
-import webapp2
 import webtest
 import logout
 
 
 class LogoutTest(unittest.TestCase):
+
+  """Test logout module functionality."""
 
   def setUp(self):
     self.testapp = webtest.TestApp(logout.APP)
@@ -30,4 +27,4 @@ class LogoutTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+  unittest.main()
