@@ -3,7 +3,6 @@
 import admin
 from appengine_config import JINJA_ENVIRONMENT
 from ast import literal_eval
-from auth import OAUTH_DECORATOR
 import base64
 from datastore import DomainVerification
 from datastore import ProxyServer
@@ -160,7 +159,8 @@ class ListUsersHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @OAUTH_DECORATOR.oauth_required
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Output a list of all current users along with some metadata."""
     self.response.write(_RenderUserListTemplate())
@@ -172,7 +172,8 @@ class DeleteUserHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @OAUTH_DECORATOR.oauth_required
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Delete the user corresponding to the passed in key.
 
@@ -189,7 +190,8 @@ class GetInviteCodeHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @OAUTH_DECORATOR.oauth_required
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Output a list of all current users along with the requested token."""
     urlsafe_key = self.request.get('key')
@@ -205,7 +207,8 @@ class GetNewKeyPairHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @OAUTH_DECORATOR.oauth_required
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Find the user matching the specified key and generate a new key pair."""
     urlsafe_key = self.request.get('key')
@@ -218,8 +221,8 @@ class AddUsersHandler(webapp2.RequestHandler):
 
   """Add users into the datastore."""
 
-  @admin.RequireAdmin
-  @OAUTH_DECORATOR.oauth_required
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Get the form for adding new users.
 
@@ -234,15 +237,18 @@ class AddUsersHandler(webapp2.RequestHandler):
     user_key = self.request.get('user_key')
     try:
       if get_all:
-        directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
+        directory_service = GoogleDirectoryService(
+            admin.OAUTH_DECORATOR)
         directory_users = directory_service.GetUsers()
         self.response.write(_RenderAddUsersTemplate(directory_users))
       elif group_key is not None and group_key is not '':
-        directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
+        directory_service = GoogleDirectoryService(
+            admin.OAUTH_DECORATOR)
         directory_users = directory_service.GetUsersByGroupKey(group_key)
         self.response.write(_RenderAddUsersTemplate(directory_users))
       elif user_key is not None and user_key is not '':
-        directory_service = GoogleDirectoryService(OAUTH_DECORATOR)
+        directory_service = GoogleDirectoryService(
+            admin.OAUTH_DECORATOR)
         directory_users = directory_service.GetUserAsList(user_key)
         self.response.write(_RenderAddUsersTemplate(directory_users))
       else:
@@ -250,9 +256,9 @@ class AddUsersHandler(webapp2.RequestHandler):
     except errors.HttpError as error:
       self.response.write(_RenderAddUsersTemplate([], error))
 
-  @admin.RequireAdmin
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   @xsrf.XSRFProtect
-  @OAUTH_DECORATOR.oauth_required
   def post(self):
     """Add all of the selected users into the datastore."""
     users = self.request.get_all('selected_user')
@@ -270,8 +276,8 @@ class ToggleKeyRevokedHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @admin.RequireAdmin
-  @OAUTH_DECORATOR.oauth_required
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Lookup the user and toggle the revoked status of keys."""
     urlsafe_key = self.request.get('key')
@@ -286,8 +292,8 @@ class GetUserDetailsHandler(webapp2.RequestHandler):
 
   # pylint: disable=too-few-public-methods
 
-  @OAUTH_DECORATOR.oauth_required
-  @admin.RequireAdmin
+  @admin.OAUTH_DECORATOR.oauth_required
+  @admin.RequireAppAndDomainAdmin
   def get(self):
     """Output details based on the user key passed in."""
     urlsafe_key = self.request.get('key')
@@ -304,7 +310,8 @@ APP = webapp2.WSGIApplication([
     ('/user/add', AddUsersHandler),
     ('/user/toggleRevoked', ToggleKeyRevokedHandler),
     ('/user/details', GetUserDetailsHandler),
-    (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler()),
+    (admin.OAUTH_DECORATOR.callback_path,
+     admin.OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.

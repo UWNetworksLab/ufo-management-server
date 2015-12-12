@@ -16,7 +16,8 @@ def NoOpDecorator(func):
   return func
 
 MOCK_ADMIN = MagicMock()
-MOCK_ADMIN.RequireAdmin = NoOpDecorator
+MOCK_ADMIN.OAUTH_DECORATOR.oauth_required = NoOpDecorator
+MOCK_ADMIN.RequireAppAndDomainAdmin = NoOpDecorator
 sys.modules['admin'] = MOCK_ADMIN
 
 MOCK_XSRF = MagicMock()

@@ -20,17 +20,14 @@ def NoOpDecorator(func):
   """Mock decorator that passes through any function for testing."""
   return func
 
-MOCK_AUTH = MagicMock()
-MOCK_AUTH.OAUTH_DECORATOR.oauth_required = NoOpDecorator
-sys.modules['auth'] = MOCK_AUTH
+MOCK_ADMIN = MagicMock()
+MOCK_ADMIN.OAUTH_DECORATOR.oauth_required = NoOpDecorator
+MOCK_ADMIN.RequireAppAndDomainAdmin = NoOpDecorator
+sys.modules['admin'] = MOCK_ADMIN
 
 MOCK_XSRF = MagicMock()
 MOCK_XSRF.XSRFProtect = NoOpDecorator
 sys.modules['xsrf'] = MOCK_XSRF
-
-MOCK_ADMIN = MagicMock()
-MOCK_ADMIN.RequireAdmin = NoOpDecorator
-sys.modules['admin'] = MOCK_ADMIN
 
 import user
 
@@ -146,7 +143,7 @@ class UserTest(unittest.TestCase):
 
     mock_get_users.assert_not_called()
     mock_get_user.assert_not_called()
-    mock_ds.assert_called_once_with(MOCK_AUTH.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_by_key.assert_called_once_with(group_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -167,7 +164,7 @@ class UserTest(unittest.TestCase):
 
     mock_get_users.assert_not_called()
     mock_get_by_key.assert_not_called()
-    mock_ds.assert_called_once_with(MOCK_AUTH.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_user.assert_called_once_with(user_key)
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -186,7 +183,7 @@ class UserTest(unittest.TestCase):
 
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
-    mock_ds.assert_called_once_with(MOCK_AUTH.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_users.assert_called_once_with()
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
@@ -207,7 +204,7 @@ class UserTest(unittest.TestCase):
     mock_get_users.return_value = FAKE_USER_ARRAY
     self.testapp.get('/user/add?get_all=true')
 
-    mock_ds.assert_called_once_with(MOCK_AUTH.OAUTH_DECORATOR)
+    mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
     mock_get_users.assert_not_called()

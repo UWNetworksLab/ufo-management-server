@@ -12,17 +12,13 @@ def NoOpDecorator(func):
   """Mock decorator that passes through any function for testing."""
   return func
 
-MOCK_AUTH = MagicMock()
-MOCK_AUTH.OAUTH_DECORATOR.oauth_required = NoOpDecorator
-sys.modules['auth'] = MOCK_AUTH
+MOCK_ADMIN = MagicMock()
+MOCK_ADMIN.RequireAppAdmin = NoOpDecorator
+sys.modules['admin'] = MOCK_ADMIN
 
 MOCK_XSRF = MagicMock()
 MOCK_XSRF.XSRFProtect = NoOpDecorator
 sys.modules['xsrf'] = MOCK_XSRF
-
-MOCK_ADMIN = MagicMock()
-MOCK_ADMIN.RequireAdmin = NoOpDecorator
-sys.modules['admin'] = MOCK_ADMIN
 
 
 import setup
