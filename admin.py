@@ -78,7 +78,6 @@ def RequireAppOrDomainAdmin(func):
       is_admin_user = directory_service.IsAdminUser(identifier)
     except errors.HttpError:
       logging.error('Exception when asking dasher for this user.')
-      logging.error(errors.HttpError)
       self.abort(403)
 
     if users.is_current_user_admin() or is_admin_user:
