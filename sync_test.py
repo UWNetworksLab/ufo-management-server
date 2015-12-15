@@ -46,11 +46,11 @@ class UserTest(unittest.TestCase):
     self.assertEqual(sync.SYNC_RELATIVE_PATH, '/sync')
     self.assertEqual(sync.CHANNELS_PATH, sync.SYNC_RELATIVE_PATH + '/channels')
     self.assertEqual(sync.NOTIFICATIONS_PATH,
-    	               sync.SYNC_RELATIVE_PATH + '/notifications')
+                     sync.SYNC_RELATIVE_PATH + '/notifications')
     self.assertEqual(sync.WATCH_FOR_DELETION_PATH,
-    	               sync.SYNC_RELATIVE_PATH + '/delete')
+                     sync.SYNC_RELATIVE_PATH + '/delete')
     self.assertEqual(sync.UNSUBSCRIBE_PATH,
-    	               sync.SYNC_RELATIVE_PATH + '/unsubscribe')
+                     sync.SYNC_RELATIVE_PATH + '/unsubscribe')
 
   @patch('sync.Notification.Insert')
   def testPushNotificationHandler(self, mock_insert):
@@ -165,6 +165,9 @@ class UserTest(unittest.TestCase):
   @patch('sync.Notification.GetAll')
   def testRenderNotifications(self, mock_get_all):
     """Test notifications from the datastore are rendered as in the html."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     fake_notification = MagicMock(state=FAKE_STATE, number=FAKE_NUMBER,
                                   uuid=FAKE_UUID, email=FAKE_EMAIL)
     fake_notifications = [fake_notification]
@@ -187,6 +190,9 @@ class UserTest(unittest.TestCase):
   @patch('sync.NotificationChannels.GetAll')
   def testRenderChannels(self, mock_get_all):
     """Test channels from the datastore are rendered as in the html."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     fake_channel = MagicMock(event=FAKE_EVENT, channel_id=FAKE_CHANNEL_ID,
                              resource_id=FAKE_RESOURCE_ID)
     fake_channels = [fake_channel]
