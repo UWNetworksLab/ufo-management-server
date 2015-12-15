@@ -55,7 +55,7 @@ def RequireAppAdmin(func):
   return decorate
 
 
-def RequireAppAndDomainAdmin(func):
+def RequireAppOrDomainAdmin(func):
   """Decorator to require the user to be an admin."""
   def decorate(self, *args, **kwargs):
     """Actual decorate function that requires admin.
@@ -66,7 +66,12 @@ def RequireAppAndDomainAdmin(func):
     """
     user = users.get_current_user()
     AbortIfUserIsNotLoggedIn(self, user)
-    AbortIfUserIsNotApplicationAdmin(self)
+
+    # If user is application admin, allow access right away to save the check
+    # on domain admin.
+    if users.is_current_user_admin():
+      return func(self, *args, **kwargs)
+    logging.debug('User is not an app admin.')
 
     identifier = user.email()
     if identifier is None or identifier is '':
@@ -82,8 +87,9 @@ def RequireAppAndDomainAdmin(func):
       self.abort(403)
 
     if not is_admin_user:
-      logging.error('User is not a dasher admin.')
+      logging.error('User is not a domain admin.')
       self.abort(403)
+
     return func(self, *args, **kwargs)
 
   return decorate

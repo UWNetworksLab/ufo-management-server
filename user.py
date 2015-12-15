@@ -160,7 +160,7 @@ class ListUsersHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Output a list of all current users along with some metadata."""
     self.response.write(_RenderUserListTemplate())
@@ -173,7 +173,7 @@ class DeleteUserHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Delete the user corresponding to the passed in key.
 
@@ -191,7 +191,7 @@ class GetInviteCodeHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Output a list of all current users along with the requested token."""
     urlsafe_key = self.request.get('key')
@@ -208,7 +208,7 @@ class GetNewKeyPairHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Find the user matching the specified key and generate a new key pair."""
     urlsafe_key = self.request.get('key')
@@ -222,7 +222,7 @@ class AddUsersHandler(webapp2.RequestHandler):
   """Add users into the datastore."""
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Get the form for adding new users.
 
@@ -257,7 +257,7 @@ class AddUsersHandler(webapp2.RequestHandler):
       self.response.write(_RenderAddUsersTemplate([], error))
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   @xsrf.XSRFProtect
   def post(self):
     """Add all of the selected users into the datastore."""
@@ -277,7 +277,7 @@ class ToggleKeyRevokedHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Lookup the user and toggle the revoked status of keys."""
     urlsafe_key = self.request.get('key')
@@ -293,7 +293,7 @@ class GetUserDetailsHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Output details based on the user key passed in."""
     urlsafe_key = self.request.get('key')
