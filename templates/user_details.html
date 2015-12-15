@@ -12,15 +12,17 @@
         <p>{{ user.name }}, {{ user.email }}</p>
         <p>Access Status: <b>
           {% if user.is_key_revoked %}
-            Revoked
+            Disabled
           {% else %}
             Enabled
           {% endif %}
         </b></p>
         <paper-button onclick="toggleCollapse('collapse-pri')">Show/hide SSH Private Key</paper-button>
-        <iron-collapse id="collapse-pri"><div>{{ user.private_key }}</div></iron-collapse><br>
+        <iron-collapse id="collapse-pri"><div><textarea rows="20" cols="80">
+          {{ user.private_key }}</textarea></div></iron-collapse><br>
         <paper-button onclick="toggleCollapse('collapse-pub')">Show/hide SSH Public Key</paper-button>
-        <iron-collapse id="collapse-pub"><div>{{ user.public_key }}</div></iron-collapse>
+        <iron-collapse id="collapse-pub"><div><textarea rows="20" cols="80">
+          {{ user.public_key }}</textarea></div></iron-collapse>
       </div>
       <div class="card-actions">
         <a href="{{ BASE_URL }}{{ user_delete_path }}?key={{ key }}">
@@ -33,7 +35,12 @@
           <paper-button raised class="anchor-button">Rotate Key Pair
         </paper-button></a>
         <a href="{{ BASE_URL }}{{ user_toggle_revoked_path }}?key={{ key }}">
-          <paper-button raised class="anchor-button">Revoke/Unrevoke Access
+          <paper-button raised class="anchor-button">
+          {% if user.is_key_revoked %}
+            Enable
+          {% else %}
+            Disable
+          {% endif %} Access
         </paper-button></a>
       </div>
     </paper-card>

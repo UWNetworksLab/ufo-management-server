@@ -19,4 +19,5 @@ class Sidebar(BaseDriver):
 
 
   def GetLink(self, link_locator):
+    """Get an element in the sidebar based on the link locator given."""
     return self.driver.find_element(*link_locator)

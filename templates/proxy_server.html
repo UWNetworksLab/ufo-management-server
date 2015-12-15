@@ -16,7 +16,9 @@
       <div class="card-content">
         <p>{{ proxy_server.ip_address }}, {{ proxy_server.fingerprint }}</p>
         <paper-button onclick="toggleCollapse('collapse-{{loop.index}}')">Show/hide SSH Key</paper-button>
-        <iron-collapse id="collapse-{{loop.index}}"><div>{{ proxy_server.ssh_private_key }}</div></iron-collapse>
+        <iron-collapse id="collapse-{{loop.index}}"><div>
+          <textarea rows="20" cols="80">{{ proxy_server.ssh_private_key }}
+          </textarea></div></iron-collapse>
       </div>
       <div class="card-actions">
         <a href="{{ BASE_URL }}/proxyserver/edit?id={{ proxy_server.key.id() }}">

@@ -202,6 +202,9 @@ class UserDatastoreTest(DatastoreTest):
   @patch.object(datastore.hashlib, 'sha256')
   def testCreateUser(self, mock_sha, mock_hex, mock_key):
     """Test that a new user entity is created with the associated fields."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     fake_hex_email = '0x12345678'
     mock_hex.return_value = fake_hex_email
     mock_sha.return_value.hexdigest = mock_hex
@@ -225,6 +228,9 @@ class UserDatastoreTest(DatastoreTest):
   @patch.object(datastore.RSA, 'generate')
   def testGenerateKeyPair(self, mock_rsa, mock_exp, mock_pub, mock_encode):
     """Test that a new key pair is created successfully."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     mock_encode.return_value = FAKE_PRIVATE_KEY
     mock_exp.return_value = FAKE_PRIVATE_KEY
     mock_pub.return_value.exportKey = mock_exp

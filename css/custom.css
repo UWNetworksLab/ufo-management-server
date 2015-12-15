@@ -6,6 +6,10 @@ paper-card {
   margin-bottom: 16px;
 }
 
+form {
+  max-width: 800px;
+}
+
 .anchor-button {
   color: inherit;
   background-color: inherit;
@@ -15,13 +19,14 @@ paper-card {
   margin-bottom: 16px;
 }
 
+.padding-between-columns td
+{
+  padding: 0 15px 0 15px;
+}
+
 #main-section {
   margin-left: 16px;
   margin-top: 16px;
-}
-
-#setup-form {
-  max-width: 800px;
 }
 
 #proxy-card-holder {
@@ -34,4 +39,8 @@ paper-card {
 
 #channels-card-holder {
   max-width: 600px;
+}
+
+#notifications-card {
+  max-width: 800px;
 }

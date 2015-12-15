@@ -12,10 +12,13 @@ class LandingPage(BaseDriver):
   INSTRUCTION = (By.TAG_NAME, 'h4')
 
   def GetTitle(self):
+    """Get the title element on the landing page."""
     return self.driver.find_element(*self.TITLE)
 
   def GetInstruction(self):
+    """Get the instructions element on the landing page."""
     return self.driver.find_element(*self.INSTRUCTION)
 
   def GetSidebar(self):
+    """Get the sidebar element on the landing page."""
     return self.driver.find_element(*Sidebar.SIDEBAR)

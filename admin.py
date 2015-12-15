@@ -31,7 +31,7 @@ def AbortIfUserIsNotLoggedIn(self, user):
     logging.error('User is not logged in.')
     self.abort(403)
 
-def AbortIfUserIsNotApplicationAdmin(self):
+def AbortIfUserIsNotAppAdmin(self):
   """Check if the user is an application admin and abort if not."""
   if not users.is_current_user_admin():
     logging.error('User is not an application admin.')
@@ -49,7 +49,7 @@ def RequireAppAdmin(func):
     """
     user = users.get_current_user()
     AbortIfUserIsNotLoggedIn(self, user)
-    AbortIfUserIsNotApplicationAdmin(self)
+    AbortIfUserIsNotAppAdmin(self)
     return func(self, *args, **kwargs)
 
   return decorate

@@ -15,8 +15,10 @@ class UserPage(BaseDriver):
 
 
   def GetAddUserLink(self):
+    """Get the add user element on the user page."""
     return WebDriverWait(self.driver, 10).until(
         EC.visibility_of_element_located(((self.ADD_USERS_LINK))))
 
   def GetSidebar(self):
+    """Get the sidebar element on the user page."""
     return self.driver.find_element(*Sidebar.SIDEBAR)

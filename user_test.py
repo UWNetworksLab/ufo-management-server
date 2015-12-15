@@ -61,22 +61,25 @@ class UserTest(unittest.TestCase):
   # pylint: disable=too-many-public-methods
 
   def setUp(self):
+    """Setup test app on which to call handlers."""
     self.testapp = webtest.TestApp(user.APP)
 
   @patch('user._RenderLandingTemplate')
   def testLandingPageHandler(self, mock_landing_template):
+    """Test get on the landing handler renders the home page."""
     self.testapp.get(PATHS['landing_page_path'])
     mock_landing_template.assert_called_once_with()
 
   @patch('user._RenderUserListTemplate')
   def testListUsersHandler(self, mock_user_template):
+    """Test the list handler displays users from the datastore."""
     self.testapp.get(PATHS['user_page_path'])
     mock_user_template.assert_called_once_with()
 
   @patch('user.User.DeleteByKey')
   @patch('user._RenderUserListTemplate')
-  def testDeleteUserHandler(self, mock_user_template,
-                            mock_delete_user):
+  def testDeleteUserHandler(self, mock_user_template, mock_delete_user):
+    """Test the delete handler calls to delete the user from the datastore."""
     self.testapp.get(PATHS['user_delete_path'] + '?key=' + FAKE_DS_KEY)
     mock_delete_user.assert_called_once_with(FAKE_DS_KEY)
     mock_user_template.assert_called_once_with()
@@ -86,6 +89,7 @@ class UserTest(unittest.TestCase):
   @patch('user._RenderUserDetailsTemplate')
   def testGetInviteCodeHandler(self, mock_user_template, mock_make_invite_code,
                                mock_get_user):
+    """Test the invite code handler generates an invite code for the user."""
     mock_get_user.return_value = FAKE_USER
     fake_invite_code = 'base64EncodedBlob'
     mock_make_invite_code.return_value = fake_invite_code
@@ -101,6 +105,7 @@ class UserTest(unittest.TestCase):
   @patch('user.User.UpdateKeyPair')
   def testGetNewKeyPairHandler(self, mock_update, mock_get_by_key,
                                mock_render_details):
+    """Test the key pair handler calls to set a new key pair for the user."""
     mock_get_by_key.return_value = FAKE_USER
 
     self.testapp.get(
@@ -119,6 +124,7 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerNoParam(self, mock_ds, mock_get_users,
                                     mock_get_by_key, mock_get_user,
                                     mock_watch_users, mock_render):
+    """Test the add users get handler displays no users on initial get."""
     # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     self.testapp.get(PATHS['user_add_path'])
@@ -139,6 +145,7 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithGroup(self, mock_ds, mock_get_users,
                                       mock_get_by_key, mock_get_user,
                                       mock_watch_users, mock_render):
+    """Test the add users get handler displays users from a given group."""
     # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     # Email address could refer to group or user
@@ -165,6 +172,7 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithUser(self, mock_ds, mock_get_users,
                                      mock_get_by_key, mock_get_user,
                                      mock_watch_users, mock_render):
+    """Test the add users get handler displays a given user as requested."""
     # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     # Email address could refer to group or user
@@ -191,6 +199,7 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithAll(self, mock_ds, mock_get_users,
                                     mock_get_by_key, mock_get_user,
                                     mock_watch_users, mock_render):
+    """Test the add users get handler displays all users in a domain."""
     # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     mock_get_users.return_value = FAKE_USER_ARRAY
@@ -215,6 +224,7 @@ class UserTest(unittest.TestCase):
   def testAddUsersGetHandlerWithError(self, mock_ds, mock_get_users,
                                       mock_get_by_key, mock_get_user,
                                       mock_watch_users, mock_render):
+    """Test the add users get handler fails gracefully."""
     # pylint: disable=too-many-arguments
     fake_status = '404'
     fake_response = MagicMock(status=fake_status)
@@ -233,6 +243,7 @@ class UserTest(unittest.TestCase):
 
   @patch('user.User.InsertUsers')
   def testAddUsersPostHandler(self, mock_insert):
+    """Test the add users post handler calls to insert the specified users."""
     user_1 = {}
     user_1['primaryEmail'] = FAKE_EMAIL_1
     user_1['name'] = {}
@@ -256,6 +267,7 @@ class UserTest(unittest.TestCase):
   @patch('user.User.ToggleKeyRevoked')
   def testToggleKeyRevokedHandler(self, mock_toggle_key_revoked,
                                   mock_get_by_key, mock_render_details):
+    """Test the toggle revoked handler toggles a user's status in datastore."""
     mock_get_by_key.return_value = FAKE_USER
 
     self.testapp.get(PATHS['user_toggle_revoked_path'] + '?key=' + FAKE_DS_KEY)
@@ -267,6 +279,7 @@ class UserTest(unittest.TestCase):
   @patch('user._RenderUserDetailsTemplate')
   @patch('user.User.GetByKey')
   def testGetUserDetailsHandler(self, mock_get_by_key, mock_render_details):
+    """Test the user details handler calls to render a user's information."""
     mock_get_by_key.return_value = FAKE_USER
 
     self.testapp.get(PATHS['user_details_path'] + '?key=' + FAKE_DS_KEY)
@@ -277,6 +290,10 @@ class UserTest(unittest.TestCase):
   @patch('user._GenerateUserPayload')
   @patch('user.User.GetAll')
   def testRenderUserListTemplate(self, mock_get_all, mock_generate):
+    """Test the user list is rendered as in the html."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     fake_users = [FAKE_USER]
     mock_get_all.return_value = fake_users
     fake_dictionary = {}
@@ -296,6 +313,10 @@ class UserTest(unittest.TestCase):
 
   @patch('datastore.DomainVerification.GetOrInsertDefault')
   def testRenderLandingTemplate(self, mock_domain_verif):
+    """Test the basic landing page is rendered as in the html."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     fake_content = 'foobarbaz'
     fake_domain_verif = MagicMock(content=fake_content)
     mock_domain_verif.return_value = fake_domain_verif
@@ -306,6 +327,10 @@ class UserTest(unittest.TestCase):
     self.assertTrue(fake_content in landing_template)
 
   def testRenderAddUsersWithNoUsers(self):
+    """Test the user add form is rendered properly without users."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     add_users_template = user._RenderAddUsersTemplate([])
     no_user_string = 'No users found. Try another query below.'
     self.assertTrue(no_user_string in add_users_template)
@@ -313,12 +338,20 @@ class UserTest(unittest.TestCase):
     self.assertTrue('An error occurred while' not in add_users_template)
 
   def testRenderAddUsersWithUsers(self):
+    """Test the user add form is rendered properly with users."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     add_users_template = user._RenderAddUsersTemplate(FAKE_USER_ARRAY)
     self.assertTrue('Add Selected Users' in add_users_template)
     self.assertTrue('xsrf' in add_users_template)
     self.assertTrue('An error occurred while' not in add_users_template)
 
   def testRenderAddUsersWithError(self):
+    """Test the user add form is rendered properly with an error."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     fake_error = 'foo bar happened causing baz'
     add_users_template = user._RenderAddUsersTemplate([], fake_error)
     self.assertTrue('An error occurred while' in add_users_template)
@@ -326,6 +359,10 @@ class UserTest(unittest.TestCase):
 
   @patch.object(user.User, 'key')
   def testRenderUserDetailTemplate(self, mock_url_key):
+    """Test the user detail page is rendered with a user's properties."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     mock_url_key.urlsafe.return_value = FAKE_DS_KEY
 
     user_details_template = user._RenderUserDetailsTemplate(FAKE_USER)
@@ -340,6 +377,10 @@ class UserTest(unittest.TestCase):
 
   @patch.object(user.User, 'key')
   def testRenderUserDetailInviteCode(self, mock_url_key):
+    """Test the user detail page is rendered with an invite code."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     fake_invite_code = 'foo bar baz in base64 blob'
     mock_url_key.urlsafe.return_value = FAKE_DS_KEY
 
@@ -357,6 +398,10 @@ class UserTest(unittest.TestCase):
 
   @patch.object(user.User, 'key')
   def testGenerateUserPayload(self, mock_url_key):
+    """Test that a user payload does not include the user's keys."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     mock_url_key.urlsafe.return_value = FAKE_DS_KEY
     fake_users = [FAKE_USER]
 
@@ -371,6 +416,10 @@ class UserTest(unittest.TestCase):
 
   @patch('user._GetInviteCodeIp')
   def testMakeInviteCode(self, mock_get_ip):
+    """Test that making an invite code follows the proper format."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     fake_ip = '0.0.0.0'
     mock_get_ip.return_value = fake_ip
 
@@ -390,6 +439,10 @@ class UserTest(unittest.TestCase):
 
   @patch('user.ProxyServer.GetAll')
   def testGetInviteCodeIp(self, mock_get_all_proxies):
+    """Test that an invite code IP belongs to some proxy server."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     fake_ip_1 = '0.0.0.0'
     fake_proxy_1 = MagicMock(ip_address=fake_ip_1)
     fake_ip_2 = '1.2.3.4'

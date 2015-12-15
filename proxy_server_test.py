@@ -39,20 +39,24 @@ class ProxyServerTest(unittest.TestCase):
   """Test proxy server class functionality."""
 
   def setUp(self):
+    """Setup test app on which to call handlers."""
     self.testapp = webtest.TestApp(proxy_server.APP)
 
   @patch('proxy_server._RenderListProxyServerTemplate')
   def testListProxyServersHandler(self, mock_render_list_template):
+    """Test the list handler displays proxy servers from the datastore."""
     self.testapp.get('/proxyserver/list')
     mock_render_list_template.assert_called_once_with()
 
   @patch('proxy_server._RenderProxyServerFormTemplate')
   def testAddProxyServerGetHandler(self, mock_render_add_template):
+    """Test the add handler displays the add proxy server form."""
     self.testapp.get('/proxyserver/add')
     mock_render_add_template.assert_called_once_with(None)
 
   @patch('datastore.ProxyServer.Insert')
   def testAddProxyServerPostHandler(self, mock_insert):
+    """Test the add handler adds a new proxy server into the datastore."""
     response = self.testapp.post('/proxyserver/add')
 
     mock_insert.assert_called_once_with('', '', '', '')
@@ -62,6 +66,7 @@ class ProxyServerTest(unittest.TestCase):
   @patch('proxy_server._RenderProxyServerFormTemplate')
   @patch('datastore.ProxyServer.Get')
   def testEditProxyServerGetHandler(self, mock_get, mock_render_edit_template):
+    """Test the edit handler prepopulates the proxy server in the form."""
     fake_proxy_server = GetFakeProxyServer()
     mock_get.return_value = fake_proxy_server
     self.testapp.get('/proxyserver/edit?id=' + str(FAKE_ID))
@@ -71,6 +76,7 @@ class ProxyServerTest(unittest.TestCase):
 
   @patch('datastore.ProxyServer.Update')
   def testEditProxyServerPostHandler(self, mock_update):
+    """Test the edit handler updates the proxy server in the datastore."""
     params = {'id': str(FAKE_ID),
               'name': FAKE_NAME,
               'ip_address': FAKE_IP_ADDRESS,
@@ -87,6 +93,7 @@ class ProxyServerTest(unittest.TestCase):
   @patch('datastore.ProxyServer.Delete')
   def testDeleteProxyServerHandler(self, mock_delete,
                                    mock_render_list_template):
+    """Test the delete handler calls to delete the proxy from the datastore."""
     self.testapp.get('/proxyserver/delete?id=' + str(FAKE_ID))
     mock_delete.assert_called_once_with(FAKE_ID)
     mock_render_list_template.assert_called_once_with()
@@ -96,6 +103,7 @@ class ProxyServerTest(unittest.TestCase):
   @patch('datastore.ProxyServer.GetAll')
   def testDistributeKeyHandler(self, mock_get_all, mock_request,
                                mock_make_key_string):
+    """Test the distribute handler calls to put the keys on each proxy."""
     fake_proxy_server = GetFakeProxyServer()
     fake_proxy_servers = [fake_proxy_server]
     mock_get_all.return_value = fake_proxy_servers
@@ -116,6 +124,10 @@ class ProxyServerTest(unittest.TestCase):
         body=fake_key_string)
 
   def testRenderAddProxyServerTemplate(self):
+    """Test the proxy server add form is rendered as in the html."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     add_form = proxy_server._RenderProxyServerFormTemplate(None)
     self.assertTrue('/proxyserver/add' in add_form)
     self.assertFalse('/proxyserver/edit' in add_form)
@@ -123,6 +135,10 @@ class ProxyServerTest(unittest.TestCase):
     self.assertTrue('IP Address' in add_form)
 
   def testRenderEditProxyServerTemplate(self):
+    """Test the proxy server edit form is rendered as in the html."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     fake_proxy_server = GetFakeProxyServer()
     edit_form = proxy_server._RenderProxyServerFormTemplate(fake_proxy_server)
     self.assertFalse('/proxyserver/add' in edit_form)
@@ -136,6 +152,10 @@ class ProxyServerTest(unittest.TestCase):
 
   @patch('datastore.ProxyServer.GetAll')
   def testRenderListProxyServerTemplate(self, mock_get_all):
+    """Test proxy servers from the datastore are rendered as in the html."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     fake_proxy_server = GetFakeProxyServer()
     fake_proxy_servers = [fake_proxy_server]
     mock_get_all.return_value = fake_proxy_servers
@@ -149,6 +169,10 @@ class ProxyServerTest(unittest.TestCase):
 
   @patch('datastore.User.GetAll')
   def testMakeKeyString(self, mock_get_all):
+    """Test that the key string is generated with all non-revoked users."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     fake_emails = ['foo@bar.com', 'bar@baz.com', 'baz@foo.com']
     fake_public_keys = ['123abc', 'def456', '789ghi']
     fake_user_1 = MagicMock(email=fake_emails[0],

@@ -7,4 +7,5 @@ class BaseDriver(object):
   # pylint: disable=too-few-public-methods
 
   def __init__(self, driver):
+    """Create the base driver object."""
     self.driver = driver
