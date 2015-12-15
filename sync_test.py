@@ -107,7 +107,7 @@ class UserTest(unittest.TestCase):
   @patch('sync.GoogleDirectoryService.__init__')
   def testWatchUserDeleteException(self, mock_directory_service,
                                    mock_watch_users):
-    """Test the we fail gracefully if directory service has an error."""
+    """Test that we fail gracefully if directory service has an error."""
     # pylint: disable=too-many-arguments
     fake_status = '404'
     fake_response = MagicMock(status=fake_status)
@@ -145,7 +145,7 @@ class UserTest(unittest.TestCase):
   @patch('sync.NotificationChannel.Get')
   def testUnsubscribeException(self, mock_get_channel, mock_directory_service,
                                mock_stop_notifications):
-    """Test the we fail gracefully if directory service has an error."""
+    """Test that we fail gracefully if directory service has an error."""
     # pylint: disable=too-many-arguments
     fake_channel = MagicMock()
     mock_get_channel.return_value = fake_channel
