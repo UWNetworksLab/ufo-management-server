@@ -10,7 +10,7 @@
   {% for key, (email, token_payload) in user_token_payloads.iteritems() %}
     <paper-item>
       <b>{{ email }}</b>
-      <a href="{{ BASE_URL }}/user/getNewToken?key={{ key }}">
+      <a href="{{ BASE_URL }}{{ user_get_new_key_pair_path }}?key={{ key }}">
         <paper-button raised class="anchor-button">Get New Token
         </paper-button></a>
     </paper-item>

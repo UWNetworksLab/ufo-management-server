@@ -2,6 +2,7 @@
 
 import admin
 from appengine_config import JINJA_ENVIRONMENT
+from config import PATHS
 from datastore import ProxyServer
 from datastore import User
 import httplib2
@@ -73,7 +74,7 @@ class AddProxyServerHandler(webapp2.RequestHandler):
         self.request.get('ip_address'),
         self.request.get('ssh_private_key'),
         self.request.get('fingerprint'))
-    self.redirect('/proxyserver/list')
+    self.redirect(PATHS['proxy_server_list'])
 
 
 class EditProxyServerHandler(webapp2.RequestHandler):
@@ -98,7 +99,7 @@ class EditProxyServerHandler(webapp2.RequestHandler):
         self.request.get('ip_address'),
         self.request.get('ssh_private_key'),
         self.request.get('fingerprint'))
-    self.redirect('/proxyserver/list')
+    self.redirect(PATHS['proxy_server_list'])
 
 
 class DeleteProxyServerHandler(webapp2.RequestHandler):
@@ -164,12 +165,12 @@ class DistributeKeyHandler(webapp2.RequestHandler):
 
 
 APP = webapp2.WSGIApplication([
-    ('/proxyserver/add', AddProxyServerHandler),
-    ('/proxyserver/delete', DeleteProxyServerHandler),
-    ('/proxyserver/edit', EditProxyServerHandler),
-    ('/proxyserver/list', ListProxyServersHandler),
+    (PATHS['proxy_server_add'], AddProxyServerHandler),
+    (PATHS['proxy_server_delete'], DeleteProxyServerHandler),
+    (PATHS['proxy_server_edit'], EditProxyServerHandler),
+    (PATHS['proxy_server_list'], ListProxyServersHandler),
 
-    ('/cron/proxyserver/distributekey', DistributeKeyHandler),
+    (PATHS['cron_proxy_server_distribute_key'], DistributeKeyHandler),
     (admin.OAUTH_DECORATOR.callback_path,
      admin.OAUTH_DECORATOR.callback_handler()),
 ], debug=True)

@@ -3,6 +3,7 @@ from mock import MagicMock
 from mock import patch
 import sys
 
+from config import PATHS
 import unittest
 import webtest
 
@@ -45,7 +46,7 @@ class SetupTest(unittest.TestCase):
   @patch('setup._RenderSetupOAuthClientTemplate')
   def testSetupGetHandler(self, mock_render_oauth_template):
     """Test get on the setup handler renders the setup form."""
-    self.testapp.get('/setup')
+    self.testapp.get(PATHS['setup_oauth_path'])
     mock_render_oauth_template.assert_called_once_with()
 
   @patch('user.User.GetCount')
@@ -60,8 +61,8 @@ class SetupTest(unittest.TestCase):
     the datastore as posted.
     """
     mock_get_count.return_value = 1
-    post_url = ('/setup?client_id={0}&client_secret={1}' +
-                '&dv_content={2}')
+    post_url = (PATHS['setup_oauth_path'] +
+                '?client_id={0}&client_secret={1}&dv_content={2}')
     resp = self.testapp.post(post_url.format(unicode(FAKE_ID, 'utf-8'),
                                              unicode(FAKE_SECRET, 'utf-8'),
                                              unicode(FAKE_CONTENT, 'utf-8')))
@@ -70,7 +71,7 @@ class SetupTest(unittest.TestCase):
     mock_dv_update.assert_called_once_with(FAKE_CONTENT)
     mock_get_count.assert_called_once_with()
     self.assertEqual(resp.status_int, 302)
-    self.assertTrue('/user' in resp.location)
+    self.assertTrue(PATHS['user_page_path'] in resp.location)
 
   @patch('user.User.GetCount')
   @patch('datastore.DomainVerification.Update')
@@ -80,8 +81,8 @@ class SetupTest(unittest.TestCase):
                                  mock_dv_update, mock_get_count):
     """Test posting before adding users redirects to the add flow."""
     mock_get_count.return_value = 0
-    post_url = ('/setup?client_id={0}&client_secret={1}' +
-                '&dv_content={2}')
+    post_url = (PATHS['setup_oauth_path'] +
+                '?client_id={0}&client_secret={1}&dv_content={2}')
     resp = self.testapp.post(post_url.format(unicode(FAKE_ID, 'utf-8'),
                                              unicode(FAKE_SECRET, 'utf-8'),
                                              unicode(FAKE_CONTENT, 'utf-8')))
@@ -91,7 +92,7 @@ class SetupTest(unittest.TestCase):
     mock_get_count.assert_called_once_with()
 
     self.assertEqual(resp.status_int, 302)
-    self.assertTrue('/user/add' in resp.location)
+    self.assertTrue(PATHS['user_add_path'] in resp.location)
 
   @patch('datastore.DomainVerification.GetOrInsertDefault')
   @patch('datastore.OAuth.GetOrInsertDefault')

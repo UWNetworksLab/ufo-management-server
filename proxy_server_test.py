@@ -2,6 +2,7 @@
 import sys
 import unittest
 
+from config import PATHS
 from mock import MagicMock
 from mock import patch
 import webtest
@@ -45,23 +46,23 @@ class ProxyServerTest(unittest.TestCase):
   @patch('proxy_server._RenderListProxyServerTemplate')
   def testListProxyServersHandler(self, mock_render_list_template):
     """Test the list handler displays proxy servers from the datastore."""
-    self.testapp.get('/proxyserver/list')
+    self.testapp.get(PATHS['proxy_server_list'])
     mock_render_list_template.assert_called_once_with()
 
   @patch('proxy_server._RenderProxyServerFormTemplate')
   def testAddProxyServerGetHandler(self, mock_render_add_template):
     """Test the add handler displays the add proxy server form."""
-    self.testapp.get('/proxyserver/add')
+    self.testapp.get(PATHS['proxy_server_add'])
     mock_render_add_template.assert_called_once_with(None)
 
   @patch('datastore.ProxyServer.Insert')
   def testAddProxyServerPostHandler(self, mock_insert):
     """Test the add handler adds a new proxy server into the datastore."""
-    response = self.testapp.post('/proxyserver/add')
+    response = self.testapp.post(PATHS['proxy_server_add'])
 
     mock_insert.assert_called_once_with('', '', '', '')
     self.assertEqual(response.status_int, 302)
-    self.assertTrue('/proxyserver/list' in response.location)
+    self.assertTrue(PATHS['proxy_server_list'] in response.location)
 
   @patch('proxy_server._RenderProxyServerFormTemplate')
   @patch('datastore.ProxyServer.Get')
@@ -69,7 +70,7 @@ class ProxyServerTest(unittest.TestCase):
     """Test the edit handler prepopulates the proxy server in the form."""
     fake_proxy_server = GetFakeProxyServer()
     mock_get.return_value = fake_proxy_server
-    self.testapp.get('/proxyserver/edit?id=' + str(FAKE_ID))
+    self.testapp.get(PATHS['proxy_server_edit'] + '?id=' + str(FAKE_ID))
 
     mock_get.assert_called_once_with(FAKE_ID)
     mock_render_edit_template.assert_called_once_with(fake_proxy_server)
@@ -82,19 +83,19 @@ class ProxyServerTest(unittest.TestCase):
               'ip_address': FAKE_IP_ADDRESS,
               'ssh_private_key': FAKE_SSH_PRIVATE_KEY,
               'fingerprint': FAKE_FINGERPRINT}
-    response = self.testapp.post('/proxyserver/edit', params)
+    response = self.testapp.post(PATHS['proxy_server_edit'], params)
 
     mock_update.assert_called_once_with(FAKE_ID, FAKE_NAME, FAKE_IP_ADDRESS,
                                         FAKE_SSH_PRIVATE_KEY, FAKE_FINGERPRINT)
     self.assertEqual(response.status_int, 302)
-    self.assertTrue('/proxyserver/list' in response.location)
+    self.assertTrue(PATHS['proxy_server_list'] in response.location)
 
   @patch('proxy_server._RenderListProxyServerTemplate')
   @patch('datastore.ProxyServer.Delete')
   def testDeleteProxyServerHandler(self, mock_delete,
                                    mock_render_list_template):
     """Test the delete handler calls to delete the proxy from the datastore."""
-    self.testapp.get('/proxyserver/delete?id=' + str(FAKE_ID))
+    self.testapp.get(PATHS['proxy_server_delete'] + '?id=' + str(FAKE_ID))
     mock_delete.assert_called_once_with(FAKE_ID)
     mock_render_list_template.assert_called_once_with()
 
@@ -116,7 +117,7 @@ class ProxyServerTest(unittest.TestCase):
     fake_key_string = 'ssh-rsa public_key email'
     mock_make_key_string.return_value = fake_key_string
 
-    self.testapp.get('/cron/proxyserver/distributekey')
+    self.testapp.get(PATHS['cron_proxy_server_distribute_key'])
     mock_request.assert_called_once_with(
         'http://%s/key' % fake_proxy_server.ip_address,
         headers={'content-type': 'text/plain'},
@@ -129,8 +130,8 @@ class ProxyServerTest(unittest.TestCase):
     # private method.
     # pylint: disable=protected-access
     add_form = proxy_server._RenderProxyServerFormTemplate(None)
-    self.assertTrue('/proxyserver/add' in add_form)
-    self.assertFalse('/proxyserver/edit' in add_form)
+    self.assertTrue(PATHS['proxy_server_add'] in add_form)
+    self.assertFalse(PATHS['proxy_server_edit'] in add_form)
     self.assertTrue('Name' in add_form)
     self.assertTrue('IP Address' in add_form)
 
@@ -141,8 +142,8 @@ class ProxyServerTest(unittest.TestCase):
     # pylint: disable=protected-access
     fake_proxy_server = GetFakeProxyServer()
     edit_form = proxy_server._RenderProxyServerFormTemplate(fake_proxy_server)
-    self.assertFalse('/proxyserver/add' in edit_form)
-    self.assertTrue('/proxyserver/edit' in edit_form)
+    self.assertFalse(PATHS['proxy_server_add'] in edit_form)
+    self.assertTrue(PATHS['proxy_server_edit'] in edit_form)
     # TODO(henryc): We need better asserts on the exact elements and their
     # values.  Will circle back once the UI is in shape.
     self.assertTrue('Name' in edit_form)

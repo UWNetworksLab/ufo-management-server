@@ -2,6 +2,7 @@
 
 import admin
 from appengine_config import JINJA_ENVIRONMENT
+from config import PATHS
 from datastore import User
 from datastore import OAuth
 from datastore import DomainVerification
@@ -45,13 +46,13 @@ class SetupOAuthClientHandler(webapp2.RequestHandler):
     dv_content = self.request.get('dv_content')
     DomainVerification.Update(dv_content)
     if User.GetCount() > 0:
-      self.redirect('/user')
+      self.redirect(PATHS['user_page_path'])
     else:
-      self.redirect('/user/add')
+      self.redirect(PATHS['user_add_path'])
 
 
 APP = webapp2.WSGIApplication([
-    ('/setup', SetupOAuthClientHandler),
+    (PATHS['setup_oauth_path'], SetupOAuthClientHandler),
 ], debug=True)
 
 # This is the only way to catch exceptions from the oauth decorators.
