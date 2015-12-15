@@ -4,6 +4,7 @@ from mock import patch
 import sys
 
 import base64
+from config import PATHS
 from datastore import User
 from googleapiclient import errors
 from google.appengine.ext import ndb
@@ -66,20 +67,20 @@ class UserTest(unittest.TestCase):
   @patch('user._RenderLandingTemplate')
   def testLandingPageHandler(self, mock_landing_template):
     """Test get on the landing handler renders the home page."""
-    self.testapp.get('/')
+    self.testapp.get(PATHS['landing_page_path'])
     mock_landing_template.assert_called_once_with()
 
   @patch('user._RenderUserListTemplate')
   def testListUsersHandler(self, mock_user_template):
     """Test the list handler displays users from the datastore."""
-    self.testapp.get('/user')
+    self.testapp.get(PATHS['user_page_path'])
     mock_user_template.assert_called_once_with()
 
   @patch('user.User.DeleteByKey')
   @patch('user._RenderUserListTemplate')
   def testDeleteUserHandler(self, mock_user_template, mock_delete_user):
     """Test the delete handler calls to delete the user from the datastore."""
-    self.testapp.get('/user/delete?key=%s' % FAKE_DS_KEY)
+    self.testapp.get(PATHS['user_delete_path'] + '?key=' + FAKE_DS_KEY)
     mock_delete_user.assert_called_once_with(FAKE_DS_KEY)
     mock_user_template.assert_called_once_with()
 
@@ -93,7 +94,7 @@ class UserTest(unittest.TestCase):
     fake_invite_code = 'base64EncodedBlob'
     mock_make_invite_code.return_value = fake_invite_code
 
-    self.testapp.get('/user/getInviteCode?key=%s' % FAKE_DS_KEY)
+    self.testapp.get(PATHS['user_get_invite_code_path'] + '?key=' + FAKE_DS_KEY)
 
     mock_get_user.assert_called_once_with(FAKE_DS_KEY)
     mock_make_invite_code.assert_called_once_with(FAKE_USER)
@@ -107,7 +108,8 @@ class UserTest(unittest.TestCase):
     """Test the key pair handler calls to set a new key pair for the user."""
     mock_get_by_key.return_value = FAKE_USER
 
-    self.testapp.get('/user/getNewKeyPair?key=%s' % FAKE_DS_KEY)
+    self.testapp.get(
+        PATHS['user_get_new_key_pair_path'] + '?key=' + FAKE_DS_KEY)
 
     mock_update.assert_called_once_with(FAKE_DS_KEY)
     mock_get_by_key.assert_called_once_with(FAKE_DS_KEY)
@@ -125,7 +127,7 @@ class UserTest(unittest.TestCase):
     """Test the add users get handler displays no users on initial get."""
     # pylint: disable=too-many-arguments
     mock_ds.return_value = None
-    self.testapp.get('/user/add')
+    self.testapp.get(PATHS['user_add_path'])
 
     mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_users.assert_not_called()
@@ -149,7 +151,7 @@ class UserTest(unittest.TestCase):
     # Email address could refer to group or user
     group_key = 'foo@bar.mybusiness.com'
     mock_get_by_key.return_value = FAKE_USER_ARRAY
-    self.testapp.get('/user/add?group_key=' + group_key)
+    self.testapp.get(PATHS['user_add_path'] + '?group_key=' + group_key)
 
     mock_get_users.assert_not_called()
     mock_get_user.assert_not_called()
@@ -176,7 +178,7 @@ class UserTest(unittest.TestCase):
     # Email address could refer to group or user
     user_key = 'foo@bar.mybusiness.com'
     mock_get_user.return_value = FAKE_USER_ARRAY
-    self.testapp.get('/user/add?user_key=' + user_key)
+    self.testapp.get(PATHS['user_add_path'] + '?user_key=' + user_key)
 
     mock_get_users.assert_not_called()
     mock_get_by_key.assert_not_called()
@@ -201,7 +203,7 @@ class UserTest(unittest.TestCase):
     # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     mock_get_users.return_value = FAKE_USER_ARRAY
-    self.testapp.get('/user/add?get_all=true')
+    self.testapp.get(PATHS['user_add_path'] + '?get_all=true')
 
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
@@ -230,7 +232,7 @@ class UserTest(unittest.TestCase):
     fake_error = errors.HttpError(fake_response, fake_content)
     mock_ds.side_effect = fake_error
     mock_get_users.return_value = FAKE_USER_ARRAY
-    self.testapp.get('/user/add?get_all=true')
+    self.testapp.get(PATHS['user_add_path'] + '?get_all=true')
 
     mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_by_key.assert_not_called()
@@ -254,11 +256,11 @@ class UserTest(unittest.TestCase):
     user_array.append(user_1)
     user_array.append(user_2)
     data = '?selected_user={0}&selected_user={1}'.format(user_1, user_2)
-    response = self.testapp.post('/user/add' + data)
+    response = self.testapp.post(PATHS['user_add_path'] + data)
 
     mock_insert.assert_called_once_with(user_array)
     self.assertEqual(response.status_int, 302)
-    self.assertTrue('/user' in response.location)
+    self.assertTrue(PATHS['user_page_path'] in response.location)
 
   @patch('user._RenderUserDetailsTemplate')
   @patch('user.User.GetByKey')
@@ -268,7 +270,7 @@ class UserTest(unittest.TestCase):
     """Test the toggle revoked handler toggles a user's status in datastore."""
     mock_get_by_key.return_value = FAKE_USER
 
-    self.testapp.get('/user/toggleRevoked?key=%s' % FAKE_DS_KEY)
+    self.testapp.get(PATHS['user_toggle_revoked_path'] + '?key=' + FAKE_DS_KEY)
 
     mock_toggle_key_revoked.assert_called_once_with(FAKE_DS_KEY)
     mock_get_by_key.assert_called_once_with(FAKE_DS_KEY)
@@ -280,7 +282,7 @@ class UserTest(unittest.TestCase):
     """Test the user details handler calls to render a user's information."""
     mock_get_by_key.return_value = FAKE_USER
 
-    self.testapp.get('/user/details?key=%s' % FAKE_DS_KEY)
+    self.testapp.get(PATHS['user_details_path'] + '?key=' + FAKE_DS_KEY)
 
     mock_get_by_key.assert_called_once_with(FAKE_DS_KEY)
     mock_render_details.assert_called_once_with(FAKE_USER)
