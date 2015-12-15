@@ -4,6 +4,14 @@ import admin
 from appengine_config import JINJA_ENVIRONMENT
 from ast import literal_eval
 import base64
+from config import LANDING_PAGE_PATH
+from config import USER_PAGE_PATH
+from config import USER_DELETE_PATH
+from config import USER_GET_INVITE_CODE_PATH
+from config import USER_GET_NEW_KEY_PAIR_PATH
+from config import USER_ADD_PATH
+from config import USER_TOGGLE_REVOKED_PATH
+from config import USER_DETAILS_PATH
 from datastore import DomainVerification
 from datastore import ProxyServer
 from datastore import User
@@ -266,7 +274,7 @@ class AddUsersHandler(webapp2.RequestHandler):
       decoded_user = literal_eval(user)
       decoded_users.append(decoded_user)
     User.InsertUsers(decoded_users)
-    self.redirect('/user')
+    self.redirect(USER_PAGE_PATH)
 
 
 class ToggleKeyRevokedHandler(webapp2.RequestHandler):
@@ -301,14 +309,14 @@ class GetUserDetailsHandler(webapp2.RequestHandler):
 
 
 APP = webapp2.WSGIApplication([
-    ('/', LandingPageHandler),
-    ('/user', ListUsersHandler),
-    ('/user/delete', DeleteUserHandler),
-    ('/user/getInviteCode', GetInviteCodeHandler),
-    ('/user/getNewKeyPair', GetNewKeyPairHandler),
-    ('/user/add', AddUsersHandler),
-    ('/user/toggleRevoked', ToggleKeyRevokedHandler),
-    ('/user/details', GetUserDetailsHandler),
+    (LANDING_PAGE_PATH, LandingPageHandler),
+    (USER_PAGE_PATH, ListUsersHandler),
+    (USER_DELETE_PATH, DeleteUserHandler),
+    (USER_GET_INVITE_CODE_PATH, GetInviteCodeHandler),
+    (USER_GET_NEW_KEY_PAIR_PATH, GetNewKeyPairHandler),
+    (USER_ADD_PATH, AddUsersHandler),
+    (USER_TOGGLE_REVOKED_PATH, ToggleKeyRevokedHandler),
+    (USER_DETAILS_PATH, GetUserDetailsHandler),
     (admin.OAUTH_DECORATOR.callback_path,
      admin.OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
