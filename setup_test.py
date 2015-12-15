@@ -39,7 +39,7 @@ class SetupTest(unittest.TestCase):
   """Test setup class functionality."""
 
   def setUp(self):
-    """Setup test app on which to call handlers"""
+    """Setup test app on which to call handlers."""
     self.testapp = webtest.TestApp(setup.APP)
 
   @patch('setup._RenderSetupOAuthClientTemplate')
