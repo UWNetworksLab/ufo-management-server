@@ -58,13 +58,13 @@ class AddProxyServerHandler(webapp2.RequestHandler):
   """Handler for adding new proxy servers."""
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Get the form for adding new proxy servers."""
     self.response.write(_RenderProxyServerFormTemplate(None))
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   @xsrf.XSRFProtect
   def post(self):
     """Add a new proxy server with the post parameters passed in."""
@@ -81,14 +81,14 @@ class EditProxyServerHandler(webapp2.RequestHandler):
   """Handler for editing an existing proxy server."""
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Get a proxy server's current data and display its edit form."""
     proxy_server = ProxyServer.Get(int(self.request.get('id')))
     self.response.write(_RenderProxyServerFormTemplate(proxy_server))
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   @xsrf.XSRFProtect
   def post(self):
     """Set an existing proxy server with the post parameters passed in."""
@@ -108,7 +108,7 @@ class DeleteProxyServerHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Delete the proxy server corresponding to the passed in id.
 
@@ -125,7 +125,7 @@ class ListProxyServersHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Get all current proxy servers and list them with their metadata."""
     self.response.write(_RenderListProxyServerTemplate())

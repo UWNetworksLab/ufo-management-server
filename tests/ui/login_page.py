@@ -44,7 +44,7 @@ class LoginPage(BaseDriver):
     next_button.click()
 
     password_input = WebDriverWait(self.driver, 10).until(
-        EC.presence_of_element_located(((self.PASSWORD_INPUT))))
+        EC.visibility_of_element_located(((self.PASSWORD_INPUT))))
     password_input.send_keys(args.password)
 
     sign_in_button = self.driver.find_element(*self.SIGN_IN_BUTTON)
