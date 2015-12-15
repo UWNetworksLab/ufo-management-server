@@ -110,30 +110,34 @@ class UserTest(unittest.TestCase):
     mock_render_details.assert_called_once_with(FAKE_USER)
 
   @patch('user._RenderAddUsersTemplate')
+  @patch('google_directory_service.GoogleDirectoryService.WatchUsers')
   @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
   def testAddUsersGetHandlerNoParam(self, mock_ds, mock_get_users,
                                     mock_get_by_key, mock_get_user,
-                                    mock_render):
+                                    mock_watch_users, mock_render):
     # pylint: disable=too-many-arguments
+    mock_ds.return_value = None
     self.testapp.get('/user/add')
 
-    mock_ds.assert_not_called()
+    mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_users.assert_not_called()
     mock_get_user.assert_not_called()
     mock_get_by_key.assert_not_called()
+    mock_watch_users.assert_not_called()
     mock_render.assert_called_once_with([])
 
   @patch('user._RenderAddUsersTemplate')
+  @patch('google_directory_service.GoogleDirectoryService.WatchUsers')
   @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
-  @patch.object(google_directory_service.GoogleDirectoryService, '__init__')
+  @patch('google_directory_service.GoogleDirectoryService.__init__')
   def testAddUsersGetHandlerWithGroup(self, mock_ds, mock_get_users,
                                       mock_get_by_key, mock_get_user,
-                                      mock_render):
+                                      mock_watch_users, mock_render):
     # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     # Email address could refer to group or user
@@ -145,16 +149,21 @@ class UserTest(unittest.TestCase):
     mock_get_user.assert_not_called()
     mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_by_key.assert_called_once_with(group_key)
+    mock_watch_users.assert_any_call('delete')
+    mock_watch_users.assert_any_call('makeAdmin')
+    mock_watch_users.assert_any_call('undelete')
+    mock_watch_users.assert_any_call('update')
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
   @patch('user._RenderAddUsersTemplate')
+  @patch('google_directory_service.GoogleDirectoryService.WatchUsers')
   @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
   def testAddUsersGetHandlerWithUser(self, mock_ds, mock_get_users,
                                      mock_get_by_key, mock_get_user,
-                                     mock_render):
+                                     mock_watch_users, mock_render):
     # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     # Email address could refer to group or user
@@ -166,16 +175,21 @@ class UserTest(unittest.TestCase):
     mock_get_by_key.assert_not_called()
     mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_user.assert_called_once_with(user_key)
+    mock_watch_users.assert_any_call('delete')
+    mock_watch_users.assert_any_call('makeAdmin')
+    mock_watch_users.assert_any_call('undelete')
+    mock_watch_users.assert_any_call('update')
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
   @patch('user._RenderAddUsersTemplate')
+  @patch('google_directory_service.GoogleDirectoryService.WatchUsers')
   @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
   def testAddUsersGetHandlerWithAll(self, mock_ds, mock_get_users,
                                     mock_get_by_key, mock_get_user,
-                                    mock_render):
+                                    mock_watch_users, mock_render):
     # pylint: disable=too-many-arguments
     mock_ds.return_value = None
     mock_get_users.return_value = FAKE_USER_ARRAY
@@ -185,16 +199,21 @@ class UserTest(unittest.TestCase):
     mock_get_user.assert_not_called()
     mock_ds.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_get_users.assert_called_once_with()
+    mock_watch_users.assert_any_call('delete')
+    mock_watch_users.assert_any_call('makeAdmin')
+    mock_watch_users.assert_any_call('undelete')
+    mock_watch_users.assert_any_call('update')
     mock_render.assert_called_once_with(FAKE_USER_ARRAY)
 
   @patch('user._RenderAddUsersTemplate')
+  @patch('google_directory_service.GoogleDirectoryService.WatchUsers')
   @patch('google_directory_service.GoogleDirectoryService.GetUserAsList')
   @patch('google_directory_service.GoogleDirectoryService.GetUsersByGroupKey')
   @patch('google_directory_service.GoogleDirectoryService.GetUsers')
   @patch('google_directory_service.GoogleDirectoryService.__init__')
   def testAddUsersGetHandlerWithError(self, mock_ds, mock_get_users,
                                       mock_get_by_key, mock_get_user,
-                                      mock_render):
+                                      mock_watch_users, mock_render):
     # pylint: disable=too-many-arguments
     fake_status = '404'
     fake_response = MagicMock(status=fake_status)
@@ -208,6 +227,7 @@ class UserTest(unittest.TestCase):
     mock_get_by_key.assert_not_called()
     mock_get_user.assert_not_called()
     mock_get_users.assert_not_called()
+    mock_watch_users.assert_not_called()
     mock_render.assert_called_once_with([], fake_error)
 
   @patch('user.User.InsertUsers')

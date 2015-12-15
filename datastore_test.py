@@ -52,6 +52,16 @@ BAD_CLIENT_SECRET = 'secret 123'  # noqa
 FAKE_CONTENT = 'foo'
 BAD_CONTENT = 'bar'
 
+# Notification test globals
+FAKE_STATE = 'delete'
+FAKE_NUMBER = '1000000'
+FAKE_UUID = '123087632460958036'
+
+# Notification Channels test globals
+FAKE_EVENT = 'delete'
+FAKE_CHANNEL_ID = 'foo customer_delete_time-in-millis'
+FAKE_RESOURCE_ID = 'i am a fake resource id'
+
 
 class DatastoreTest(unittest.TestCase):
 
@@ -342,6 +352,45 @@ class ProxyServerDatastoreTest(DatastoreTest):
     self.assertEqual(proxy_after_update.ip_address, FAKE_IP)
     self.assertEqual(proxy_after_update.ssh_private_key, FAKE_SSH_PRI_KEY)
     self.assertEqual(proxy_after_update.fingerprint, FAKE_FINGERPRINT)
+
+
+class NotificationDatastoreTest(DatastoreTest):
+
+  """Test notification datastore class functionality."""
+
+  def testInsert(self):
+    self.assertEqual(datastore.Notification.GetCount(), 0)
+
+
+    datastore.Notification.Insert(FAKE_STATE, FAKE_NUMBER, FAKE_UUID,
+                                  FAKE_EMAIL)
+
+    self.assertEqual(datastore.Notification.GetCount(), 1)
+    notifications_after_insert = datastore.Notification.GetAll()
+    for notification in notifications_after_insert:
+      self.assertEqual(notification.state, FAKE_STATE)
+      self.assertEqual(notification.number, FAKE_NUMBER)
+      self.assertEqual(notification.uuid, FAKE_UUID)
+      self.assertEqual(notification.email, FAKE_EMAIL)
+
+
+class NotificationChannelDSTest(DatastoreTest):
+
+  """Test notification channels datastore class functionality."""
+
+  def testInsert(self):
+    self.assertEqual(datastore.NotificationChannels.GetCount(), 0)
+
+
+    datastore.NotificationChannels.Insert(FAKE_EVENT, FAKE_CHANNEL_ID,
+                                          FAKE_RESOURCE_ID)
+
+    self.assertEqual(datastore.NotificationChannels.GetCount(), 1)
+    channels_after_insert = datastore.NotificationChannels.GetAll()
+    for channel in channels_after_insert:
+      self.assertEqual(channel.event, FAKE_EVENT)
+      self.assertEqual(channel.channel_id, FAKE_CHANNEL_ID)
+      self.assertEqual(channel.resource_id, FAKE_RESOURCE_ID)
 
 
 class OAuthDatastoreTest(DatastoreTest):

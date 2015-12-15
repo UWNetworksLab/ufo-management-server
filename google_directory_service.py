@@ -1,11 +1,15 @@
 """Module to interact with Google Directory API."""
 
+from datastore import NotificationChannels
 from googleapiclient.discovery import build
+from time import time
 
 
 MY_CUSTOMER_ALIAS = 'my_customer'
 
 NUM_RETRIES = 3
+
+VALID_WATCH_EVENTS = ['add', 'delete', 'makeAdmin', 'undelete', 'update']
 
 # TODO(eholder): Write tests for these functions.
 
@@ -119,3 +123,52 @@ class GoogleDirectoryService(object):
     """
     result = self.GetUser(user_key)
     return result['isAdmin']
+
+  def WatchUsers(self, event):
+    """Subscribe to notifications for users with a specific event.
+
+    Args:
+      event: The event to subsribe to notifications for.
+    """
+    # Don't subscribe if the event isn't valid.
+    if event not in VALID_WATCH_EVENTS:
+      return
+
+    # Don't subscribe if we have already subscribed.
+    channels = NotificationChannels.GetAll()
+    for channel in channels:
+      if channel.event == event:
+        return
+
+    time_in_millis = str(int(round(time() * 1000)))
+    id_field = MY_CUSTOMER_ALIAS + '_' + event + '_' + time_in_millis
+    body = {}
+    body['id'] = id_field
+    body['type'] = 'web_hook'
+    address = 'https://ufo-management-server-ethan.appspot.com/receive'
+    body['address'] = address
+    request = self.service.users().watch(customer=MY_CUSTOMER_ALIAS,
+                                         event=event,
+                                         projection='full',
+                                         orderBy='email',
+                                         body=body)
+    result = request.execute(num_retries=NUM_RETRIES)
+
+    if 'resourceId' in result:
+      NotificationChannels.Insert(event=event, channel_id=id_field,
+                                  resource_id=result['resourceId'])
+
+  def StopNotifications(self, notification_channel):
+    """Unsubscribe from notifications for a given notification channel.
+
+    Args:
+      notification_channel: A NotificationChannels datastore entity to unsub.
+    """
+    body = {}
+    body['id'] = notification_channel.channel_id
+    body['resourceId'] = notification_channel.resource_id
+    request = self.service.channels().stop(body=body)
+    result = request.execute(num_retries=NUM_RETRIES)
+
+    NotificationChannels.Delete(notification_channel.key.id)
+

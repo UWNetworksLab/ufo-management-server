@@ -236,23 +236,22 @@ class AddUsersHandler(webapp2.RequestHandler):
     group_key = self.request.get('group_key')
     user_key = self.request.get('user_key')
     try:
+      directory_service = GoogleDirectoryService(admin.OAUTH_DECORATOR)
+
+      directory_users = []
       if get_all:
-        directory_service = GoogleDirectoryService(
-            admin.OAUTH_DECORATOR)
         directory_users = directory_service.GetUsers()
-        self.response.write(_RenderAddUsersTemplate(directory_users))
       elif group_key is not None and group_key is not '':
-        directory_service = GoogleDirectoryService(
-            admin.OAUTH_DECORATOR)
         directory_users = directory_service.GetUsersByGroupKey(group_key)
-        self.response.write(_RenderAddUsersTemplate(directory_users))
       elif user_key is not None and user_key is not '':
-        directory_service = GoogleDirectoryService(
-            admin.OAUTH_DECORATOR)
         directory_users = directory_service.GetUserAsList(user_key)
-        self.response.write(_RenderAddUsersTemplate(directory_users))
-      else:
-        self.response.write(_RenderAddUsersTemplate([]))
+
+      if directory_users != []:
+        directory_service.WatchUsers('delete')
+        directory_service.WatchUsers('makeAdmin')
+        directory_service.WatchUsers('undelete')
+        directory_service.WatchUsers('update')
+      self.response.write(_RenderAddUsersTemplate(directory_users))
     except errors.HttpError as error:
       self.response.write(_RenderAddUsersTemplate([], error))
 

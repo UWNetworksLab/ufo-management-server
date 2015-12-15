@@ -6,6 +6,7 @@ Polymer({
     {"href": "/user", "text": "Users"},
     {"href": "/proxyserver/list", "text": "Proxy Servers"},
     {"href": "/setup", "text": "Setup"},
+    {"href": "/sync", "text": "Sync Notifications"},
     {"href": "/logout", "text": "Logout"}
     ];
   },

@@ -243,6 +243,51 @@ class ProxyServer(BaseModel):
     entity.put()
 
 
+class Notification(BaseModel):
+
+  """Store data related to notifications."""
+
+  state = ndb.StringProperty()
+  number = ndb.StringProperty()
+  uuid = ndb.StringProperty()
+  email = ndb.StringProperty()
+
+  @staticmethod
+  def Insert(state, number, uuid, email):
+    """Insert a new Notification entity in the datastore with the given values.
+
+    Args:
+      state: The X-Goog-Resource-State field of the request.
+      number: The X-Goog-Message-Number field of the request.
+      uuid: The id field of the request body.
+      email: The primaryEmail field of the request body.
+    """
+    entity = Notification(state=state, number=number, uuid=uuid, email=email)
+    entity.put()
+
+
+class NotificationChannels(BaseModel):
+
+  """Store data related to notifications."""
+
+  event = ndb.StringProperty()
+  channel_id = ndb.StringProperty()
+  resource_id = ndb.StringProperty()
+
+  @staticmethod
+  def Insert(event, channel_id, resource_id):
+    """Insert a new Notification Channel entity in the datastore as specified.
+
+    Args:
+      event: The event subscribed to in the channel.
+      channel_id: The unique id this app sets for the channel.
+      resource_id: The universally unique id the directory API sets for us.
+    """
+    entity = NotificationChannels(event=event, channel_id=channel_id,
+                                  resource_id=resource_id)
+    entity.put()
+
+
 class OAuth(BaseModel):
 
   """Store the client secret so that it's not checked into source code.
