@@ -67,6 +67,11 @@ def RequireAppOrDomainAdmin(func):
     user = users.get_current_user()
     AbortIfUserIsNotLoggedIn(self, user)
 
+    # User is application admin, so allowing access.
+    if users.is_current_user_admin():
+      return func(self, *args, **kwargs)
+    logging.debug('User is not an app admin.')
+
     identifier = user.email()
     if identifier is None or identifier is '':
       logging.error('No identifier found for the user.')
@@ -80,11 +85,10 @@ def RequireAppOrDomainAdmin(func):
       logging.error('Exception when asking dasher for this user.')
       self.abort(403)
 
-    if users.is_current_user_admin() or is_admin_user:
-      return func(self, *args, **kwargs)
-
-    logging.error('User is not an app admin or dasher admin.')
-    self.abort(403)
-
+    if not is_admin_user:
+      logging.error('User is not a domain admin.')
+      self.abort(403)
+    
+    return func(self, *args, **kwargs)
 
   return decorate
