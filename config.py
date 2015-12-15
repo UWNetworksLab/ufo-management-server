@@ -1,3 +1,5 @@
+"""App configs to simplify the importing for tests and mocks."""
+
 LANDING_PAGE_PATH = '/'
 USER_PAGE_PATH = '/user'
 
