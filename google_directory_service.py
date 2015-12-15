@@ -156,7 +156,7 @@ class GoogleDirectoryService(object):
 
     if 'resourceId' in result:
       NotificationChannel.Insert(event=event, channel_id=id_field,
-                                  resource_id=result['resourceId'])
+                                 resource_id=result['resourceId'])
 
   def StopNotifications(self, notification_channel):
     """Unsubscribe from notifications for a given notification channel.

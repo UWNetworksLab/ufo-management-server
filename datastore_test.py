@@ -398,7 +398,7 @@ class NotificationChannelDSTest(DatastoreTest):
     self.assertEqual(datastore.NotificationChannel.GetCount(), 0)
 
     datastore.NotificationChannel.Insert(FAKE_EVENT, FAKE_CHANNEL_ID,
-                                          FAKE_RESOURCE_ID)
+                                         FAKE_RESOURCE_ID)
 
     self.assertEqual(datastore.NotificationChannel.GetCount(), 1)
     channels_after_insert = datastore.NotificationChannel.GetAll()
