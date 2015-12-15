@@ -67,7 +67,8 @@ def RequireAppOrDomainAdmin(func):
     user = users.get_current_user()
     AbortIfUserIsNotLoggedIn(self, user)
 
-    # User is application admin, so allowing access.
+    # If user is application admin, allow access right away to save the check
+    # on domain admin.
     if users.is_current_user_admin():
       return func(self, *args, **kwargs)
     logging.debug('User is not an app admin.')
