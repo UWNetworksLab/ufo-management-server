@@ -3,6 +3,7 @@ from mock import MagicMock
 from mock import patch
 import sys
 
+from config import PATHS
 from googleapiclient import errors
 import json
 
@@ -40,18 +41,6 @@ class UserTest(unittest.TestCase):
     """Setup test app on which to call handlers."""
     self.testapp = webtest.TestApp(sync.APP)
 
-  def testConstants(self):
-    """Test that the constants are as we expect."""
-    self.assertEqual(sync.RECEIVE_NOTIFICATIONS_PATH, '/receive')
-    self.assertEqual(sync.SYNC_RELATIVE_PATH, '/sync')
-    self.assertEqual(sync.CHANNELS_PATH, sync.SYNC_RELATIVE_PATH + '/channels')
-    self.assertEqual(sync.NOTIFICATIONS_PATH,
-                     sync.SYNC_RELATIVE_PATH + '/notifications')
-    self.assertEqual(sync.WATCH_FOR_DELETION_PATH,
-                     sync.SYNC_RELATIVE_PATH + '/delete')
-    self.assertEqual(sync.UNSUBSCRIBE_PATH,
-                     sync.SYNC_RELATIVE_PATH + '/unsubscribe')
-
   @patch('sync.Notification.Insert')
   def testPushNotificationHandler(self, mock_insert):
     """Test that push notifications trigger an insert in the datastore."""
@@ -63,8 +52,8 @@ class UserTest(unittest.TestCase):
     headers['X-Goog-Resource-State'] = FAKE_STATE
     headers['X-Goog-Message-Number'] = FAKE_NUMBER
 
-    response = self.testapp.post(sync.RECEIVE_NOTIFICATIONS_PATH, json_body,
-                                 headers)
+    response = self.testapp.post(PATHS['receive_push_notifications'],
+                                 json_body, headers)
 
     mock_insert.assert_called_once_with(state=FAKE_STATE, number=FAKE_NUMBER,
                                         uuid=FAKE_UUID, email=FAKE_EMAIL)
@@ -72,20 +61,20 @@ class UserTest(unittest.TestCase):
 
   def testDefaultPathHandler(self):
     """Test that the default path redirects to the notifications path."""
-    response = self.testapp.get(sync.SYNC_RELATIVE_PATH)
+    response = self.testapp.get(PATHS['sync_top_level_path'])
     self.assertEqual(response.status_int, 302)
-    self.assertEqual(sync.NOTIFICATIONS_PATH in response.location, True)
+    self.assertEqual(PATHS['notifications_list'] in response.location, True)
 
   @patch('sync._RenderChannelsListTemplate')
   def testListChannelsHandler(self, mock_channels_template):
     """Test that the channel handler calls to render the channels."""
-    self.testapp.get(sync.CHANNELS_PATH)
+    self.testapp.get(PATHS['notification_channels_list'])
     mock_channels_template.assert_called_once_with()
 
   @patch('sync._RenderNotificationsTemplate')
   def testListNotificationsHandler(self, mock_notifications_template):
     """Test that the notification handler calls to render the notifications."""
-    self.testapp.get(sync.NOTIFICATIONS_PATH)
+    self.testapp.get(PATHS['notifications_list'])
     mock_notifications_template.assert_called_once_with()
 
   @patch('sync.GoogleDirectoryService.WatchUsers')
@@ -96,12 +85,13 @@ class UserTest(unittest.TestCase):
     # pylint: disable=too-many-arguments
     mock_directory_service.return_value = None
 
-    response = self.testapp.get(sync.WATCH_FOR_DELETION_PATH)
+    response = self.testapp.get(PATHS['watch_for_user_deletion'])
 
     mock_directory_service.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_watch_users.assert_called_once_with('delete')
     self.assertEqual(response.status_int, 302)
-    self.assertEqual(sync.CHANNELS_PATH in response.location, True)
+    self.assertEqual(PATHS['notification_channels_list'] in response.location,
+                     True)
 
   @patch('sync.GoogleDirectoryService.WatchUsers')
   @patch('sync.GoogleDirectoryService.__init__')
@@ -115,7 +105,7 @@ class UserTest(unittest.TestCase):
     fake_error = errors.HttpError(fake_response, fake_content)
     mock_directory_service.side_effect = fake_error
 
-    response = self.testapp.get(sync.WATCH_FOR_DELETION_PATH)
+    response = self.testapp.get(PATHS['watch_for_user_deletion'])
 
     mock_directory_service.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_watch_users.assert_not_called()
@@ -132,13 +122,15 @@ class UserTest(unittest.TestCase):
     mock_get_channel.return_value = fake_channel
     mock_directory_service.return_value = None
 
-    response = self.testapp.get(sync.UNSUBSCRIBE_PATH + '?id=%s' % FAKE_UUID)
+    response = self.testapp.get(PATHS['unsubscribe_from_notifications'] +
+                                '?id=%s' % FAKE_UUID)
 
     mock_get_channel.assert_called_once_with(int(FAKE_UUID))
     mock_directory_service.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)
     mock_stop_notifications.assert_called_once_with(fake_channel)
     self.assertEqual(response.status_int, 302)
-    self.assertEqual(sync.CHANNELS_PATH in response.location, True)
+    self.assertEqual(PATHS['notification_channels_list'] in response.location,
+                     True)
 
   @patch('sync.GoogleDirectoryService.StopNotifications')
   @patch('sync.GoogleDirectoryService.__init__')
@@ -155,7 +147,8 @@ class UserTest(unittest.TestCase):
     fake_error = errors.HttpError(fake_response, fake_content)
     mock_directory_service.side_effect = fake_error
 
-    response = self.testapp.get(sync.UNSUBSCRIBE_PATH + '?id=%s' % FAKE_UUID)
+    response = self.testapp.get(PATHS['unsubscribe_from_notifications'] +
+                                '?id=%s' % FAKE_UUID)
 
     mock_get_channel.assert_called_once_with(int(FAKE_UUID))
     mock_directory_service.assert_called_once_with(MOCK_ADMIN.OAUTH_DECORATOR)

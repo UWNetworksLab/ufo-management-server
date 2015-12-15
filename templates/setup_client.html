@@ -5,7 +5,8 @@
   <link rel="import" href="/bower_components/paper-input/paper-input.html" />
 {% endblock %}
 {% block body %}
-  <form id="setup-form" method="post" action="{{ BASE_URL }}/setup/oauthclient">
+  <form id="setup-form" method="post"
+    action="{{ BASE_URL }}{{ setup_oauth_path }}">
     <paper-input label="Client ID" type="text" name="client_id" value="{{ client_id }}" required></paper-input>
     <paper-input label="Client Secret" type="text" name="client_secret" value="{{ client_secret }}" required></paper-input>
     <p>Please input the text from the content field of a meta tag supplied by Google for domain verification. You can find this data by going to Search Console and clicking on your project, such https://your-project-name-here.appspot.com/. Inside your project, click the gear logo and go to Verification Details. From here, you need to find the HTML tag method of verification. Inside the meta tag is a field called content. Copy everything between the double-quotes for content and paste it into this box. Once you've submitted this form, you can go back to your project in appspot and click Verify to complete verification.</p>
