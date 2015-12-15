@@ -1,5 +1,4 @@
 LANDING_PAGE_PATH = '/'
-
 USER_PAGE_PATH = '/user'
 
 USER_ADD_PATH = '/user/add'

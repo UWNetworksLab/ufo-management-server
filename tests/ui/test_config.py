@@ -1,4 +1,4 @@
-"""Constant for locating the chrome driver and changing in one place."""
+"""Configs for the ui tests ."""
 
 # Hack to make the app directory to be visible here.
 import sys
