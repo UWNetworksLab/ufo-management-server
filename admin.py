@@ -88,7 +88,7 @@ def RequireAppOrDomainAdmin(func):
     if not is_admin_user:
       logging.error('User is not a domain admin.')
       self.abort(403)
-    
+
     return func(self, *args, **kwargs)
 
   return decorate
