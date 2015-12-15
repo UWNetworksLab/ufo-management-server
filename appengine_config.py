@@ -21,7 +21,7 @@ JINJA_ENVIRONMENT.globals['xsrf_token'] = xsrf.XSRFToken()
 HOST = str(app_identity.get_default_version_hostname())
 JINJA_ENVIRONMENT.globals['BASE_URL'] = ('https://' + HOST)
 
-for key,value in PATHS.iteritems():
+for key, value in PATHS.iteritems():
   JINJA_ENVIRONMENT.globals[key] = value
 
 # Add any libraries installed in the "lib" folder.
