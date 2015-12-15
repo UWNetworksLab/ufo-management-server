@@ -6,7 +6,7 @@
   <link rel="import" href="/bower_components/paper-card/paper-card.html" />
 {% endblock %}
 {% block body %}
-  <a href="{{ BASE_URL }}/proxyserver/add">
+  <a href="{{ BASE_URL }}{{ proxy_server_add }}">
     <paper-button raised class="anchor-button">Add New Proxy Server
     </paper-button></a>
   <p>Name, IP Address, Private Key, Fingerprint</p>
@@ -21,9 +21,9 @@
           </textarea></div></iron-collapse>
       </div>
       <div class="card-actions">
-        <a href="{{ BASE_URL }}/proxyserver/edit?id={{ proxy_server.key.id() }}">
+        <a href="{{ BASE_URL }}{{ proxy_server_edit }}?id={{ proxy_server.key.id() }}">
           <paper-button class="anchor-button">Edit</paper-button></a>
-        <a href="{{ BASE_URL }}/proxyserver/delete?id={{ proxy_server.key.id() }}">
+        <a href="{{ BASE_URL }}{{ proxy_server_delete }}?id={{ proxy_server.key.id() }}">
           <paper-button class="anchor-button">Delete</paper-button></a>
       </div>
     </paper-card>

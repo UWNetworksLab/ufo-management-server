@@ -6,10 +6,12 @@
 {% endblock %}
 {% block body %}
   <div class="top-buttons">
-    <!-- <a id='watch_for_user_deletion' href="{{ BASE_URL }}/sync/delete">
+    <!-- <a id='watch_for_user_deletion'
+      href="{{ BASE_URL }}{{ watch_for_user_deletion }}">
       <paper-button raised class="anchor-button">Watch for User Deletion
         </paper-button></a> -->
-    <a id='view_notification_channels' href="{{ BASE_URL }}/sync/channels">
+    <a id='view_notification_channels'
+      href="{{ BASE_URL }}{{ notification_channels_list }}">
       <paper-button raised class="anchor-button">View Notification Channels
         </paper-button></a>
       <br />

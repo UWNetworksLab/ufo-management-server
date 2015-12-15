@@ -2,6 +2,7 @@
 
 import admin
 from appengine_config import JINJA_ENVIRONMENT
+from config import PATHS
 from datastore import Notification
 from datastore import NotificationChannel
 from error_handlers import Handle500
@@ -11,12 +12,6 @@ import json
 import webapp2
 
 
-RECEIVE_NOTIFICATIONS_PATH = '/receive'
-SYNC_RELATIVE_PATH = '/sync'
-CHANNELS_PATH = SYNC_RELATIVE_PATH + '/channels'
-NOTIFICATIONS_PATH = SYNC_RELATIVE_PATH + '/notifications'
-WATCH_FOR_DELETION_PATH = SYNC_RELATIVE_PATH + '/delete'
-UNSUBSCRIBE_PATH = SYNC_RELATIVE_PATH + '/unsubscribe'
 
 def _RenderNotificationsTemplate():
   """Render a list of notifications."""
@@ -66,7 +61,7 @@ class DefaultPathHandler(webapp2.RequestHandler):
   @admin.RequireAppOrDomainAdmin
   def get(self):
     """Redirect to the list of previous notifications."""
-    self.redirect(NOTIFICATIONS_PATH)
+    self.redirect(PATHS['notifications_list'])
 
 
 class ListChannelsHandler(webapp2.RequestHandler):
@@ -108,7 +103,7 @@ class WatchUserDeleteEventHandler(webapp2.RequestHandler):
     try:
       directory_service = GoogleDirectoryService(admin.OAUTH_DECORATOR)
       directory_service.WatchUsers('delete')
-      self.redirect(CHANNELS_PATH)
+      self.redirect(PATHS['notification_channels_list'])
     except errors.HttpError as error:
       self.response.write('An error occurred: ' + str(error))
 
@@ -128,18 +123,18 @@ class UnsubscribeHandler(webapp2.RequestHandler):
     try:
       directory_service = GoogleDirectoryService(admin.OAUTH_DECORATOR)
       directory_service.StopNotifications(entity)
-      self.redirect(CHANNELS_PATH)
+      self.redirect(PATHS['notification_channels_list'])
     except errors.HttpError as error:
       self.response.write('An error occurred: ' + str(error))
 
 
 APP = webapp2.WSGIApplication([
-    (RECEIVE_NOTIFICATIONS_PATH, PushNotificationHandler),
-    (SYNC_RELATIVE_PATH, DefaultPathHandler),
-    (CHANNELS_PATH, ListChannelsHandler),
-    (NOTIFICATIONS_PATH, ListNotificationsHandler),
-    (WATCH_FOR_DELETION_PATH, WatchUserDeleteEventHandler),
-    (UNSUBSCRIBE_PATH, UnsubscribeHandler),
+    (PATHS['receive_push_notifications'], PushNotificationHandler),
+    (PATHS['sync_top_level_path'], DefaultPathHandler),
+    (PATHS['notification_channels_list'], ListChannelsHandler),
+    (PATHS['notifications_list'], ListNotificationsHandler),
+    (PATHS['watch_for_user_deletion'], WatchUserDeleteEventHandler),
+    (PATHS['unsubscribe_from_notifications'], UnsubscribeHandler),
     (admin.OAUTH_DECORATOR.callback_path,
      admin.OAUTH_DECORATOR.callback_handler()),
 ], debug=True)
