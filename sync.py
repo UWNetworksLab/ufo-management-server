@@ -125,9 +125,12 @@ class UnsubscribeHandler(webapp2.RequestHandler):
     """Find the channel specified and unsubscribe from it."""
     datastore_id = int(self.request.get('id'))
     entity = NotificationChannels.Get(datastore_id)
-    directory_service = GoogleDirectoryService(admin.OAUTH_DECORATOR)
-    directory_service.StopNotifications(entity)
-    self.redirect(CHANNELS_PATH)
+    try:
+      directory_service = GoogleDirectoryService(admin.OAUTH_DECORATOR)
+      directory_service.StopNotifications(entity)
+      self.redirect(CHANNELS_PATH)
+    except errors.HttpError as error:
+      self.response.write('An error occurred: ' + str(error))
 
 
 APP = webapp2.WSGIApplication([
