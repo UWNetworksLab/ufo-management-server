@@ -39,10 +39,12 @@ class SetupTest(unittest.TestCase):
   """Test setup class functionality."""
 
   def setUp(self):
+    """Setup test app on which to call handlers"""
     self.testapp = webtest.TestApp(setup.APP)
 
   @patch('setup._RenderSetupOAuthClientTemplate')
   def testSetupGetHandler(self, mock_render_oauth_template):
+    """Test get on the setup handler renders the setup form."""
     self.testapp.get('/setup')
     mock_render_oauth_template.assert_called_once_with()
 
@@ -52,6 +54,11 @@ class SetupTest(unittest.TestCase):
   @patch('datastore.OAuth.Flush')
   def testSetupPostAlreadySetHandler(self, mock_flush, mock_oauth_update,
                                      mock_dv_update, mock_get_count):
+    """Test posting after adding users redirects to the main page.
+
+    This also tests that the post in fact works and sets the proper values in
+    the datastore as posted.
+    """
     mock_get_count.return_value = 1
     post_url = ('/setup?client_id={0}&client_secret={1}' +
                 '&dv_content={2}')
@@ -71,6 +78,7 @@ class SetupTest(unittest.TestCase):
   @patch('datastore.OAuth.Flush')
   def testSetupPostNotSetHandler(self, mock_flush, mock_oauth_update,
                                  mock_dv_update, mock_get_count):
+    """Test posting before adding users redirects to the add flow."""
     mock_get_count.return_value = 0
     post_url = ('/setup?client_id={0}&client_secret={1}' +
                 '&dv_content={2}')
@@ -88,6 +96,10 @@ class SetupTest(unittest.TestCase):
   @patch('datastore.DomainVerification.GetOrInsertDefault')
   @patch('datastore.OAuth.GetOrInsertDefault')
   def testRenderSetupTemplate(self, mock_oauth_goi, mock_dv_goi):
+    """Test the setup form is rendered as in the html."""
+    # Disabling the protected access check here intentionally so we can test a
+    # private method.
+    # pylint: disable=protected-access
     mock_oauth_goi.return_value.client_id = FAKE_ID
     mock_oauth_goi.return_value.client_secret = FAKE_SECRET
     mock_dv_goi.return_value.content = FAKE_CONTENT

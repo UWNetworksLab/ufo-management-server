@@ -49,7 +49,7 @@ def RequireAppAdmin(func):
     """
     user = users.get_current_user()
     AbortIfUserIsNotLoggedIn(self, user)
-    AbortIfUserIsNotApplicationAdmin(self)
+    AbortIfUserNotApplicationAdmin(self)
     return func(self, *args, **kwargs)
 
   return decorate
