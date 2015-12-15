@@ -102,7 +102,7 @@ Our tests run on [Travis](https://travis-ci.org/) for every commit, push, and pu
  1. Execute the tests with your modified code.
    * Run `python -m unittest discover -p "*_test.py"`
    
-We have Selenium Webdriver to run functional UI tests.  Because these tests exercise the actual server in a browser, you will need to point it to an actual server instance and use an actual user account:
+We functional UI tests using Selenium Webdriver.  Because these tests exercise the actual server in a browser, you will need to point it to an actual server instance and use an actual user account:
 
  1. Ensure you have a dedicated server instance for testing.  e.g. my-server-staging.appspot.com
  1. Ensure you have a dedicated user account that is configured with domain admin access. 
