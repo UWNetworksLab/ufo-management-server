@@ -1,6 +1,6 @@
 """Module to interact with Google Directory API."""
 
-from datastore import NotificationChannels
+from datastore import NotificationChannel
 from googleapiclient.discovery import build
 from time import time
 
@@ -135,7 +135,7 @@ class GoogleDirectoryService(object):
       return
 
     # Don't subscribe if we have already subscribed.
-    channels = NotificationChannels.GetAll()
+    channels = NotificationChannel.GetAll()
     for channel in channels:
       if channel.event == event:
         return
@@ -155,14 +155,14 @@ class GoogleDirectoryService(object):
     result = request.execute(num_retries=NUM_RETRIES)
 
     if 'resourceId' in result:
-      NotificationChannels.Insert(event=event, channel_id=id_field,
+      NotificationChannel.Insert(event=event, channel_id=id_field,
                                   resource_id=result['resourceId'])
 
   def StopNotifications(self, notification_channel):
     """Unsubscribe from notifications for a given notification channel.
 
     Args:
-      notification_channel: A NotificationChannels datastore entity to unsub.
+      notification_channel: A NotificationChannel datastore entity to unsub.
     """
     body = {}
     body['id'] = notification_channel.channel_id
@@ -170,5 +170,5 @@ class GoogleDirectoryService(object):
     request = self.service.channels().stop(body=body)
     request.execute(num_retries=NUM_RETRIES)
 
-    NotificationChannels.Delete(notification_channel.key.id)
+    NotificationChannel.Delete(notification_channel.key.id)
 

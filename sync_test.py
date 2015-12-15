@@ -123,7 +123,7 @@ class UserTest(unittest.TestCase):
 
   @patch('sync.GoogleDirectoryService.StopNotifications')
   @patch('sync.GoogleDirectoryService.__init__')
-  @patch('sync.NotificationChannels.Get')
+  @patch('sync.NotificationChannel.Get')
   def testUnsubscribeHandler(self, mock_get_channel, mock_directory_service,
                              mock_stop_notifications):
     """Test the unsubscribe handler calls unsubscribe for the given channel."""
@@ -142,7 +142,7 @@ class UserTest(unittest.TestCase):
 
   @patch('sync.GoogleDirectoryService.StopNotifications')
   @patch('sync.GoogleDirectoryService.__init__')
-  @patch('sync.NotificationChannels.Get')
+  @patch('sync.NotificationChannel.Get')
   def testUnsubscribeException(self, mock_get_channel, mock_directory_service,
                                mock_stop_notifications):
     """Test the we fail gracefully if directory service has an error."""
@@ -187,7 +187,7 @@ class UserTest(unittest.TestCase):
     self.assertEquals(FAKE_UUID in notification_template, True)
     self.assertEquals(FAKE_EMAIL in notification_template, True)
 
-  @patch('sync.NotificationChannels.GetAll')
+  @patch('sync.NotificationChannel.GetAll')
   def testRenderChannels(self, mock_get_all):
     """Test channels from the datastore are rendered as in the html."""
     # Disabling the protected access check here intentionally so we can test a

@@ -377,7 +377,6 @@ class NotificationDatastoreTest(DatastoreTest):
     """Test that a new notification is properly inserted and found after."""
     self.assertEqual(datastore.Notification.GetCount(), 0)
 
-
     datastore.Notification.Insert(FAKE_STATE, FAKE_NUMBER, FAKE_UUID,
                                   FAKE_EMAIL)
 
@@ -396,14 +395,13 @@ class NotificationChannelDSTest(DatastoreTest):
 
   def testInsert(self):
     """Test that a new notification channel is properly inserted and found."""
-    self.assertEqual(datastore.NotificationChannels.GetCount(), 0)
+    self.assertEqual(datastore.NotificationChannel.GetCount(), 0)
 
-
-    datastore.NotificationChannels.Insert(FAKE_EVENT, FAKE_CHANNEL_ID,
+    datastore.NotificationChannel.Insert(FAKE_EVENT, FAKE_CHANNEL_ID,
                                           FAKE_RESOURCE_ID)
 
-    self.assertEqual(datastore.NotificationChannels.GetCount(), 1)
-    channels_after_insert = datastore.NotificationChannels.GetAll()
+    self.assertEqual(datastore.NotificationChannel.GetCount(), 1)
+    channels_after_insert = datastore.NotificationChannel.GetAll()
     for channel in channels_after_insert:
       self.assertEqual(channel.event, FAKE_EVENT)
       self.assertEqual(channel.channel_id, FAKE_CHANNEL_ID)

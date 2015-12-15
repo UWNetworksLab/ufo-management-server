@@ -3,7 +3,7 @@
 import admin
 from appengine_config import JINJA_ENVIRONMENT
 from datastore import Notification
-from datastore import NotificationChannels
+from datastore import NotificationChannel
 from error_handlers import Handle500
 from googleapiclient import errors
 from google_directory_service import GoogleDirectoryService
@@ -29,7 +29,7 @@ def _RenderNotificationsTemplate():
 
 def _RenderChannelsListTemplate():
   """Render a list of notification channels."""
-  channels = NotificationChannels.GetAll()
+  channels = NotificationChannel.GetAll()
   template_values = {
       'channels': channels
   }
@@ -124,7 +124,7 @@ class UnsubscribeHandler(webapp2.RequestHandler):
   def get(self):
     """Find the channel specified and unsubscribe from it."""
     datastore_id = int(self.request.get('id'))
-    entity = NotificationChannels.Get(datastore_id)
+    entity = NotificationChannel.Get(datastore_id)
     try:
       directory_service = GoogleDirectoryService(admin.OAUTH_DECORATOR)
       directory_service.StopNotifications(entity)

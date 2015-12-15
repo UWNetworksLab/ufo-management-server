@@ -266,9 +266,9 @@ class Notification(BaseModel):
     entity.put()
 
 
-class NotificationChannels(BaseModel):
+class NotificationChannel(BaseModel):
 
-  """Store data related to notifications."""
+  """Store data related to notification channels."""
 
   event = ndb.StringProperty()
   channel_id = ndb.StringProperty()
@@ -283,8 +283,8 @@ class NotificationChannels(BaseModel):
       channel_id: The unique id this app sets for the channel.
       resource_id: The universally unique id the directory API sets for us.
     """
-    entity = NotificationChannels(event=event, channel_id=channel_id,
-                                  resource_id=resource_id)
+    entity = NotificationChannel(event=event, channel_id=channel_id,
+                                 resource_id=resource_id)
     entity.put()
 
 
