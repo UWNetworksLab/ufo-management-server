@@ -1,6 +1,7 @@
 """Test the logout module."""
 from mock import patch
 
+from config import PATHS
 import unittest
 import webtest
 import logout
@@ -21,13 +22,12 @@ class LogoutTest(unittest.TestCase):
     Also test that users can log back in without looping back through the
     logout flow.
     """
-    logout_relative_path = '/logout'
     fake_redirect_url = 'foo/bar'
     mock_create_url.return_value = fake_redirect_url
 
-    response = self.testapp.get(logout_relative_path)
+    response = self.testapp.get(PATHS['logout'])
 
-    mock_create_url.assert_called_once_with(logout.LOG_BACK_IN_PATH)
+    mock_create_url.assert_called_once_with(PATHS['user_page_path'])
     self.assertEqual(response.status_int, 302)
     self.assertTrue(fake_redirect_url in response.location)
 

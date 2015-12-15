@@ -26,5 +26,7 @@ PATHS = {
   'notifications_list': '/sync/notifications',
   'watch_for_user_deletion': '/sync/delete',
   'unsubscribe_from_notifications': '/sync/unsubscribe',
+
+  'logout': '/logout',
 }
 
