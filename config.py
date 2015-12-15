@@ -1,11 +1,14 @@
 """App configs to simplify the importing for tests and mocks."""
 
-LANDING_PAGE_PATH = '/'
-USER_PAGE_PATH = '/user'
+PATHS = {
+  'landing_page_path': '/',
+  'user_page_path': '/user',
 
-USER_ADD_PATH = '/user/add'
-USER_DELETE_PATH = '/user/delete'
-USER_DETAILS_PATH = '/user/details'
-USER_GET_INVITE_CODE_PATH = '/user/getInviteCode'
-USER_GET_NEW_KEY_PAIR_PATH = '/user/getNewKeyPair'
-USER_TOGGLE_REVOKED_PATH = '/user/toggleRevoked'
+  'user_add_path': '/user/add',
+  'user_delete_path': '/user/delete',
+  'user_details_path': '/user/details',
+  'user_get_invite_code_path': '/user/getInviteCode',
+  'user_get_new_key_pair_path': '/user/getNewKeyPair',
+  'user_toggle_revoked_path': '/user/toggleRevoked',
+}
+

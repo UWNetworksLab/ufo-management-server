@@ -8,7 +8,7 @@
 {% endblock %}
 {% block body %}
   <div class="top-buttons">
-    <a id='add_users' href="{{ BASE_URL }}/user/add">
+    <a id='add_users' href="{{BASE_URL}}{{ user_add_path }}">
       <paper-button raised class="anchor-button">Add Users</paper-button></a>
       <br />
   </div>
@@ -17,7 +17,7 @@
       <p>Click a user below to view more details.</p>
       <paper-listbox>
       {% for key, email in user_payloads.iteritems() %}
-        <a href="{{ BASE_URL }}/user/details?key={{ key }}">
+        <a href="{{ BASE_URL }}{{ user_details_path }}?key={{ key }}">
           <paper-item>{{ email }}</paper-item></a>
       {% endfor %}
       </paper-listbox></div>

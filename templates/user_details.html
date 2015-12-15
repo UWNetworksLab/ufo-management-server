@@ -23,16 +23,16 @@
         <iron-collapse id="collapse-pub"><div>{{ user.public_key }}</div></iron-collapse>
       </div>
       <div class="card-actions">
-        <a href="{{ BASE_URL }}/user/delete?key={{ key }}">
+        <a href="{{ BASE_URL }}{{ user_delete_path }}?key={{ key }}">
           <paper-button raised class="anchor-button">Delete User
         </paper-button></a>
-        <a href="{{ BASE_URL }}/user/getInviteCode?key={{ key }}">
+        <a href="{{ BASE_URL }}{{ user_get_invite_code_path }}?key={{ key }}">
           <paper-button raised class="anchor-button">Get Invite Code
         </paper-button></a>
-        <a href="{{ BASE_URL }}/user/getNewKeyPair?key={{ key }}">
+        <a href="{{ BASE_URL }}{{ user_get_new_key_pair_path }}?key={{ key }}">
           <paper-button raised class="anchor-button">Rotate Key Pair
         </paper-button></a>
-        <a href="{{ BASE_URL }}/user/toggleRevoked?key={{ key }}">
+        <a href="{{ BASE_URL }}{{ user_toggle_revoked_path }}?key={{ key }}">
           <paper-button raised class="anchor-button">Revoke/Unrevoke Access
         </paper-button></a>
       </div>
