@@ -4,6 +4,7 @@
 import sys
 sys.path.append('../..')
 
+# pylint: disable=unused-import
 from config import LANDING_PAGE_PATH
 from config import USER_PAGE_PATH
 from config import USER_DELETE_PATH
