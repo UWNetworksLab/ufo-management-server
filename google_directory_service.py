@@ -168,7 +168,7 @@ class GoogleDirectoryService(object):
     body['id'] = notification_channel.channel_id
     body['resourceId'] = notification_channel.resource_id
     request = self.service.channels().stop(body=body)
-    result = request.execute(num_retries=NUM_RETRIES)
+    request.execute(num_retries=NUM_RETRIES)
 
     NotificationChannels.Delete(notification_channel.key.id)
 

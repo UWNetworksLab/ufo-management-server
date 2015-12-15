@@ -7,7 +7,6 @@ import base64
 from datastore import User
 from googleapiclient import errors
 from google.appengine.ext import ndb
-import google_directory_service
 import hashlib
 import json
 

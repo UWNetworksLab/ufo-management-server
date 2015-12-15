@@ -106,9 +106,9 @@ class WatchUserDeleteEventHandler(webapp2.RequestHandler):
   def get(self):
     """Perform a pub/sub for user delete events."""
     try:
-	    directory_service = GoogleDirectoryService(admin.OAUTH_DECORATOR)
-	    directory_service.WatchUsers('delete')
-	    self.redirect(CHANNELS_PATH)
+      directory_service = GoogleDirectoryService(admin.OAUTH_DECORATOR)
+      directory_service.WatchUsers('delete')
+      self.redirect(CHANNELS_PATH)
     except errors.HttpError as error:
       self.response.write('An error occurred: ' + str(error))
 
