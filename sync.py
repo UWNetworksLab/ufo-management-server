@@ -63,7 +63,7 @@ class DefaultPathHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Redirect to the list of previous notifications."""
     self.redirect(NOTIFICATIONS_PATH)
@@ -76,7 +76,7 @@ class ListChannelsHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """List all the channels and associated properties in the datastore."""
     self.response.write(_RenderChannelsListTemplate())
@@ -89,7 +89,7 @@ class ListNotificationsHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """List all previous notifications received."""
     self.response.write(_RenderNotificationsTemplate())
@@ -102,7 +102,7 @@ class WatchUserDeleteEventHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Perform a pub/sub for user delete events."""
     try:
@@ -120,7 +120,7 @@ class UnsubscribeHandler(webapp2.RequestHandler):
   # pylint: disable=too-few-public-methods
 
   @admin.OAUTH_DECORATOR.oauth_required
-  @admin.RequireAppAndDomainAdmin
+  @admin.RequireAppOrDomainAdmin
   def get(self):
     """Find the channel specified and unsubscribe from it."""
     datastore_id = int(self.request.get('id'))
