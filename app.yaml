@@ -46,6 +46,14 @@ handlers:
   login: required
   secure: always
 
+- url: /sync.*
+  script: sync.APP
+  login: required
+  secure: always
+
+- url: /receive
+  script: sync.APP
+
 - url: /user.*
   script: user.APP
   login: required

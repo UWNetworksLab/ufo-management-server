@@ -1,0 +1,36 @@
+{% extends "templates/base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block head %}
+  <link rel="import" href="/bower_components/paper-button/paper-button.html" />
+  <link rel="import" href="/bower_components/paper-card/paper-card.html" />
+{% endblock %}
+{% block body %}
+  <div class="top-buttons">
+    <!-- <a id='watch_for_user_deletion' href="{{ BASE_URL }}/sync/delete">
+      <paper-button raised class="anchor-button">Watch for User Deletion
+        </paper-button></a> -->
+    <a id='view_notification_channels' href="{{ BASE_URL }}/sync/channels">
+      <paper-button raised class="anchor-button">View Notification Channels
+        </paper-button></a>
+      <br />
+  </div>
+  <paper-card heading="Previous Notifications">
+    <div class="card-content">
+      <table>
+        <tr>
+          <th>Number</th>
+          <th>State</th>
+          <th>Id</th>
+          <th>Email</th>
+        </tr>
+      {% for notification in notifications %}
+        <tr>
+          <td>{{ notification.number }}</td>
+          <td>{{ notification.state }}</td>
+          <td>{{ notification.uuid }}</td>
+          <td>{{ notification.email }}</td>
+        </tr>
+      {% endfor %}
+      </table></div>
+  </paper-card>
+{% endblock %}

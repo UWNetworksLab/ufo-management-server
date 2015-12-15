@@ -52,12 +52,23 @@ BAD_CLIENT_SECRET = 'secret 123'  # noqa
 FAKE_CONTENT = 'foo'
 BAD_CONTENT = 'bar'
 
+# Notification test globals
+FAKE_STATE = 'delete'
+FAKE_NUMBER = '1000000'
+FAKE_UUID = '123087632460958036'
+
+# Notification Channels test globals
+FAKE_EVENT = 'delete'
+FAKE_CHANNEL_ID = 'foo customer_delete_time-in-millis'
+FAKE_RESOURCE_ID = 'i am a fake resource id'
+
 
 class DatastoreTest(unittest.TestCase):
 
   """Test basic datastore class functionality."""
 
   def setUp(self):
+    """Setup the testbed for each test class."""
     # First, create an instance of the Testbed class.
     self.testbed = testbed.Testbed()
     # Then activate the testbed, which prepares the service stubs for use.
@@ -93,9 +104,11 @@ class DatastoreTest(unittest.TestCase):
                                   is_key_revoked=False)
 
   def tearDown(self):
+    """Deactive the testbed."""
     self.testbed.deactivate()
 
   def testGetCount(self):
+    """Test that the count of entities of a given type is returned."""
     self.assertEqual(datastore.User.GetCount(), 0)
 
     FAKE_USER.put()
@@ -105,6 +118,7 @@ class DatastoreTest(unittest.TestCase):
     self.assertEqual(datastore.User.GetCount(), 2)
 
   def testGetAll(self):
+    """Test that all entities of a given type are found and returned."""
     self.assertEqual(datastore.User.GetAll(), [])
     self.assertEqual(len(datastore.User.GetAll()), datastore.User.GetCount())
 
@@ -119,6 +133,7 @@ class DatastoreTest(unittest.TestCase):
     self.assertEqual(len(datastore.User.GetAll()), datastore.User.GetCount())
 
   def testGet(self):
+    """Test that an entity is found by id and returned from the datastore."""
     self.assertEqual(datastore.User.Get(FAKE_KEY.id()), None)
     self.assertEqual(datastore.User.Get(BAD_KEY.id()), None)
 
@@ -131,6 +146,7 @@ class DatastoreTest(unittest.TestCase):
     self.assertEqual(datastore.User.Get(BAD_KEY.id()), USER_BAD_KEY)
 
   def testGetByKey(self):
+    """Test that an entity is found by key and returned from the datastore."""
     self.assertEqual(datastore.User.GetByKey(FAKE_KEY_URLSAFE), None)
     self.assertEqual(datastore.User.GetByKey(BAD_KEY_URLSAFE), None)
 
@@ -143,6 +159,7 @@ class DatastoreTest(unittest.TestCase):
     self.assertEqual(datastore.User.GetByKey(BAD_KEY_URLSAFE), USER_BAD_KEY)
 
   def testDelete(self):
+    """Test that an entity is found by id and removed from the datastore."""
     FAKE_USER.put()
     USER_BAD_KEY.put()
     self.assertTrue(FAKE_USER in datastore.User.GetAll())
@@ -159,6 +176,7 @@ class DatastoreTest(unittest.TestCase):
     self.assertTrue(USER_BAD_KEY not in datastore.User.GetAll())
 
   def testDeleteByKey(self):
+    """Test that an entity is found by key and removed from the datastore."""
     FAKE_USER.put()
     USER_BAD_KEY.put()
     self.assertTrue(FAKE_USER in datastore.User.GetAll())
@@ -183,6 +201,7 @@ class UserDatastoreTest(DatastoreTest):
   @patch('hashlib.sha256.hexdigest')
   @patch.object(datastore.hashlib, 'sha256')
   def testCreateUser(self, mock_sha, mock_hex, mock_key):
+    """Test that a new user entity is created with the associated fields."""
     fake_hex_email = '0x12345678'
     mock_hex.return_value = fake_hex_email
     mock_sha.return_value.hexdigest = mock_hex
@@ -205,6 +224,7 @@ class UserDatastoreTest(DatastoreTest):
   @patch('datastore.RSA._RSAobj.exportKey')
   @patch.object(datastore.RSA, 'generate')
   def testGenerateKeyPair(self, mock_rsa, mock_exp, mock_pub, mock_encode):
+    """Test that a new key pair is created successfully."""
     mock_encode.return_value = FAKE_PRIVATE_KEY
     mock_exp.return_value = FAKE_PRIVATE_KEY
     mock_pub.return_value.exportKey = mock_exp
@@ -223,6 +243,7 @@ class UserDatastoreTest(DatastoreTest):
 
   @patch('datastore.User._GenerateKeyPair')
   def testUpdateKeyPair(self, mock_generate):
+    """Test the key pair is updated for a given user."""
     USER_BAD_KEY.put()
     user_before_test = datastore.User.GetByKey(BAD_KEY_URLSAFE)
     self.assertEqual(user_before_test.public_key, BAD_PUB_PRI_KEY)
@@ -238,6 +259,7 @@ class UserDatastoreTest(DatastoreTest):
     self.assertEqual(user_after_test.private_key, FAKE_PRIVATE_KEY)
 
   def testToggleKeyRevoked(self):
+    """Test the is_key_revoked property is flipped on each call."""
     FAKE_USER.put()
     user_before_test = datastore.User.GetByKey(FAKE_KEY_URLSAFE)
     self.assertEqual(user_before_test.is_key_revoked, False)
@@ -254,6 +276,7 @@ class UserDatastoreTest(DatastoreTest):
 
   @patch('datastore.User._CreateUser')
   def testInsertUser(self, mock_create):
+    """Test that a new user is inserted and found after."""
     mock_create.return_value = FAKE_USER
 
     user_before_test = datastore.User.GetByKey(FAKE_KEY_URLSAFE)
@@ -305,6 +328,7 @@ class ProxyServerDatastoreTest(DatastoreTest):
   """Test proxy server datastore class functionality."""
 
   def testInsert(self):
+    """Test that a new proxy server is properly inserted and found after."""
     self.assertEqual(datastore.ProxyServer.GetCount(), 0)
 
     datastore.ProxyServer.Insert(FAKE_PROXY_SERVER_NAME, FAKE_IP,
@@ -319,6 +343,7 @@ class ProxyServerDatastoreTest(DatastoreTest):
       self.assertEqual(proxy.fingerprint, FAKE_FINGERPRINT)
 
   def testUpdate(self):
+    """Test that an existing proxy server is properly updated."""
     bad_proxy = datastore.ProxyServer(name=BAD_PROXY_SERVER_NAME,
                                       ip_address=BAD_IP,
                                       ssh_private_key=BAD_SSH_PRI_KEY,
@@ -344,11 +369,51 @@ class ProxyServerDatastoreTest(DatastoreTest):
     self.assertEqual(proxy_after_update.fingerprint, FAKE_FINGERPRINT)
 
 
+class NotificationDatastoreTest(DatastoreTest):
+
+  """Test notification datastore class functionality."""
+
+  def testInsert(self):
+    """Test that a new notification is properly inserted and found after."""
+    self.assertEqual(datastore.Notification.GetCount(), 0)
+
+    datastore.Notification.Insert(FAKE_STATE, FAKE_NUMBER, FAKE_UUID,
+                                  FAKE_EMAIL)
+
+    self.assertEqual(datastore.Notification.GetCount(), 1)
+    notifications_after_insert = datastore.Notification.GetAll()
+    for notification in notifications_after_insert:
+      self.assertEqual(notification.state, FAKE_STATE)
+      self.assertEqual(notification.number, FAKE_NUMBER)
+      self.assertEqual(notification.uuid, FAKE_UUID)
+      self.assertEqual(notification.email, FAKE_EMAIL)
+
+
+class NotificationChannelDSTest(DatastoreTest):
+
+  """Test notification channels datastore class functionality."""
+
+  def testInsert(self):
+    """Test that a new notification channel is properly inserted and found."""
+    self.assertEqual(datastore.NotificationChannel.GetCount(), 0)
+
+    datastore.NotificationChannel.Insert(FAKE_EVENT, FAKE_CHANNEL_ID,
+                                         FAKE_RESOURCE_ID)
+
+    self.assertEqual(datastore.NotificationChannel.GetCount(), 1)
+    channels_after_insert = datastore.NotificationChannel.GetAll()
+    for channel in channels_after_insert:
+      self.assertEqual(channel.event, FAKE_EVENT)
+      self.assertEqual(channel.channel_id, FAKE_CHANNEL_ID)
+      self.assertEqual(channel.resource_id, FAKE_RESOURCE_ID)
+
+
 class OAuthDatastoreTest(DatastoreTest):
 
   """Test oauth datastore class functionality."""
 
   def testGetOrInsertDefault(self):
+    """Test that an entity is always returned and insert if necessary."""
     self.assertEqual(datastore.OAuth.GetCount(), 0)
 
     first_entity = datastore.OAuth.GetOrInsertDefault()
@@ -368,6 +433,7 @@ class OAuthDatastoreTest(DatastoreTest):
     self.assertEqual(second_entity.client_secret, FAKE_CLIENT_SECRET)
 
   def testInsertDefault(self):
+    """Test that a default entity is inserted and found afterwards."""
     self.assertEqual(datastore.OAuth.GetCount(), 0)
 
     datastore.OAuth.InsertDefault()
@@ -380,6 +446,7 @@ class OAuthDatastoreTest(DatastoreTest):
       self.assertEqual(client.client_secret, datastore.OAuth.DEFAULT_SECRET)
 
   def testInsert(self):
+    """Test that an entity is inserted and found afterwards."""
     self.assertEqual(datastore.OAuth.GetCount(), 0)
 
     datastore.OAuth.Insert(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET)
@@ -392,6 +459,7 @@ class OAuthDatastoreTest(DatastoreTest):
       self.assertEqual(client.client_secret, FAKE_CLIENT_SECRET)
 
   def testUpdate(self):
+    """Test that an existing entity is updated with new values."""
     datastore.OAuth.Insert(BAD_CLIENT_ID, BAD_CLIENT_SECRET)
 
     self.assertEqual(datastore.OAuth.GetCount(), 1)
@@ -408,6 +476,7 @@ class OAuthDatastoreTest(DatastoreTest):
 
   @patch('datastore.memcache.flush_all')
   def testFlush(self, mock_flush_all):
+    """Test that oauth is flushed from the memcache."""
     # pylint: disable=no-self-use
     datastore.OAuth.Flush()
 
@@ -418,6 +487,7 @@ class DomainVerificationDatastoreTest(DatastoreTest):
   """Test domain verification datastore class functionality."""
 
   def testGetOrInsertDefault(self):
+    """Test that an entity is always returned and insert if necessary."""
     self.assertEqual(DomainVerification.GetCount(), 0)
 
     first_entity = DomainVerification.GetOrInsertDefault()
@@ -438,6 +508,7 @@ class DomainVerificationDatastoreTest(DatastoreTest):
     self.assertEqual(second_entity.content, FAKE_CONTENT)
 
   def testInsertDefault(self):
+    """Test that a default entity is inserted and found afterwards."""
     self.assertEqual(DomainVerification.GetCount(), 0)
 
     DomainVerification.InsertDefault()
@@ -450,6 +521,7 @@ class DomainVerificationDatastoreTest(DatastoreTest):
                      DomainVerification.DEFAULT_CONTENT)
 
   def testInsert(self):
+    """Test that an entity is inserted and found afterwards."""
     self.assertEqual(DomainVerification.GetCount(), 0)
 
     DomainVerification.Insert(FAKE_CONTENT)
@@ -461,6 +533,7 @@ class DomainVerificationDatastoreTest(DatastoreTest):
     self.assertEqual(dv_after_insert.content, FAKE_CONTENT)
 
   def testUpdate(self):
+    """Test that an existing entity is updated with new values."""
     DomainVerification.Insert(BAD_CONTENT)
 
     self.assertEqual(DomainVerification.GetCount(), 1)
