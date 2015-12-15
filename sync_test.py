@@ -3,10 +3,7 @@ from mock import MagicMock
 from mock import patch
 import sys
 
-from datastore import Notification
-from datastore import NotificationChannels
 from googleapiclient import errors
-from google.appengine.ext import ndb
 import json
 
 import unittest
@@ -49,11 +46,11 @@ class UserTest(unittest.TestCase):
     self.assertEqual(sync.SYNC_RELATIVE_PATH, '/sync')
     self.assertEqual(sync.CHANNELS_PATH, sync.SYNC_RELATIVE_PATH + '/channels')
     self.assertEqual(sync.NOTIFICATIONS_PATH,
-    	sync.SYNC_RELATIVE_PATH + '/notifications')
+    	               sync.SYNC_RELATIVE_PATH + '/notifications')
     self.assertEqual(sync.WATCH_FOR_DELETION_PATH,
-    	sync.SYNC_RELATIVE_PATH + '/delete')
+    	               sync.SYNC_RELATIVE_PATH + '/delete')
     self.assertEqual(sync.UNSUBSCRIBE_PATH,
-    	sync.SYNC_RELATIVE_PATH + '/unsubscribe')
+    	               sync.SYNC_RELATIVE_PATH + '/unsubscribe')
 
   @patch('sync.Notification.Insert')
   def testPushNotificationHandler(self, mock_insert):
@@ -67,10 +64,10 @@ class UserTest(unittest.TestCase):
     headers['X-Goog-Message-Number'] = FAKE_NUMBER
 
     response = self.testapp.post(sync.RECEIVE_NOTIFICATIONS_PATH, json_body,
-    	                           headers)
+                                 headers)
 
     mock_insert.assert_called_once_with(state=FAKE_STATE, number=FAKE_NUMBER,
-    	                                  uuid=FAKE_UUID, email=FAKE_EMAIL)
+                                        uuid=FAKE_UUID, email=FAKE_EMAIL)
     self.assertEqual('Got a notification!' in response, True)
 
   def testDefaultPathHandler(self):
@@ -94,7 +91,7 @@ class UserTest(unittest.TestCase):
   @patch('sync.GoogleDirectoryService.WatchUsers')
   @patch('sync.GoogleDirectoryService.__init__')
   def testWatchUserDeleteHandler(self, mock_directory_service,
-  	                             mock_watch_users):
+                                 mock_watch_users):
     """Test the watch user delete handler calls watch users with delete."""
     # pylint: disable=too-many-arguments
     mock_directory_service.return_value = None
@@ -109,7 +106,7 @@ class UserTest(unittest.TestCase):
   @patch('sync.GoogleDirectoryService.WatchUsers')
   @patch('sync.GoogleDirectoryService.__init__')
   def testWatchUserDeleteException(self, mock_directory_service,
-  	                               mock_watch_users):
+                                   mock_watch_users):
     """Test the we fail gracefully if directory service has an error."""
     # pylint: disable=too-many-arguments
     fake_status = '404'
@@ -128,7 +125,7 @@ class UserTest(unittest.TestCase):
   @patch('sync.GoogleDirectoryService.__init__')
   @patch('sync.NotificationChannels.Get')
   def testUnsubscribeHandler(self, mock_get_channel, mock_directory_service,
-  	                         mock_stop_notifications):
+                             mock_stop_notifications):
     """Test the unsubscribe handler calls unsubscribe for the given channel."""
     # pylint: disable=too-many-arguments
     fake_channel = MagicMock()
@@ -147,7 +144,7 @@ class UserTest(unittest.TestCase):
   @patch('sync.GoogleDirectoryService.__init__')
   @patch('sync.NotificationChannels.Get')
   def testUnsubscribeException(self, mock_get_channel, mock_directory_service,
-  	                           mock_stop_notifications):
+                               mock_stop_notifications):
     """Test the we fail gracefully if directory service has an error."""
     # pylint: disable=too-many-arguments
     fake_channel = MagicMock()
@@ -177,7 +174,7 @@ class UserTest(unittest.TestCase):
 
     mock_get_all.assert_called_once_with()
     self.assertEquals('View Notification Channels' in notification_template,
-     True)
+                      True)
     self.assertEquals('Number' in notification_template, True)
     self.assertEquals('State' in notification_template, True)
     self.assertEquals('Id' in notification_template, True)
