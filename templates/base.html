@@ -12,7 +12,13 @@
 <body>
     <paper-drawer-panel>
         <div drawer>
-            <ufo-sidebar></ufo-sidebar>
+            <ufo-sidebar home-page={{ landing_page_path }}
+                         proxy-server-page={{ proxy_server_list }}
+                         logout-page={{ logout }}
+                         setup-page={{ setup_oauth_path }}
+                         sync-notification-page={{ sync_top_level_path }}
+                         user-page={{ user_page_path }}>
+            </ufo-sidebar>
         </div>
         <section main id="main-section" class="fit">
             {% block body %}{% endblock %}
