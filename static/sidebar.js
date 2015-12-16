@@ -1,13 +1,21 @@
 Polymer({
   is: "ufo-sidebar",
+  properties: {
+    homePage: String,
+    logoutPage: String,
+    proxyServerPage: String,
+    setupPage: String,
+    syncNotificationPage: String,
+    userPage: String,
+  },
   ready: function() {
     this.pages = [
-    {"href": "/", "text": "Home"},
-    {"href": "/user", "text": "Users"},
-    {"href": "/proxyserver/list", "text": "Proxy Servers"},
-    {"href": "/setup", "text": "Setup"},
-    {"href": "/sync", "text": "Sync Notifications"},
-    {"href": "/logout", "text": "Logout"}
+      {"href": this.homePage, "text": "Home"},
+      {"href": this.userPage, "text": "Users"},
+      {"href": this.proxyServerPage, "text": "Proxy Servers"},
+      {"href": this.setupPage, "text": "Setup"},
+      {"href": this.syncNotificationPage, "text": "Sync Notifications"},
+      {"href": this.logoutPage, "text": "Logout"}
     ];
   },
   itemClicked: function(e) {
