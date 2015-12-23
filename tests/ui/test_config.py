@@ -4,7 +4,7 @@
 import sys
 sys.path.append('../..')
 
-# pylint: disable=unused-import
-from config import PATHS
+import config
 
 CHROME_DRIVER_LOCATION = '../../lib/chromedriver'
+PATHS = config.PATHS
