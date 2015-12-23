@@ -22,8 +22,8 @@ class SidebarTest(BaseTest):
   def testLinks(self):
     """Make sure all the links are pointed to the correct paths."""
     sidebar = Sidebar(self.driver)
+
     home_link = sidebar.GetLink(sidebar.HOME_LINK)
-    # TODO: Make the path to be importable.
     self.assertEquals(PATHS['landing_page_path'],
                       home_link.get_attribute('data-href'))
 
