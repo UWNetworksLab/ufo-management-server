@@ -15,6 +15,7 @@ class Sidebar(BaseDriver):
   USERS_LINK = (By.ID, 'Users')
   PROXY_SERVERS_LINK = (By.ID, 'Proxy Servers')
   SETUP_LINK = (By.ID, 'Setup')
+  SYNC_NOTIFICATIONS_LINK = (By.ID, 'Sync Notifications')
   LOGOUT_LINK = (By.ID, 'Logout')
 
 

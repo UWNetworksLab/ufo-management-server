@@ -5,6 +5,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from test_config import PATHS
 
 
 
@@ -35,7 +36,7 @@ class LoginPage(BaseDriver):
 
   def Login(self, args):
     """Go through the login and authorization flows."""
-    self.driver.get(args.server_url + '/user')
+    self.driver.get(args.server_url + PATHS['user_page_path'])
 
     email_input = self.driver.find_element(*self.EMAIL_INPUT)
     email_input.send_keys(args.email)
