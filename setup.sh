@@ -96,6 +96,11 @@ function addAppEngineRuntimePackages ()
   runAndAssertCmd "pip install pyyaml"
 }
 
+function fixFancyUrlLibDirectoryStructure ()
+{
+  runAndAssertCmd "cp ${AE_PYTHON_FANCY}fancy_urllib/__init__.py ${AE_PYTHON_FANCY}__init__.py "
+}
+
 function addChromeDriver ()
 {
   runAndAssertCmd "wget $CHROME_DRIVER_LOCATION"
@@ -153,6 +158,7 @@ function setupDevelopmentEnvironment ()
     setupAppEngine
     addVendorPackage
     addAppEngineRuntimePackages
+    fixFancyUrlLibDirectoryStructure
     addAllExports
     addTestingPackages
     runAndAssertCmd "chown -R ${SUDO_USER:-$USER} *"
@@ -215,6 +221,7 @@ function testOntravis ()
   setupAppEngine
   addVendorPackage
   addAppEngineRuntimePackages
+  fixFancyUrlLibDirectoryStructure
   addAllExports
   addTestingPackages
   addBower
