@@ -9,7 +9,7 @@ before_script:
  - source .bash_profile
 # command to run tests
 script:
- - python -m unittest discover -p "*_test.py"
+ - cd ufo-management-server/ && python -m unittest discover -p "*_test.py"
 # Turn off email updates.
 notifications:
   email: false
