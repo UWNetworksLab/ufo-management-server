@@ -11,16 +11,13 @@ NUM_RETRIES = 3
 
 VALID_WATCH_EVENTS = ['add', 'delete', 'makeAdmin', 'undelete', 'update']
 
-# TODO(eholder): Write tests for these functions.
-
 class GoogleDirectoryService(object):
 
   """Interact with Google Directory API."""
 
   def __init__(self, oauth_decorator):
     """Create a service object for admin directory services using oauth."""
-    self.service = build(serviceName='admin',
-                         version='directory_v1',
+    self.service = build(serviceName='admin', version='directory_v1',
                          http=oauth_decorator.http())
 
   def GetUsers(self):
@@ -32,11 +29,10 @@ class GoogleDirectoryService(object):
     users = []
     page_token = ''
     while True:
-      request = self.service.users().list(customer=MY_CUSTOMER_ALIAS,
-                                          maxResults=500,
-                                          pageToken=page_token,
-                                          projection='full',
-                                          orderBy='email')
+      users_service = self.service.users()
+      request = users_service.list(customer=MY_CUSTOMER_ALIAS, maxResults=500,
+                                   pageToken=page_token, projection='full',
+                                   orderBy='email')
       result = request.execute(num_retries=NUM_RETRIES)
       users += result['users']
       if 'nextPageToken' in result:
@@ -148,10 +144,8 @@ class GoogleDirectoryService(object):
     address = 'https://ufo-management-server-ethan.appspot.com/receive'
     body['address'] = address
     request = self.service.users().watch(customer=MY_CUSTOMER_ALIAS,
-                                         event=event,
-                                         projection='full',
-                                         orderBy='email',
-                                         body=body)
+                                         event=event, projection='full',
+                                         orderBy='email', body=body)
     result = request.execute(num_retries=NUM_RETRIES)
 
     if 'resourceId' in result:
