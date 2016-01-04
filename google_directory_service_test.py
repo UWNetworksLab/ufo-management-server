@@ -9,7 +9,6 @@ from mock import MagicMock
 from mock import patch
 import unittest
 
-# Adding this comment to hopefully trigger a landscape.io health check.
 
 def http():
   """Mock http function to return a mocked object."""
