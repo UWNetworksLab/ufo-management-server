@@ -53,7 +53,9 @@
       <form id="users-group-form" method="get"
         action="{{ BASE_URL }}{{ user_add_path }}">
         <paper-input label="Input a group key (group email address or unique id) to fetch more users."
-        type="textbox" name="group_key" value="{{ group_key }}">
+        type="textbox" name="group_key" value="{{ group_key }}" required
+        auto-validate pattern="{{KEY_LOOKUP_VALIDATION_PATTERN}}"
+        error-message="{{KEY_LOOKUP_VALIDATION_ERROR}}">
         </paper-input>
         <br>
         <paper-button raised onclick="submitByFormId('users-group-form')"
@@ -65,7 +67,9 @@
       <form id="users-user-form" method="get"
         action="{{ BASE_URL }}{{ user_add_path }}">
         <paper-input label="Input user key (email address or unique id) to search for a specific user."
-        type="email" name="user_key" value="{{ user_key }}">
+        type="email" name="user_key" value="{{ user_key }}" required
+        auto-validate pattern="{{KEY_LOOKUP_VALIDATION_PATTERN}}"
+        error-message="{{KEY_LOOKUP_VALIDATION_ERROR}}">
         </paper-input>
         <br>
         <paper-button raised onclick="submitByFormId('users-user-form')"
@@ -90,7 +94,9 @@
         name="user_name" value="{{ user_name }}" required>
         </paper-input>
         <paper-input label="Input user email here." type="email"
-        name="user_email" value="{{ user_email }}" required>
+        name="user_email" value="{{ user_email }}" required auto-validate
+        pattern="{{EMAIL_VALIDATION_PATTERN}}"
+        error-message="{{EMAIL_VALIDATION_ERROR}}">
         </paper-input>
         <input type="hidden" name="manual" value="true">
         <input type="hidden" name="xsrf" value="{{ xsrf_token }}">
