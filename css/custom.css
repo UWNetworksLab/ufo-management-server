@@ -10,6 +10,16 @@ form {
   max-width: 800px;
 }
 
+paper-tab {
+  color: #ffffff;
+  /*background-color: #00AC9B;*/
+  background-color: #3f51b5;
+}
+
+paper-tabs {
+  max-width: 800px;
+}
+
 .anchor-button {
   color: inherit;
   background-color: inherit;

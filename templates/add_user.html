@@ -1,8 +1,10 @@
 {% extends "templates/base.html" %}
 {% block title %}Add Users{% endblock %}
 {% block head %}
+  <link rel="import" href="/bower_components/iron-pages/iron-pages.html" />
   <link rel="import" href="/bower_components/paper-button/paper-button.html" />
   <link rel="import" href="/bower_components/paper-input/paper-input.html" />
+  <link rel="import" href="/bower_components/paper-tabs/paper-tabs.html" />
 {% endblock %}
 {% block body %}
   {% if error%}
@@ -39,23 +41,75 @@
   <br><br>
 
 
-  <form id="users-group-form" method="get"
-    action="{{ BASE_URL }}{{ user_add_path }}">
-    <paper-input label="Input a group key (group email address or unique id) to fetch more users." type="textbox" name="group_key" value="{{ group_key }}">
-    </paper-input>
-    <paper-button raised onclick="submitByFormId('users-group-form')" class="form-submit-button" type="submit">Fetch Users From Group</paper-button>
-  </form><br>
+  <paper-tabs selected="{{ selected }}">
+    <paper-tab>Add By Group</paper-tab>
+    <paper-tab>Add Individual User</paper-tab>
+    <paper-tab>Add By Domain</paper-tab>
+    <paper-tab>Add Manually</paper-tab>
+  </paper-tabs>
 
-  <form id="users-user-form" method="get"
-    action="{{ BASE_URL }}{{ user_add_path }}">
-    <paper-input label="Input user key (email address or unique id) to search for a specific user." type="email" name="user_key" value="{{ user_key }}">
-    </paper-input>
-    <paper-button raised onclick="submitByFormId('users-user-form')" class="form-submit-button" type="submit">Search for Specific User</paper-button>
-  </form><br>
+  <iron-pages selected="{{ selected }}">
+    <div>
+      <form id="users-group-form" method="get"
+        action="{{ BASE_URL }}{{ user_add_path }}">
+        <paper-input label="Input a group key (group email address or unique id) to fetch more users."
+        type="textbox" name="group_key" value="{{ group_key }}">
+        </paper-input>
+        <br>
+        <paper-button raised onclick="submitByFormId('users-group-form')"
+        class="form-submit-button" type="submit">
+          Fetch Users From Group</paper-button>
+      </form>
+    </div>
+    <div>
+      <form id="users-user-form" method="get"
+        action="{{ BASE_URL }}{{ user_add_path }}">
+        <paper-input label="Input user key (email address or unique id) to search for a specific user."
+        type="email" name="user_key" value="{{ user_key }}">
+        </paper-input>
+        <br>
+        <paper-button raised onclick="submitByFormId('users-user-form')"
+        class="form-submit-button" type="submit">
+          Search for Specific User</paper-button>
+      </form>
+    </div>
+    <div>
+      <form id="users-domain-form" method="get"
+        action="{{ BASE_URL }}{{ user_add_path }}">
+        <input type="hidden" name="get_all" value="true">
+        <br>
+        <paper-button raised onclick="submitByFormId('users-domain-form')"
+        class="form-submit-button" type="submit">
+          Fetch All Users in Domain</paper-button>
+      </form>
+    </div>
+    <div>
+      <form id="users-manual-form" method="post"
+        action="{{ BASE_URL }}{{ user_add_path }}">
+        <paper-input label="Input user name here." type="textbox"
+        name="user_name" value="{{ user_name }}" required>
+        </paper-input>
+        <paper-input label="Input user email here." type="email"
+        name="user_email" value="{{ user_email }}" required>
+        </paper-input>
+        <input type="hidden" name="manual" value="true">
+        <input type="hidden" name="xsrf" value="{{ xsrf_token }}">
+        <br>
+        <paper-button raised onclick="submitByFormId('users-manual-form')"
+        class="form-submit-button" type="submit">
+          Manually Add User</paper-button>
+      </form>
+    </div>
+  </iron-pages>
 
-  <form id="users-domain-form" method="get"
-    action="{{ BASE_URL }}{{ user_add_path }}">
-    <input type="hidden" name="get_all" value="true">
-    <paper-button raised onclick="submitByFormId('users-domain-form')" class="form-submit-button" type="submit">Fetch All Users in Domain</paper-button>
-  </form><br>
+  <script>
+     var pages = document.querySelector('iron-pages');
+     var tabs = document.querySelector('paper-tabs');
+
+    tabs.addEventListener('iron-select', function() {
+        pages.selected = tabs.selected;
+    });
+  </script>
+
+
 {% endblock %}
