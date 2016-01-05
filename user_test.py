@@ -262,6 +262,23 @@ class UserTest(unittest.TestCase):
     self.assertEqual(response.status_int, 302)
     self.assertTrue(PATHS['user_page_path'] in response.location)
 
+  @patch('user.User.InsertUsers')
+  def testAddUsersPostManualHandler(self, mock_insert):
+    """Test add users manually calls to insert the specified user."""
+    user_1 = {}
+    user_1['primaryEmail'] = FAKE_EMAIL
+    user_1['name'] = {}
+    user_1['name']['fullName'] = FAKE_NAME
+    user_array = []
+    user_array.append(user_1)
+    data = '?manual=true&user_name={0}&user_email={1}'.format(FAKE_NAME,
+                                                              FAKE_EMAIL)
+    response = self.testapp.post(PATHS['user_add_path'] + data)
+
+    mock_insert.assert_called_once_with(user_array)
+    self.assertEqual(response.status_int, 302)
+    self.assertTrue(PATHS['user_page_path'] in response.location)
+
   @patch('user._RenderUserDetailsTemplate')
   @patch('user.User.GetByKey')
   @patch('user.User.ToggleKeyRevoked')
@@ -334,7 +351,7 @@ class UserTest(unittest.TestCase):
     add_users_template = user._RenderAddUsersTemplate([])
     no_user_string = 'No users found. Try another query below.'
     self.assertTrue(no_user_string in add_users_template)
-    self.assertTrue('xsrf' not in add_users_template)
+    self.assertTrue('xsrf' in add_users_template)
     self.assertTrue('An error occurred while' not in add_users_template)
 
   def testRenderAddUsersWithUsers(self):

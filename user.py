@@ -261,12 +261,22 @@ class AddUsersHandler(webapp2.RequestHandler):
   @xsrf.XSRFProtect
   def post(self):
     """Add all of the selected users into the datastore."""
-    users = self.request.get_all('selected_user')
-    decoded_users = []
-    for user in users:
-      decoded_user = literal_eval(user)
-      decoded_users.append(decoded_user)
-    User.InsertUsers(decoded_users)
+    manual = self.request.get('manual')
+    users_to_add = []
+    if manual:
+      user_name = self.request.get('user_name')
+      user_email = self.request.get('user_email')
+      decoded_user = {}
+      decoded_user['name'] = {}
+      decoded_user['name']['fullName'] = user_name
+      decoded_user['primaryEmail'] = user_email
+      users_to_add.append(decoded_user)
+    else:
+      users = self.request.get_all('selected_user')
+      for user in users:
+        decoded_user = literal_eval(user)
+        users_to_add.append(decoded_user)
+    User.InsertUsers(users_to_add)
     self.redirect(PATHS['user_page_path'])
 
 
