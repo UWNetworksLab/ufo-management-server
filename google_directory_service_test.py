@@ -8,7 +8,7 @@ import unittest
 
 # Need to mock the call to get an XSRF token at function definition time, i.e.
 # when the module is loaded. http://stackoverflow.com/a/7667621/2830207
-def MockToken(func):
+def MockToken():
   """Mock token generator that returns empty."""
   return ''
 
