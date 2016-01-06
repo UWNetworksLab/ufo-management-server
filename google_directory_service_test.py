@@ -1,4 +1,6 @@
 """Test google directory service module functionality."""
+
+from appengine_config import JINJA_ENVIRONMENT
 from config import PATHS
 import google_directory_service
 from google_directory_service import GoogleDirectoryService
@@ -318,7 +320,8 @@ class GoogleDirectoryServiceTest(unittest.TestCase):
     fake_body['id'] = (MY_CUSTOMER_ALIAS + '_' + fake_event_not_watched + '_' +
                        fake_time_in_millis)
     fake_body['type'] = 'web_hook'
-    fake_address = 'https://ufo-management-server-ethan.appspot.com/receive'
+    fake_address = (JINJA_ENVIRONMENT.globals['BASE_URL'] +
+                    PATHS['receive_push_notifications'])
     fake_body['address'] = fake_address
 
     mock_get_all.assert_any_call()
