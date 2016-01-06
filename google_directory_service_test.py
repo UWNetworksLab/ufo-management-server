@@ -1,6 +1,5 @@
 """Test google directory service module functionality."""
 
-from appengine_config import JINJA_ENVIRONMENT
 from config import PATHS
 import google_directory_service
 from google_directory_service import GoogleDirectoryService
@@ -9,7 +8,20 @@ from google_directory_service import NUM_RETRIES
 from google_directory_service import VALID_WATCH_EVENTS
 from mock import MagicMock
 from mock import patch
+import sys
 import unittest
+
+# Need to mock the call to get an XSRF token at function definition time, i.e.
+# when the module is loaded. http://stackoverflow.com/a/7667621/2830207
+def MockToken(func):
+  """Mock token generator that returns empty."""
+  return ''
+
+MOCK_XSRF = MagicMock()
+MOCK_XSRF.XSRFToken = MockToken
+sys.modules['xsrf'] = MOCK_XSRF
+
+from appengine_config import JINJA_ENVIRONMENT
 
 
 def http():
