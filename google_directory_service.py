@@ -1,5 +1,7 @@
 """Module to interact with Google Directory API."""
 
+from appengine_config import JINJA_ENVIRONMENT
+from config import PATHS
 from datastore import NotificationChannel
 from googleapiclient.discovery import build
 from time import time
@@ -141,7 +143,8 @@ class GoogleDirectoryService(object):
     body = {}
     body['id'] = id_field
     body['type'] = 'web_hook'
-    address = 'https://ufo-management-server-ethan.appspot.com/receive'
+    address = (JINJA_ENVIRONMENT.globals['BASE_URL'] +
+               PATHS['receive_push_notifications'])
     body['address'] = address
     request = self.service.users().watch(customer=MY_CUSTOMER_ALIAS,
                                          event=event, projection='full',
