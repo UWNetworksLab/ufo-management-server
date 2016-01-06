@@ -1,11 +1,6 @@
 """Test google directory service module functionality."""
 
 from config import PATHS
-import google_directory_service
-from google_directory_service import GoogleDirectoryService
-from google_directory_service import MY_CUSTOMER_ALIAS
-from google_directory_service import NUM_RETRIES
-from google_directory_service import VALID_WATCH_EVENTS
 from mock import MagicMock
 from mock import patch
 import sys
@@ -22,6 +17,11 @@ MOCK_XSRF.XSRFToken = MockToken
 sys.modules['xsrf'] = MOCK_XSRF
 
 from appengine_config import JINJA_ENVIRONMENT
+import google_directory_service
+from google_directory_service import GoogleDirectoryService
+from google_directory_service import MY_CUSTOMER_ALIAS
+from google_directory_service import NUM_RETRIES
+from google_directory_service import VALID_WATCH_EVENTS
 
 
 def http():
