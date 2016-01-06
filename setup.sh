@@ -50,6 +50,9 @@ NODE_MODULES_ROOT="$ROOT_DIR/node_modules"
 NODE_MODULES_UFO="$UFO_MS_LOCAL_DIR/node_modules"
 NODE_MODULES_UP="$UFO_MS_UP/node_modules"
 
+BOWER_LOCATION="/usr/local/bin/bower"
+BOWER_OPTIONS="--allow-root --config.interactive=false"
+
 # A simple bash script to run commands to setup and install all dev
 # dependencies (including non-npm ones)
 function runAndAssertCmd ()
@@ -66,14 +69,14 @@ function runInUfOAndAssertCmd ()
   echo "Running: $1"
   # We use set -e to make sure this will fail if the command returns an error
   # code.
-  if [ -d  "$UFO_MS_LOCAL_OTHER_LIB" ]; then
-    echo "In: $UFO_MS_LOCAL_OTHER_LIB"
-    echo
-    set -e && cd $UFO_MS_LOCAL_OTHER_LIB && eval $1
-  else
+  if [ -d  "$UFO_MS_LOCAL_DIR" ]; then
     echo "In: $UFO_MS_LOCAL_DIR"
     echo
     set -e && cd $UFO_MS_LOCAL_DIR && eval $1
+  else
+    echo "In: $ROOT_DIR"
+    echo
+    set -e && cd $ROOT_DIR && eval $1
   fi
 }
 
@@ -141,8 +144,11 @@ function addNode ()
 function addBower ()
 {
   runAndAssertCmd "npm install -g bower"
-  BOWER_LOCATION="/usr/local/bin/bower"
-  BOWER_OPTIONS="--allow-root --config.interactive=false"
+  runBowerInstall
+}
+
+function runBowerInstall ()
+{
   if [ -e  "$BOWER_LOCATION" ]; then
     runInUfOAndAssertCmd "$BOWER_LOCATION install $BOWER_OPTIONS"
   else
@@ -253,6 +259,7 @@ function release ()
 
 function deploy ()
 {
+  runBowerInstall
   AE_FILE=""
   if [ -d  "$AE_PYTHON_LOCAL_DIR" ]; then
     AE_FILE="${AE_PYTHON_LOCAL_DIR}appcfg.py"
