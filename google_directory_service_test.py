@@ -56,7 +56,7 @@ FAKE_GROUP_MEMBER_GROUP['type'] = 'GROUP'
 FAKE_GROUP = [FAKE_GROUP_MEMBER_USER_1, FAKE_GROUP_MEMBER_USER_2,
               FAKE_GROUP_MEMBER_GROUP]
 FAKE_PAGE_TOKEN = 'I am a fake page token'
-FAKE_GROUP_KEY = "my_group@mybusiness.com"
+FAKE_GROUP_KEY = 'my_group@mybusiness.com'
 
 
 class GoogleDirectoryServiceTest(unittest.TestCase):
