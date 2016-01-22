@@ -24,14 +24,14 @@ from google_directory_service import NUM_RETRIES
 from google_directory_service import VALID_WATCH_EVENTS
 
 
-def http():
+def MockHttpFunction():
   """Mock http function to return a mocked object."""
   return MOCK_HTTP
 
 
 MOCK_HTTP = MagicMock()
 MOCK_OAUTH_DECORATOR = MagicMock()
-MOCK_OAUTH_DECORATOR.http = http
+MOCK_OAUTH_DECORATOR.http = MockHttpFunction
 MOCK_SERVICE = MagicMock()
 
 FAKE_EMAIL_1 = 'foo@mybusiness.com'
@@ -56,7 +56,7 @@ FAKE_GROUP_MEMBER_GROUP['type'] = 'GROUP'
 FAKE_GROUP = [FAKE_GROUP_MEMBER_USER_1, FAKE_GROUP_MEMBER_USER_2,
               FAKE_GROUP_MEMBER_GROUP]
 FAKE_PAGE_TOKEN = 'I am a fake page token'
-FAKE_GROUP_KEY = "my_group@mybusiness.com"
+FAKE_GROUP_KEY = 'my_group@mybusiness.com'
 
 
 class GoogleDirectoryServiceTest(unittest.TestCase):
@@ -66,6 +66,7 @@ class GoogleDirectoryServiceTest(unittest.TestCase):
   @patch('google_directory_service.build')
   def setUp(self, mock_build):
     """Setup test object on which to call methods later on."""
+    # pylint: disable=arguments-differ
     mock_build.return_value = MOCK_SERVICE
     self.directory_service = GoogleDirectoryService(MOCK_OAUTH_DECORATOR)
 
@@ -126,6 +127,7 @@ class GoogleDirectoryServiceTest(unittest.TestCase):
     def SideEffect(customer, maxResults, pageToken, projection, orderBy):
       """Mock list function to return different mock execute calls."""
       # pylint: disable=unused-argument
+      # pylint: disable=invalid-name
       if pageToken == '':
         mock_execute.return_value = fake_dictionary_1
       else:
@@ -199,6 +201,7 @@ class GoogleDirectoryServiceTest(unittest.TestCase):
     def SideEffect1(groupKey, pageToken=''):
       """Mock list function to return different mock execute calls."""
       # pylint: disable=unused-argument
+      # pylint: disable=invalid-name
       if pageToken == '':
         mock_execute.return_value = fake_dictionary_1
       else:
@@ -259,7 +262,6 @@ class GoogleDirectoryServiceTest(unittest.TestCase):
   @patch.object(GoogleDirectoryService, 'GetUser')
   def testIsAdminUser(self, mock_get_user):
     """Test is admin user returns whether a user is an admin."""
-
     def SideEffect(user_key):
       """Mock get user function to return different users based on key."""
       if user_key == FAKE_ID_1:
@@ -288,6 +290,8 @@ class GoogleDirectoryServiceTest(unittest.TestCase):
   def testWatchUsers(self, mock_get_all, mock_time, mock_users, mock_watch,
                      mock_execute, mock_insert):
     """Test watch users requests a channel then inserts into the datastore."""
+    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-arguments
     fake_resource_id = 'some resource id'
     fake_watch_result = {}
     fake_watch_result['resourceId'] = fake_resource_id

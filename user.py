@@ -42,7 +42,7 @@ def _GenerateUserPayload(users):
 
 
 def _MakeInviteCode(user):
-  r"""Create an invite code for the given user.
+  """Create an invite code for the given user.
 
   The invite code is a format created by the uproxy team.
   Below is an example of an unencoded invite code for a cloud instance:

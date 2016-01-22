@@ -33,7 +33,7 @@ FAKE_CHANNEL_ID = 'foo customer_delete_time-in-millis'
 FAKE_RESOURCE_ID = 'i am a fake resource id'
 
 
-class UserTest(unittest.TestCase):
+class SyncTest(unittest.TestCase):
 
   """Test sync class functionality."""
 
@@ -200,3 +200,7 @@ class UserTest(unittest.TestCase):
     self.assertEquals(FAKE_EVENT in channels_template, True)
     self.assertEquals(FAKE_CHANNEL_ID in channels_template, True)
     self.assertEquals(FAKE_RESOURCE_ID in channels_template, True)
+
+
+if __name__ == '__main__':
+  unittest.main()
